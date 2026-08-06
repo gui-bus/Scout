@@ -190,30 +190,31 @@ function JobsPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-slate-950/80 border-b border-slate-800">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans">
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-zinc-950/80 border-b border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+            <div className="h-10 w-10 rounded-xl bg-zinc-800 text-zinc-100 border border-zinc-700 flex items-center justify-center font-bold">
               S
             </div>
-            <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="text-xl font-bold tracking-tight text-zinc-100">
               Scout
             </span>
           </div>
 
           <div className="flex items-center space-x-4">
             {isSyncing && (
-              <div className="flex items-center space-x-2 text-xs text-indigo-400">
-                <Spinner size="xs" color="primary" />
+              <div className="flex items-center space-x-2 text-xs text-zinc-400">
+                <Spinner size="xs" color="default" />
                 <span>Buscando novas vagas...</span>
               </div>
             )}
             <Button
               onClick={handleSyncJobs}
               disabled={isSyncing}
-              color="primary"
-              radius="xl"
+              color="default"
+              variant="default"
+              radius="lg"
               size="sm"
             >
               {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
@@ -224,12 +225,12 @@ function JobsPageContent() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
         <aside className="w-full lg:w-80 shrink-0">
-          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 sticky top-24 backdrop-blur-sm">
-            <h2 className="text-lg font-semibold mb-6 flex items-center justify-between text-indigo-400">
+          <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-6 sticky top-24 backdrop-blur-sm">
+            <h2 className="text-lg font-semibold mb-6 flex items-center justify-between text-zinc-200">
               Filtros
               <button
                 onClick={handleClearFilters}
-                className="text-xs text-slate-400 hover:text-slate-200 transition-colors font-medium cursor-pointer"
+                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium cursor-pointer"
               >
                 Limpar Todos
               </button>
@@ -241,8 +242,8 @@ function JobsPageContent() {
                 onChange={(e) => setBusca(e.target.value)}
                 placeholder="Ex: Node.js, React, Python"
                 label="Palavra-chave ou Tecnologia"
-                variant="glassmorphism"
-                radius="xl"
+                variant="default"
+                radius="lg"
               />
 
               <Input
@@ -250,8 +251,8 @@ function JobsPageContent() {
                 onChange={(e) => setCompany(e.target.value)}
                 placeholder="Ex: Nubank, Google"
                 label="Empresa"
-                variant="glassmorphism"
-                radius="xl"
+                variant="default"
+                radius="lg"
               />
 
               <Input
@@ -259,8 +260,8 @@ function JobsPageContent() {
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Ex: São Paulo, Remoto"
                 label="Localização"
-                variant="glassmorphism"
-                radius="xl"
+                variant="default"
+                radius="lg"
               />
 
               <Select
@@ -268,8 +269,8 @@ function JobsPageContent() {
                 value={period}
                 onValueChange={setPeriod}
                 placeholder="Qualquer data"
-                radius="xl"
-                variant="faded"
+                radius="lg"
+                variant="default"
                 options={[
                   { value: "", label: "Qualquer data" },
                   { value: "hoje", label: "Hoje" },
@@ -285,7 +286,7 @@ function JobsPageContent() {
                     checked={modalities.includes(m)}
                     onCheckedChange={() => toggleModality(m)}
                     label={m}
-                    color="primary"
+                    color="default"
                   />
                 ))}
               </CheckboxGroup>
@@ -305,16 +306,17 @@ function JobsPageContent() {
                     checked={levels.includes(l)}
                     onCheckedChange={() => toggleLevel(l)}
                     label={l}
-                    color="primary"
+                    color="default"
                   />
                 ))}
               </CheckboxGroup>
 
               <Button
                 type="submit"
-                color="primary"
-                radius="xl"
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold"
+                color="default"
+                variant="default"
+                radius="lg"
+                className="w-full"
               >
                 Aplicar Filtros
               </Button>
@@ -326,19 +328,19 @@ function JobsPageContent() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold tracking-tight">Vagas Encontradas</h1>
-              <p className="text-sm text-slate-400 mt-1">
+              <p className="text-sm text-zinc-400 mt-1">
                 {pagination ? `${pagination.total} oportunidades disponíveis` : "Carregando..."}
               </p>
             </div>
             {pagination && (
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-xs text-zinc-500 font-medium">
                 Página {pagination.page} de {pagination.pages || 1}
               </span>
             )}
           </div>
 
           {error && (
-            <div className="bg-red-950/30 border border-red-900/50 rounded-2xl p-6 text-red-200 text-sm">
+            <div className="bg-red-950/20 border border-red-900/40 rounded-2xl p-6 text-red-200 text-sm">
               {error}
             </div>
           )}
@@ -348,14 +350,14 @@ function JobsPageContent() {
               {[...Array(6)].map((_, i) => (
                 <Card
                   key={i}
-                  variant="glassmorphism"
-                  className="bg-slate-900/20 border border-slate-900 p-6 h-48 flex flex-col justify-between"
+                  variant="default"
+                  className="bg-zinc-900/20 border border-zinc-900 p-6 h-48 flex flex-col justify-between"
                 >
                   <div className="space-y-3">
-                    <Skeleton className="h-4 w-1/3 bg-slate-800" />
-                    <Skeleton className="h-6 w-3/4 bg-slate-800" />
+                    <Skeleton className="h-4 w-1/3 bg-zinc-800" />
+                    <Skeleton className="h-6 w-3/4 bg-zinc-800" />
                   </div>
-                  <Skeleton className="h-4 w-1/2 bg-slate-800" />
+                  <Skeleton className="h-4 w-1/2 bg-zinc-800" />
                 </Card>
               ))}
             </div>
@@ -364,20 +366,20 @@ function JobsPageContent() {
               {jobs.map((job) => (
                 <Card
                   key={job.id}
-                  variant="glassmorphism"
+                  variant="default"
                   isHoverable
-                  className="bg-slate-900/30 border border-slate-800/80 flex flex-col justify-between h-full"
+                  className="bg-zinc-900/30 border border-zinc-800/80 flex flex-col justify-between h-full"
                 >
                   <CardHeader className="p-6 pb-0 flex flex-col space-y-4">
                     <div className="flex items-center space-x-3">
-                      <span className="h-10 w-10 rounded-xl bg-slate-800 text-slate-200 font-bold text-sm flex items-center justify-center border border-slate-700">
+                      <span className="h-10 w-10 rounded-xl bg-zinc-800 text-zinc-200 font-bold text-sm flex items-center justify-center border border-zinc-700">
                         {(job.company || "?")[0].toUpperCase()}
                       </span>
                       <div>
-                        <h4 className="font-semibold text-slate-200 text-sm">
+                        <h4 className="font-semibold text-zinc-200 text-sm">
                           {job.company || "Empresa não informada"}
                         </h4>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-800 text-slate-400 mt-1">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-zinc-850 text-zinc-400 mt-1 border border-zinc-800">
                           {job.source}
                         </span>
                       </div>
@@ -385,29 +387,29 @@ function JobsPageContent() {
                   </CardHeader>
 
                   <CardBody className="p-6 py-4 flex-1">
-                    <h3 className="text-base font-bold text-slate-100 line-clamp-1 hover:text-indigo-400 transition-colors">
+                    <h3 className="text-base font-bold text-zinc-100 line-clamp-1 hover:text-zinc-300 transition-colors">
                       {job.title}
                     </h3>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {job.modality && (
-                        <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">
+                        <span className="text-xs bg-zinc-950 border border-zinc-800 text-zinc-300 px-2.5 py-1 rounded-lg">
                           {job.modality}
                         </span>
                       )}
                       {job.level && (
-                        <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">
+                        <span className="text-xs bg-zinc-950 border border-zinc-800 text-zinc-300 px-2.5 py-1 rounded-lg">
                           {job.level}
                         </span>
                       )}
                       {job.location && (
-                        <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-2.5 py-1 rounded-lg truncate max-w-[150px]">
+                        <span className="text-xs bg-zinc-950 border border-zinc-800 text-zinc-300 px-2.5 py-1 rounded-lg truncate max-w-[150px]">
                           {job.location}
                         </span>
                       )}
                     </div>
                   </CardBody>
 
-                  <CardFooter className="p-6 pt-0 border-t border-slate-800/50 mt-2 flex items-center justify-between text-xs text-slate-400">
+                  <CardFooter className="p-6 pt-0 border-t border-zinc-800/50 mt-2 flex items-center justify-between text-xs text-zinc-500">
                     <span>
                       Publicada em:{" "}
                       {job.publishedAt
@@ -418,7 +420,7 @@ function JobsPageContent() {
                       href={job.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-indigo-400 hover:text-indigo-300 transition-colors font-semibold flex items-center space-x-1 cursor-pointer"
+                      className="text-zinc-400 hover:text-zinc-200 transition-colors font-semibold flex items-center space-x-1 cursor-pointer"
                     >
                       <span>Ver Vaga</span>
                       <span>→</span>
@@ -428,12 +430,12 @@ function JobsPageContent() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-slate-900/10 border border-dashed border-slate-800 rounded-2xl w-full flex flex-col items-center">
-              <p className="text-slate-400 text-sm mb-4">Nenhuma vaga encontrada no banco de dados.</p>
+            <div className="text-center py-20 bg-zinc-900/10 border border-dashed border-zinc-800 rounded-2xl w-full flex flex-col items-center">
+              <p className="text-zinc-400 text-sm mb-4">Nenhuma vaga encontrada no banco de dados.</p>
               <Button
                 onClick={handleSyncJobs}
-                color="primary"
-                radius="xl"
+                color="default"
+                radius="lg"
               >
                 Buscar Novas Vagas Agora
               </Button>
@@ -450,7 +452,7 @@ function JobsPageContent() {
               showJumper={false}
               showFirstButton={false}
               showLastButton={false}
-              color="primary"
+              color="default"
               className="w-full mt-6"
             />
           )}
@@ -463,8 +465,8 @@ function JobsPageContent() {
 export default function Home() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <Spinner size="lg" color="primary" label="Carregando..." />
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <Spinner size="lg" color="default" label="Carregando..." />
       </div>
     }>
       <JobsPageContent />
