@@ -1,0 +1,37 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+model Job {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  company      String?
+  location     String?
+  modality     String?
+  level        String   @default("Not specified")
+  technologies String?
+  source       String?
+  link         String   @unique
+  publishedAt  DateTime?
+  collectedAt  DateTime @default(now())
+
+  @@map("jobs")
+}
+
+model CollectionState {
+  id                   Int       @id @default(autoincrement())
+  source               String
+  queryKey             String
+  lastRun              DateTime
+  lastPublicationFound DateTime?
+  updatedAt            DateTime  @updatedAt
+
+  @@unique([source, queryKey])
+  @@map("collection_states")
+}
