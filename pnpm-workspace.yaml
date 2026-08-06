@@ -5,3 +5,5 @@ allowBuilds:
   better-sqlite3: true
   prisma: true
   unrs-resolver: true
+minimumReleaseAgeExclude:
+  - lucide-react@1.29.0

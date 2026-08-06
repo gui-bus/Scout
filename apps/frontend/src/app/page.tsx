@@ -1,6 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
+import { useQueryState, parseAsInteger, parseAsString, parseAsArrayOf } from "nuqs";
+import { Input } from "@/components/ui/input";
+import { Checkbox, CheckboxGroup } from "@/components/ui/checkbox";
+import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button/button";
+import { Select } from "@/components/ui/select/select";
+import { Spinner } from "@/components/ui/spinner/spinner";
+import { Skeleton } from "@/components/ui/skeleton/skeleton";
+import { PaginationToolbar } from "@/components/ui/pagination/pagination";
 
 interface Job {
   id: number;
@@ -25,20 +34,27 @@ interface Pagination {
   hasPrev: boolean;
 }
 
-export default function Home() {
+function JobsPageContent() {
+  const [buscaQuery, setBuscaQuery] = useQueryState("busca", parseAsString.withDefault(""));
+  const [companyQuery, setCompanyQuery] = useQueryState("company", parseAsString.withDefault(""));
+  const [locationQuery, setLocationQuery] = useQueryState("location", parseAsString.withDefault(""));
+  const [periodQuery, setPeriodQuery] = useQueryState("period", parseAsString.withDefault(""));
+  const [modalitiesQuery, setModalitiesQuery] = useQueryState("modalities", parseAsArrayOf(parseAsString).withDefault([]));
+  const [levelsQuery, setLevelsQuery] = useQueryState("levels", parseAsArrayOf(parseAsString).withDefault([]));
+  const [pageQuery, setPageQuery] = useQueryState("page", parseAsInteger.withDefault(1));
+
   const [jobs, setJobs] = useState<Job[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const [busca, setBusca] = useState("");
-  const [company, setCompany] = useState("");
-  const [location, setLocation] = useState("");
-  const [period, setPeriod] = useState("");
-  const [modalities, setModalities] = useState<string[]>([]);
-  const [levels, setLevels] = useState<string[]>([]);
-  const [page, setPage] = useState(1);
+  const [busca, setBusca] = useState(buscaQuery);
+  const [company, setCompany] = useState(companyQuery);
+  const [location, setLocation] = useState(locationQuery);
+  const [period, setPeriod] = useState(periodQuery);
+  const [modalities, setModalities] = useState<string[]>(modalitiesQuery);
+  const [levels, setLevels] = useState<string[]>(levelsQuery);
 
   const [triggerFetch, setTriggerFetch] = useState(0);
   const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -49,15 +65,15 @@ export default function Home() {
 
     try {
       const params = new URLSearchParams();
-      if (busca) params.append("busca", busca);
-      if (company) params.append("company", company);
-      if (location) params.append("location", location);
-      if (period) params.append("period", period);
+      if (buscaQuery) params.append("busca", buscaQuery);
+      if (companyQuery) params.append("company", companyQuery);
+      if (locationQuery) params.append("location", locationQuery);
+      if (periodQuery) params.append("period", periodQuery);
 
-      modalities.forEach((m) => params.append("modality", m));
-      levels.forEach((l) => params.append("level", l));
+      modalitiesQuery.forEach((m) => params.append("modality", m));
+      levelsQuery.forEach((l) => params.append("level", l));
 
-      params.append("page", page.toString());
+      params.append("page", pageQuery.toString());
       params.append("per_page", "12");
 
       const response = await fetch(`http://localhost:3001/api/jobs?${params.toString()}`);
@@ -129,11 +145,17 @@ export default function Home() {
         clearInterval(syncIntervalRef.current);
       }
     };
-  }, [page, triggerFetch]);
+  }, [pageQuery, triggerFetch, buscaQuery, companyQuery, locationQuery, periodQuery, modalitiesQuery, levelsQuery]);
 
   const handleApplyFilters = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(1);
+    setPageQuery(1);
+    setBuscaQuery(busca || null);
+    setCompanyQuery(company || null);
+    setLocationQuery(location || null);
+    setPeriodQuery(period || null);
+    setModalitiesQuery(modalities.length > 0 ? modalities : null);
+    setLevelsQuery(levels.length > 0 ? levels : null);
     setTriggerFetch((prev) => prev + 1);
   };
 
@@ -144,7 +166,14 @@ export default function Home() {
     setPeriod("");
     setModalities([]);
     setLevels([]);
-    setPage(1);
+
+    setPageQuery(1);
+    setBuscaQuery(null);
+    setCompanyQuery(null);
+    setLocationQuery(null);
+    setPeriodQuery(null);
+    setModalitiesQuery(null);
+    setLevelsQuery(null);
     setTriggerFetch((prev) => prev + 1);
   };
 
@@ -176,20 +205,19 @@ export default function Home() {
           <div className="flex items-center space-x-4">
             {isSyncing && (
               <div className="flex items-center space-x-2 text-xs text-indigo-400">
-                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
+                <Spinner size="xs" color="primary" />
                 <span>Buscando novas vagas...</span>
               </div>
             )}
-            <button
+            <Button
               onClick={handleSyncJobs}
               disabled={isSyncing}
-              className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white rounded-xl px-4 py-2 text-xs font-semibold transition-all shadow-md shadow-indigo-600/10 cursor-pointer disabled:cursor-not-allowed"
+              color="primary"
+              radius="xl"
+              size="sm"
             >
               {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
-            </button>
+            </Button>
           </div>
         </div>
       </header>
@@ -201,124 +229,95 @@ export default function Home() {
               Filtros
               <button
                 onClick={handleClearFilters}
-                className="text-xs text-slate-400 hover:text-slate-200 transition-colors font-medium"
+                className="text-xs text-slate-400 hover:text-slate-200 transition-colors font-medium cursor-pointer"
               >
                 Limpar Todos
               </button>
             </h2>
 
             <form onSubmit={handleApplyFilters} className="space-y-6">
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                  Palavra-chave ou Tecnologia
-                </label>
-                <input
-                  type="text"
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                  placeholder="Ex: Node.js, React, Python"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                />
-              </div>
+              <Input
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Ex: Node.js, React, Python"
+                label="Palavra-chave ou Tecnologia"
+                variant="glassmorphism"
+                radius="xl"
+              />
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                  Empresa
-                </label>
-                <input
-                  type="text"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  placeholder="Ex: Nubank, Google"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                />
-              </div>
+              <Input
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                placeholder="Ex: Nubank, Google"
+                label="Empresa"
+                variant="glassmorphism"
+                radius="xl"
+              />
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                  Localização
-                </label>
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Ex: São Paulo, Remoto"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                />
-              </div>
+              <Input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Ex: São Paulo, Remoto"
+                label="Localização"
+                variant="glassmorphism"
+                radius="xl"
+              />
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                  Período de Publicação
-                </label>
-                <select
-                  value={period}
-                  onChange={(e) => setPeriod(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                >
-                  <option value="">Qualquer data</option>
-                  <option value="hoje">Hoje</option>
-                  <option value="semana">Últimos 7 dias</option>
-                  <option value="mes">Últimos 30 dias</option>
-                </select>
-              </div>
+              <Select
+                label="Período de Publicação"
+                value={period}
+                onValueChange={setPeriod}
+                placeholder="Qualquer data"
+                radius="xl"
+                variant="faded"
+                options={[
+                  { value: "", label: "Qualquer data" },
+                  { value: "hoje", label: "Hoje" },
+                  { value: "semana", label: "Últimos 7 dias" },
+                  { value: "mes", label: "Últimos 30 dias" },
+                ]}
+              />
 
-              <div>
-                <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-                  Modalidade
-                </span>
-                <div className="space-y-2">
-                  {["Remoto", "Híbrido", "Presencial"].map((m) => (
-                    <label key={m} className="flex items-center space-x-3 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={modalities.includes(m)}
-                        onChange={() => toggleModality(m)}
-                        className="rounded border-slate-800 bg-slate-950 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-900 focus:ring-offset-2 transition-all cursor-pointer h-4 w-4"
-                      />
-                      <span className="text-sm text-slate-300 group-hover:text-slate-100 transition-colors">
-                        {m}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              <CheckboxGroup label="Modalidade">
+                {["Remoto", "Híbrido", "Presencial"].map((m) => (
+                  <Checkbox
+                    key={m}
+                    checked={modalities.includes(m)}
+                    onCheckedChange={() => toggleModality(m)}
+                    label={m}
+                    color="primary"
+                  />
+                ))}
+              </CheckboxGroup>
 
-              <div>
-                <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-                  Nível
-                </span>
-                <div className="space-y-2">
-                  {[
-                    "Estágio",
-                    "Júnior",
-                    "Júnior/Pleno",
-                    "Pleno",
-                    "Pleno/Sênior",
-                    "Sênior",
-                    "Não informado",
-                  ].map((l) => (
-                    <label key={l} className="flex items-center space-x-3 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={levels.includes(l)}
-                        onChange={() => toggleLevel(l)}
-                        className="rounded border-slate-800 bg-slate-950 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-900 focus:ring-offset-2 transition-all cursor-pointer h-4 w-4"
-                      />
-                      <span className="text-sm text-slate-300 group-hover:text-slate-100 transition-colors">
-                        {l}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              <CheckboxGroup label="Nível">
+                {[
+                  "Estágio",
+                  "Júnior",
+                  "Júnior/Pleno",
+                  "Pleno",
+                  "Pleno/Sênior",
+                  "Sênior",
+                  "Não informado",
+                ].map((l) => (
+                  <Checkbox
+                    key={l}
+                    checked={levels.includes(l)}
+                    onCheckedChange={() => toggleLevel(l)}
+                    label={l}
+                    color="primary"
+                  />
+                ))}
+              </CheckboxGroup>
 
-              <button
+              <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl py-3 text-sm font-semibold transition-all shadow-md shadow-indigo-600/10 cursor-pointer"
+                color="primary"
+                radius="xl"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold"
               >
                 Aplicar Filtros
-              </button>
+              </Button>
             </form>
           </div>
         </aside>
@@ -347,67 +346,68 @@ export default function Home() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[...Array(6)].map((_, i) => (
-                <div
+                <Card
                   key={i}
-                  className="bg-slate-900/20 border border-slate-900 rounded-2xl p-6 h-48 animate-pulse flex flex-col justify-between"
+                  variant="glassmorphism"
+                  className="bg-slate-900/20 border border-slate-900 p-6 h-48 flex flex-col justify-between"
                 >
                   <div className="space-y-3">
-                    <div className="h-4 w-1/3 bg-slate-800 rounded"></div>
-                    <div className="h-6 w-3/4 bg-slate-800 rounded"></div>
+                    <Skeleton className="h-4 w-1/3 bg-slate-800" />
+                    <Skeleton className="h-6 w-3/4 bg-slate-800" />
                   </div>
-                  <div className="h-4 w-1/2 bg-slate-800 rounded"></div>
-                </div>
+                  <Skeleton className="h-4 w-1/2 bg-slate-800" />
+                </Card>
               ))}
             </div>
           ) : jobs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {jobs.map((job) => (
-                <article
+                <Card
                   key={job.id}
-                  className="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-6 hover:border-slate-700/80 transition-all flex flex-col justify-between group relative overflow-hidden backdrop-blur-sm"
+                  variant="glassmorphism"
+                  isHoverable
+                  className="bg-slate-900/30 border border-slate-800/80 flex flex-col justify-between h-full"
                 >
-                  <div className="space-y-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3">
-                        <span className="h-10 w-10 rounded-xl bg-slate-800 text-slate-200 font-bold text-sm flex items-center justify-center border border-slate-700">
-                          {(job.company || "?")[0].toUpperCase()}
+                  <CardHeader className="p-6 pb-0 flex flex-col space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <span className="h-10 w-10 rounded-xl bg-slate-800 text-slate-200 font-bold text-sm flex items-center justify-center border border-slate-700">
+                        {(job.company || "?")[0].toUpperCase()}
+                      </span>
+                      <div>
+                        <h4 className="font-semibold text-slate-200 text-sm">
+                          {job.company || "Empresa não informada"}
+                        </h4>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-800 text-slate-400 mt-1">
+                          {job.source}
                         </span>
-                        <div>
-                          <h4 className="font-semibold text-slate-200 text-sm">
-                            {job.company || "Empresa não informada"}
-                          </h4>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-800 text-slate-400 mt-1">
-                            {job.source}
-                          </span>
-                        </div>
                       </div>
                     </div>
+                  </CardHeader>
 
-                    <div>
-                      <h3 className="text-base font-bold text-slate-100 line-clamp-1 group-hover:text-indigo-400 transition-colors">
-                        {job.title}
-                      </h3>
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {job.modality && (
-                          <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">
-                            {job.modality}
-                          </span>
-                        )}
-                        {job.level && (
-                          <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">
-                            {job.level}
-                          </span>
-                        )}
-                        {job.location && (
-                          <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-2.5 py-1 rounded-lg truncate max-w-[150px]">
-                            {job.location}
-                          </span>
-                        )}
-                      </div>
+                  <CardBody className="p-6 py-4 flex-1">
+                    <h3 className="text-base font-bold text-slate-100 line-clamp-1 hover:text-indigo-400 transition-colors">
+                      {job.title}
+                    </h3>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {job.modality && (
+                        <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">
+                          {job.modality}
+                        </span>
+                      )}
+                      {job.level && (
+                        <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">
+                          {job.level}
+                        </span>
+                      )}
+                      {job.location && (
+                        <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-2.5 py-1 rounded-lg truncate max-w-[150px]">
+                          {job.location}
+                        </span>
+                      )}
                     </div>
-                  </div>
+                  </CardBody>
 
-                  <div className="flex items-center justify-between border-t border-slate-800/50 mt-6 pt-4 text-xs text-slate-400">
+                  <CardFooter className="p-6 pt-0 border-t border-slate-800/50 mt-2 flex items-center justify-between text-xs text-slate-400">
                     <span>
                       Publicada em:{" "}
                       {job.publishedAt
@@ -423,45 +423,51 @@ export default function Home() {
                       <span>Ver Vaga</span>
                       <span>→</span>
                     </a>
-                  </div>
-                </article>
+                  </CardFooter>
+                </Card>
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-slate-900/10 border border-dashed border-slate-800 rounded-2xl w-full">
+            <div className="text-center py-20 bg-slate-900/10 border border-dashed border-slate-800 rounded-2xl w-full flex flex-col items-center">
               <p className="text-slate-400 text-sm mb-4">Nenhuma vaga encontrada no banco de dados.</p>
-              <button
+              <Button
                 onClick={handleSyncJobs}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-5 py-2.5 text-xs font-semibold transition-all cursor-pointer shadow-md shadow-indigo-600/10"
+                color="primary"
+                radius="xl"
               >
                 Buscar Novas Vagas Agora
-              </button>
+              </Button>
             </div>
           )}
 
           {pagination && pagination.pages > 1 && (
-            <nav className="flex items-center justify-between border-t border-slate-800/50 pt-6">
-              <button
-                onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                disabled={!pagination.hasPrev}
-                className="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                Anterior
-              </button>
-              <span className="text-sm text-slate-400">
-                Página {pagination.page} de {pagination.pages}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(p + 1, pagination.pages))}
-                disabled={!pagination.hasNext}
-                className="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                Próxima
-              </button>
-            </nav>
+            <PaginationToolbar
+              page={pageQuery}
+              total={pagination.total}
+              pageSize={pagination.perPage}
+              onPageChange={setPageQuery}
+              showRowsPerPage={false}
+              showJumper={false}
+              showFirstButton={false}
+              showLastButton={false}
+              color="primary"
+              className="w-full mt-6"
+            />
           )}
         </section>
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Spinner size="lg" color="primary" label="Carregando..." />
+      </div>
+    }>
+      <JobsPageContent />
+    </Suspense>
   );
 }
