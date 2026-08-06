@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 interface Job {
   id: number;
@@ -30,6 +30,7 @@ export default function Home() {
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const [busca, setBusca] = useState("");
   const [company, setCompany] = useState("");
@@ -40,6 +41,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
 
   const [triggerFetch, setTriggerFetch] = useState(0);
+  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchJobs = async () => {
     setLoading(true);
@@ -73,8 +75,60 @@ export default function Home() {
     }
   };
 
+  const checkSyncStatus = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/api/collect/status");
+      if (response.ok) {
+        const data = await response.json();
+        if (!data.collecting) {
+          if (syncIntervalRef.current) {
+            clearInterval(syncIntervalRef.current);
+            syncIntervalRef.current = null;
+          }
+          setIsSyncing(false);
+          fetchJobs();
+        }
+      }
+    } catch {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current);
+        syncIntervalRef.current = null;
+      }
+      setIsSyncing(false);
+    }
+  };
+
+  const handleSyncJobs = async () => {
+    if (isSyncing) return;
+    setIsSyncing(true);
+    setError(null);
+
+    try {
+      const response = await fetch("http://localhost:3001/api/collect", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer development_cron_secret",
+        },
+      });
+
+      if (!response.ok && response.status !== 409) {
+        throw new Error("Falha ao iniciar a sincronização");
+      }
+
+      syncIntervalRef.current = setInterval(checkSyncStatus, 2000);
+    } catch (err: any) {
+      setError(err.message || "Erro ao sincronizar");
+      setIsSyncing(false);
+    }
+  };
+
   useEffect(() => {
     fetchJobs();
+    return () => {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current);
+      }
+    };
   }, [page, triggerFetch]);
 
   const handleApplyFilters = (e: React.FormEvent) => {
@@ -118,8 +172,24 @@ export default function Home() {
               Scout
             </span>
           </div>
-          <div className="text-xs text-slate-400">
-            Rastreador de Oportunidades de Software
+
+          <div className="flex items-center space-x-4">
+            {isSyncing && (
+              <div className="flex items-center space-x-2 text-xs text-indigo-400">
+                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span>Buscando novas vagas...</span>
+              </div>
+            )}
+            <button
+              onClick={handleSyncJobs}
+              disabled={isSyncing}
+              className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white rounded-xl px-4 py-2 text-xs font-semibold transition-all shadow-md shadow-indigo-600/10 cursor-pointer disabled:cursor-not-allowed"
+            >
+              {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
+            </button>
           </div>
         </div>
       </header>
@@ -358,8 +428,14 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-slate-900/10 border border-dashed border-slate-800 rounded-2xl">
-              <p className="text-slate-400 text-sm">Nenhuma vaga encontrada com os filtros selecionados.</p>
+            <div className="text-center py-20 bg-slate-900/10 border border-dashed border-slate-800 rounded-2xl w-full">
+              <p className="text-slate-400 text-sm mb-4">Nenhuma vaga encontrada no banco de dados.</p>
+              <button
+                onClick={handleSyncJobs}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-5 py-2.5 text-xs font-semibold transition-all cursor-pointer shadow-md shadow-indigo-600/10"
+              >
+                Buscar Novas Vagas Agora
+              </button>
             </div>
           )}
 

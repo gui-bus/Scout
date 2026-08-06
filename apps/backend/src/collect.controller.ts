@@ -1,9 +1,14 @@
-import { Controller, Post, Headers, UnauthorizedException, ConflictException, HttpCode, HttpStatus } from "@nestjs/common";
+import { Controller, Get, Post, Headers, UnauthorizedException, ConflictException, HttpCode, HttpStatus } from "@nestjs/common";
 import { CollectService } from "./collect.service";
 
 @Controller("api/collect")
 export class CollectController {
   constructor(private readonly collectService: CollectService) {}
+
+  @Get("status")
+  async getStatus() {
+    return { collecting: this.collectService.getCollectingStatus() };
+  }
 
   @Post()
   @HttpCode(HttpStatus.ACCEPTED)

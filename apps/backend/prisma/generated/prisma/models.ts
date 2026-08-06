@@ -8,6 +8,6 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/Job.js'
-export type * from './models/CollectionState.js'
-export type * from './commonInputTypes.js'
+export type * from './models/Job'
+export type * from './models/CollectionState'
+export type * from './commonInputTypes'

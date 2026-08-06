@@ -12,7 +12,7 @@
  */
 
 import * as runtime from "@prisma/client/runtime/client"
-import type * as Prisma from "./prismaNamespace.js"
+import type * as Prisma from "./prismaNamespace"
 
 
 const config: runtime.GetPrismaClientConfig = {
@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.9.1",
   "engineVersion": "e922089b7d7502aff4249d5da3420f6fa55fc6ad",
   "activeProvider": "sqlite",
-  "inlineSchema": "datasource db {\n  provider = \"sqlite\"\n}\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"./generated/prisma\"\n}\n\nmodel Job {\n  id           Int       @id @default(autoincrement())\n  title        String\n  description  String?\n  company      String?\n  location     String?\n  modality     String?\n  level        String    @default(\"Not specified\")\n  technologies String?\n  source       String?\n  link         String    @unique\n  publishedAt  DateTime?\n  collectedAt  DateTime  @default(now())\n\n  @@map(\"jobs\")\n}\n\nmodel CollectionState {\n  id                   Int       @id @default(autoincrement())\n  source               String\n  queryKey             String\n  lastRun              DateTime\n  lastPublicationFound DateTime?\n  updatedAt            DateTime  @updatedAt\n\n  @@unique([source, queryKey])\n  @@map(\"collection_states\")\n}\n",
+  "inlineSchema": "datasource db {\n  provider = \"sqlite\"\n}\n\ngenerator client {\n  provider     = \"prisma-client\"\n  output       = \"./generated/prisma\"\n  moduleFormat = \"cjs\"\n}\n\nmodel Job {\n  id           Int       @id @default(autoincrement())\n  title        String\n  description  String?\n  company      String?\n  location     String?\n  modality     String?\n  level        String    @default(\"Not specified\")\n  technologies String?\n  source       String?\n  link         String    @unique\n  publishedAt  DateTime?\n  collectedAt  DateTime  @default(now())\n\n  @@map(\"jobs\")\n}\n\nmodel CollectionState {\n  id                   Int       @id @default(autoincrement())\n  source               String\n  queryKey             String\n  lastRun              DateTime\n  lastPublicationFound DateTime?\n  updatedAt            DateTime  @updatedAt\n\n  @@unique([source, queryKey])\n  @@map(\"collection_states\")\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -45,10 +45,10 @@ async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Modul
 }
 
 config.compilerWasm = {
-  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_fast_bg.sqlite.mjs"),
+  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_fast_bg.sqlite.js"),
 
   getQueryCompilerWasmModule: async () => {
-    const { wasm } = await import("@prisma/client/runtime/query_compiler_fast_bg.sqlite.wasm-base64.mjs")
+    const { wasm } = await import("@prisma/client/runtime/query_compiler_fast_bg.sqlite.wasm-base64.js")
     return await decodeBase64AsWasm(wasm)
   },
 

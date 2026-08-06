@@ -59,11 +59,26 @@ const trackingParams = new Set([
   "elckey",
 ]);
 
+export function normalizeLinkSolides(urlObj: URL): string | null {
+  if (urlObj.hostname.toLowerCase().endsWith(".solides.jobs")) {
+    const subdomain = urlObj.hostname.split(".")[0];
+    const segments = urlObj.pathname.replace(/^\/|\/$/g, "").split("/");
+    if (segments[0] === "vacancies" && segments[1]) {
+      return `https://${subdomain}.vagas.solides.com.br/vaga/${segments[1]}`;
+    }
+  }
+  return null;
+}
+
 export function normalizeLink(link: string | null): string | null {
   if (!link) return null;
 
   try {
     const urlObj = new URL(link.trim());
+    
+    const solidesLink = normalizeLinkSolides(urlObj);
+    if (solidesLink) return solidesLink;
+
     const gupyLink = normalizeLinkGupy(urlObj);
     if (gupyLink) return gupyLink;
 
