@@ -25,9 +25,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100">
+      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100">
         <NuqsAdapter>
-          {children}
+          <div className="w-full max-w-[110rem] mx-auto flex flex-col min-h-screen">
+            {children}
+          </div>
           <Toaster theme="dark" richColors position="top-right" />
         </NuqsAdapter>
       </body>

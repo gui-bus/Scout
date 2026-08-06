@@ -191,8 +191,8 @@ function JobsPageContent() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans">
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-zinc-950/80 border-b border-zinc-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <header className="bg-zinc-950 border-b border-zinc-800">
+        <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 rounded-xl bg-zinc-800 text-zinc-100 border border-zinc-700 flex items-center justify-center font-bold">
               S
@@ -223,7 +223,7 @@ function JobsPageContent() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
         <aside className="w-full lg:w-80 shrink-0">
           <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-6 sticky top-24 backdrop-blur-sm">
             <h2 className="text-lg font-semibold mb-6 flex items-center justify-between text-zinc-200">
