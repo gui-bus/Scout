@@ -39,6 +39,10 @@ export class JobService {
       where.level = { in: Array.isArray(filters.level) ? filters.level : [filters.level] };
     }
 
+    if (filters.source && filters.source.length > 0) {
+      where.source = { in: Array.isArray(filters.source) ? filters.source : [filters.source] };
+    }
+
     if (filters.period) {
       const dateLimit = new Date();
       if (filters.period === "hoje") {

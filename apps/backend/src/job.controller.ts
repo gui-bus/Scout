@@ -14,6 +14,7 @@ export class JobController {
     @Query("modality") modality?: string | string[],
     @Query("level") level?: string | string[],
     @Query("period") period?: string,
+    @Query("source") source?: string | string[],
     @Query("page") page = 1,
     @Query("per_page") perPage = 20
   ) {
@@ -25,6 +26,7 @@ export class JobController {
       modality,
       level,
       period,
+      source,
     };
 
     return this.jobService.listJobs(filters, Number(page), Number(perPage));

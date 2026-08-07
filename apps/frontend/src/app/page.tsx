@@ -41,6 +41,7 @@ function JobsPageContent() {
   const [periodQuery, setPeriodQuery] = useQueryState("period", parseAsString.withDefault(""));
   const [modalitiesQuery, setModalitiesQuery] = useQueryState("modalities", parseAsArrayOf(parseAsString).withDefault([]));
   const [levelsQuery, setLevelsQuery] = useQueryState("levels", parseAsArrayOf(parseAsString).withDefault([]));
+  const [sourcesQuery, setSourcesQuery] = useQueryState("sources", parseAsArrayOf(parseAsString).withDefault([]));
   const [pageQuery, setPageQuery] = useQueryState("page", parseAsInteger.withDefault(1));
 
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -55,6 +56,7 @@ function JobsPageContent() {
   const [period, setPeriod] = useState(periodQuery);
   const [modalities, setModalities] = useState<string[]>(modalitiesQuery);
   const [levels, setLevels] = useState<string[]>(levelsQuery);
+  const [sources, setSources] = useState<string[]>(sourcesQuery);
 
   const [triggerFetch, setTriggerFetch] = useState(0);
   const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -72,6 +74,7 @@ function JobsPageContent() {
 
       modalitiesQuery.forEach((m) => params.append("modality", m));
       levelsQuery.forEach((l) => params.append("level", l));
+      sourcesQuery.forEach((s) => params.append("source", s));
 
       params.append("page", pageQuery.toString());
       params.append("per_page", "12");
@@ -145,7 +148,7 @@ function JobsPageContent() {
         clearInterval(syncIntervalRef.current);
       }
     };
-  }, [pageQuery, triggerFetch, buscaQuery, companyQuery, locationQuery, periodQuery, modalitiesQuery, levelsQuery]);
+  }, [pageQuery, triggerFetch, buscaQuery, companyQuery, locationQuery, periodQuery, modalitiesQuery, levelsQuery, sourcesQuery]);
 
   const handleApplyFilters = (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,6 +159,7 @@ function JobsPageContent() {
     setPeriodQuery(period || null);
     setModalitiesQuery(modalities.length > 0 ? modalities : null);
     setLevelsQuery(levels.length > 0 ? levels : null);
+    setSourcesQuery(sources.length > 0 ? sources : null);
     setTriggerFetch((prev) => prev + 1);
   };
 
@@ -166,6 +170,7 @@ function JobsPageContent() {
     setPeriod("");
     setModalities([]);
     setLevels([]);
+    setSources([]);
 
     setPageQuery(1);
     setBuscaQuery(null);
@@ -174,6 +179,7 @@ function JobsPageContent() {
     setPeriodQuery(null);
     setModalitiesQuery(null);
     setLevelsQuery(null);
+    setSourcesQuery(null);
     setTriggerFetch((prev) => prev + 1);
   };
 
@@ -185,6 +191,12 @@ function JobsPageContent() {
 
   const toggleLevel = (val: string) => {
     setLevels((prev) =>
+      prev.includes(val) ? prev.filter((x) => x !== val) : [...prev, val]
+    );
+  };
+
+  const toggleSource = (val: string) => {
+    setSources((prev) =>
       prev.includes(val) ? prev.filter((x) => x !== val) : [...prev, val]
     );
   };
@@ -278,6 +290,18 @@ function JobsPageContent() {
                   { value: "mes", label: "Últimos 30 dias" },
                 ]}
               />
+
+              <CheckboxGroup label="Origem">
+                {["Gupy", "Solides", "Remotar", "Jooble"].map((src) => (
+                  <Checkbox
+                    key={src}
+                    checked={sources.includes(src)}
+                    onCheckedChange={() => toggleSource(src)}
+                    label={src}
+                    color="default"
+                  />
+                ))}
+              </CheckboxGroup>
 
               <CheckboxGroup label="Modalidade">
                 {["Remoto", "Híbrido", "Presencial"].map((m) => (
