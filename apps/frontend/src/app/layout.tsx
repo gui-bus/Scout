@@ -18,8 +18,57 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Scout - Agregador de Vagas",
-  description: "Rastreador e agregador de vagas de desenvolvimento de software.",
+  metadataBase: new URL("https://scout.guibus.dev"),
+  title: {
+    default: "Scout — Agregador e Rastreador Inteligente de Vagas de TI",
+    template: "%s | Scout",
+  },
+  description: "Rastreador e agregador inteligente de vagas de desenvolvimento de software e tecnologia em tempo real com extração rica de metadados.",
+  keywords: [
+    "vagas de ti",
+    "vagas de tecnologia",
+    "desenvolvedor",
+    "frontend",
+    "backend",
+    "react",
+    "next.js",
+    "vagas remoto",
+    "vagas clt",
+    "vagas pj",
+    "scout",
+    "agregador de vagas",
+  ],
+  authors: [{ name: "gui-bus" }],
+  creator: "gui-bus",
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: "https://scout.guibus.dev",
+    title: "Scout — Agregador e Rastreador Inteligente de Vagas de TI",
+    description: "Encontre as melhores vagas de desenvolvimento de TI consolidadas em um único painel inteligente com filtros avançados e triagem automática.",
+    siteName: "Scout",
+    images: [
+      {
+        url: "/utils/seo/og-image.webp",
+        width: 1200,
+        height: 630,
+        alt: "Scout — Agregador de Vagas de TI",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Scout — Agregador e Rastreador Inteligente de Vagas de TI",
+    description: "Painel inteligente de agregação e rastreamento de vagas de TI.",
+    images: ["/utils/seo/og-image.webp"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
