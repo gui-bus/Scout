@@ -4,6 +4,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toast } from "@/components/ui/toast/toast";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,16 +29,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-900">
+      <body className="min-h-full flex flex-col bg-background text-foreground">
         <NuqsAdapter>
-          <AuthProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <div className="w-full max-w-[110rem] mx-auto flex flex-col min-h-screen">
-                {children}
-              </div>
-            </ThemeProvider>
-          </AuthProvider>
-          <Toast position="top-right" />
+          <Providers>
+            <AuthProvider>
+              <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <div className="w-full max-w-[110rem] mx-auto flex flex-col min-h-screen">
+                  {children}
+                </div>
+              </ThemeProvider>
+            </AuthProvider>
+            <Toast position="top-right" />
+          </Providers>
         </NuqsAdapter>
       </body>
     </html>

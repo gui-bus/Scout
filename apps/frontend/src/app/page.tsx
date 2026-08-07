@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useQueryState, parseAsInteger, parseAsString, parseAsArrayOf } from "nuqs";
 import { Icon } from "@iconify/react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
@@ -18,6 +19,11 @@ import { Job, Pagination } from "@/components/jobs/types";
 import { JobsHeader } from "@/components/jobs/header";
 import { JobsSidebar } from "@/components/jobs/sidebar";
 import { JobCardItem } from "@/components/jobs/card";
+
+interface QueryData {
+  items: Job[];
+  pagination: Pagination;
+}
 
 function JobsPageContent() {
   const { user, logout, token, isAuthenticated } = useAuth();
@@ -36,10 +42,6 @@ function JobsPageContent() {
   const [pageQuery, setPageQuery] = useQueryState("page", parseAsInteger.withDefault(1));
   const [perPageQuery, setPerPageQuery] = useQueryState("limite", parseAsInteger.withDefault(10));
 
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
   const [busca, setBusca] = useState(buscaQuery);
@@ -47,12 +49,30 @@ function JobsPageContent() {
   const [location, setLocation] = useState(locationQuery);
 
   const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchJobs = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
+  const {
+    data: jobsData,
+    isLoading: loading,
+    error: queryError,
+    refetch: fetchJobs,
+  } = useQuery<QueryData, Error>({
+    queryKey: [
+      "jobs",
+      buscaQuery,
+      companyQuery,
+      locationQuery,
+      periodQuery,
+      modalitiesQuery,
+      levelsQuery,
+      sourcesQuery,
+      favoritesOnlyQuery,
+      appliedOnlyQuery,
+      pageQuery,
+      perPageQuery,
+      token,
+    ],
+    queryFn: async () => {
       const params = new URLSearchParams();
       if (buscaQuery) params.append("busca", buscaQuery);
       if (companyQuery) params.append("company", companyQuery);
@@ -81,16 +101,14 @@ function JobsPageContent() {
         throw new Error("Erro ao carregar as vagas");
       }
 
-      const data = await response.json();
-      setJobs(data.items || []);
-      setPagination(data.pagination || null);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Algo deu errado";
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [buscaQuery, companyQuery, locationQuery, periodQuery, modalitiesQuery, levelsQuery, sourcesQuery, favoritesOnlyQuery, appliedOnlyQuery, pageQuery, perPageQuery, token]);
+      return response.json();
+    },
+    refetchInterval: 300000, // Autocompare to backend every 5 minutes
+  });
+
+  const jobs = jobsData?.items || [];
+  const pagination = jobsData?.pagination || null;
+  const error = queryError ? queryError.message : null;
 
   const checkSyncStatus = useCallback(async () => {
     try {
@@ -115,41 +133,36 @@ function JobsPageContent() {
     }
   }, [fetchJobs]);
 
-  const handleSyncJobs = async () => {
-    if (isSyncing) return;
-    setIsSyncing(true);
-    setError(null);
-
-    try {
+  const syncJobsMutation = useMutation({
+    mutationFn: async () => {
       const response = await fetch("http://localhost:3001/api/collect", {
         method: "POST",
         headers: {
           Authorization: "Bearer development_cron_secret",
         },
       });
-
       if (!response.ok && response.status !== 409) {
         throw new Error("Falha ao iniciar a sincronização");
       }
-
+    },
+    onSuccess: () => {
+      setIsSyncing(true);
       syncIntervalRef.current = setInterval(checkSyncStatus, 2000);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao sincronizar";
-      setError(errorMessage);
-      setIsSyncing(false);
-    }
+    },
+  });
+
+  const handleSyncJobs = async () => {
+    if (isSyncing) return;
+    syncJobsMutation.mutate();
   };
 
   useEffect(() => {
-    Promise.resolve().then(() => {
-      fetchJobs();
-    });
     return () => {
       if (syncIntervalRef.current) {
         clearInterval(syncIntervalRef.current);
       }
     };
-  }, [fetchJobs]);
+  }, []);
 
   const handleClearFilters = useCallback(() => {
     setBusca("");
@@ -213,14 +226,9 @@ function JobsPageContent() {
     setAppliedOnlyQuery(val ? "true" : null);
   }, [setPageQuery, setAppliedOnlyQuery]);
 
-  const handleToggleFavorite = useCallback(async (jobId: number, currentVal: boolean) => {
-    if (!token) return;
-    setJobs((prev) =>
-      prev.map((j) => (j.id === jobId ? { ...j, isFavorite: !currentVal } : j))
-    );
-
-    try {
-      await fetch(`http://localhost:3001/api/jobs/${jobId}/state`, {
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async ({ jobId, currentVal }: { jobId: number; currentVal: boolean }) => {
+      const response = await fetch(`http://localhost:3001/api/jobs/${jobId}/state`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -228,21 +236,38 @@ function JobsPageContent() {
         },
         body: JSON.stringify({ isFavorite: !currentVal }),
       });
-    } catch {
-      setJobs((prev) =>
-        prev.map((j) => (j.id === jobId ? { ...j, isFavorite: currentVal } : j))
-      );
-    }
-  }, [token]);
+      if (!response.ok) throw new Error("Erro ao atualizar favorito");
+      return response.json();
+    },
+    onMutate: async ({ jobId, currentVal }) => {
+      await queryClient.cancelQueries({ queryKey: ["jobs"] });
+      const previousJobsData = queryClient.getQueryData(["jobs"]);
 
-  const handleToggleApplied = useCallback(async (jobId: number, currentVal: boolean) => {
-    if (!token) return;
-    setJobs((prev) =>
-      prev.map((j) => (j.id === jobId ? { ...j, isApplied: !currentVal } : j))
-    );
+      queryClient.setQueriesData<QueryData>({ queryKey: ["jobs"] }, (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items.map((j: Job) =>
+            j.id === jobId ? { ...j, isFavorite: !currentVal } : j
+          ),
+        };
+      });
 
-    try {
-      await fetch(`http://localhost:3001/api/jobs/${jobId}/state`, {
+      return { previousJobsData };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousJobsData) {
+        queryClient.setQueriesData({ queryKey: ["jobs"] }, context.previousJobsData);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+    },
+  });
+
+  const toggleAppliedMutation = useMutation({
+    mutationFn: async ({ jobId, currentVal }: { jobId: number; currentVal: boolean }) => {
+      const response = await fetch(`http://localhost:3001/api/jobs/${jobId}/state`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -250,12 +275,44 @@ function JobsPageContent() {
         },
         body: JSON.stringify({ isApplied: !currentVal }),
       });
-    } catch {
-      setJobs((prev) =>
-        prev.map((j) => (j.id === jobId ? { ...j, isApplied: currentVal } : j))
-      );
-    }
-  }, [token]);
+      if (!response.ok) throw new Error("Erro ao atualizar candidatura");
+      return response.json();
+    },
+    onMutate: async ({ jobId, currentVal }) => {
+      await queryClient.cancelQueries({ queryKey: ["jobs"] });
+      const previousJobsData = queryClient.getQueryData(["jobs"]);
+
+      queryClient.setQueriesData<QueryData>({ queryKey: ["jobs"] }, (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items.map((j: Job) =>
+            j.id === jobId ? { ...j, isApplied: !currentVal } : j
+          ),
+        };
+      });
+
+      return { previousJobsData };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousJobsData) {
+        queryClient.setQueriesData({ queryKey: ["jobs"] }, context.previousJobsData);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+    },
+  });
+
+  const handleToggleFavorite = useCallback(async (jobId: number, currentVal: boolean) => {
+    if (!token) return;
+    toggleFavoriteMutation.mutate({ jobId, currentVal });
+  }, [token, toggleFavoriteMutation]);
+
+  const handleToggleApplied = useCallback(async (jobId: number, currentVal: boolean) => {
+    if (!token) return;
+    toggleAppliedMutation.mutate({ jobId, currentVal });
+  }, [token, toggleAppliedMutation]);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
