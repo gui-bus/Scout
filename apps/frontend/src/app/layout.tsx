@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,14 +25,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100">
+      <body className="min-h-full flex flex-col bg-background text-foreground">
         <NuqsAdapter>
           <AuthProvider>
-            <div className="w-full max-w-[110rem] mx-auto flex flex-col min-h-screen">
-              {children}
-            </div>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <div className="w-full max-w-[110rem] mx-auto flex flex-col min-h-screen">
+                {children}
+              </div>
+            </ThemeProvider>
           </AuthProvider>
           <Toaster theme="dark" richColors position="top-right" />
         </NuqsAdapter>

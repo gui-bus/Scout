@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useQueryState, parseAsInteger, parseAsString, parseAsArrayOf } from "nuqs";
 import { Icon } from "@iconify/react";
+import { useTheme } from "next-themes";
 import { Input } from "@/components/ui/input";
 import { Checkbox, CheckboxGroup } from "@/components/ui/checkbox";
 import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
@@ -41,6 +42,8 @@ interface Pagination {
 
 function JobsPageContent() {
   const { user, logout, token, isAuthenticated } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const [buscaQuery, setBuscaQuery] = useQueryState("busca", parseAsString.withDefault(""));
@@ -157,6 +160,7 @@ function JobsPageContent() {
   };
 
   useEffect(() => {
+    setMounted(true);
     fetchJobs();
     return () => {
       if (syncIntervalRef.current) {
@@ -263,21 +267,19 @@ function JobsPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans">
-      <header className="bg-zinc-950 border-b border-zinc-900">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
+      <header className="bg-background border-b border-border">
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="h-9 w-9 rounded-lg bg-zinc-900 text-zinc-100 border border-zinc-800 flex items-center justify-center font-bold text-sm">
-              S
+            <div className="h-9 flex items-center">
+              <img src="/logos/logo_white.svg" alt="Scout Logo" className="h-6 hidden dark:block select-none" />
+              <img src="/logos/logo_black.svg" alt="Scout Logo" className="h-6 block dark:hidden select-none" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-zinc-100">
-              Scout
-            </span>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             {isSyncing && (
-              <div className="flex items-center space-x-2 text-xs text-zinc-400">
+              <div className="flex items-center space-x-2 text-xs text-muted-foreground mr-2">
                 <Spinner size="xs" color="default" />
                 <span>Buscando novas vagas...</span>
               </div>
@@ -293,9 +295,26 @@ function JobsPageContent() {
               {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
             </Button>
 
+            <Button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              color="default"
+              variant="flat"
+              radius="lg"
+              size="sm"
+              className="w-9 h-9 p-0 flex items-center justify-center cursor-pointer"
+              title="Alterar Tema"
+            >
+              {mounted && (
+                <Icon
+                  icon={theme === "dark" ? "hugeicons:sun-01" : "hugeicons:moon-02"}
+                  className="size-4 text-muted-foreground"
+                />
+              )}
+            </Button>
+
             {isAuthenticated ? (
-              <div className="flex items-center space-x-3">
-                <span className="text-xs text-zinc-400 font-medium select-none">
+              <div className="flex items-center space-x-3 pl-1 border-l border-border">
+                <span className="text-xs text-muted-foreground font-medium select-none max-w-[150px] truncate">
                   {user?.email}
                 </span>
                 <Button
@@ -325,14 +344,14 @@ function JobsPageContent() {
 
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
         <aside className="w-full lg:w-80 shrink-0">
-          <div className="bg-zinc-900/25 border border-zinc-900 rounded-2xl p-6 space-y-6">
+          <div className="bg-card/45 border border-border rounded-2xl p-6 space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold tracking-wider text-zinc-400 uppercase">
+              <h2 className="text-sm font-bold tracking-wider text-muted-foreground uppercase">
                 Filtros
               </h2>
               <button
                 onClick={handleClearFilters}
-                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-semibold cursor-pointer"
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors font-semibold cursor-pointer"
               >
                 Limpar Todos
               </button>
@@ -463,20 +482,20 @@ function JobsPageContent() {
         <section className="flex-1 space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-zinc-100">Vagas Encontradas</h1>
-              <p className="text-xs text-zinc-500 mt-1">
+              <h1 className="text-xl font-bold tracking-tight text-foreground">Vagas Encontradas</h1>
+              <p className="text-xs text-muted-foreground mt-1">
                 {pagination ? `${pagination.total} oportunidades disponíveis` : "Carregando..."}
               </p>
             </div>
             {pagination && (
-              <span className="text-xs text-zinc-600 font-medium">
+              <span className="text-xs text-muted-foreground font-medium">
                 Página {pagination.page} de {pagination.pages || 1}
               </span>
             )}
           </div>
 
           {error && (
-            <div className="bg-red-950/20 border border-red-900/30 rounded-2xl p-6 text-red-200 text-sm">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-6 text-destructive text-sm">
               {error}
             </div>
           )}
@@ -487,13 +506,13 @@ function JobsPageContent() {
                 <Card
                   key={i}
                   variant="bordered"
-                  className="bg-zinc-900/10 border-zinc-900 p-6 h-44 flex flex-col justify-between"
+                  className="bg-card border-border p-6 h-44 flex flex-col justify-between"
                 >
                   <div className="space-y-3">
-                    <Skeleton className="h-4 w-1/3 bg-zinc-900" />
-                    <Skeleton className="h-6 w-3/4 bg-zinc-900" />
+                    <Skeleton className="h-4 w-1/3 bg-muted" />
+                    <Skeleton className="h-6 w-3/4 bg-muted" />
                   </div>
-                  <Skeleton className="h-4 w-1/2 bg-zinc-900" />
+                  <Skeleton className="h-4 w-1/2 bg-muted" />
                 </Card>
               ))}
             </div>
@@ -504,19 +523,19 @@ function JobsPageContent() {
                   key={job.id}
                   variant="bordered"
                   isHoverable
-                  className="bg-zinc-900/15 border-zinc-900 flex flex-col justify-between h-full hover:border-zinc-800 transition-colors relative"
+                  className="bg-card border-border flex flex-col justify-between h-full hover:border-muted-foreground/35 transition-colors relative"
                 >
                   <CardHeader className="p-6 pb-0 flex flex-col space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <span className="h-9 w-9 rounded-lg bg-zinc-900 text-zinc-400 font-bold text-xs flex items-center justify-center border border-zinc-850">
+                        <span className="h-9 w-9 rounded-lg bg-muted text-muted-foreground font-bold text-xs flex items-center justify-center border border-border">
                           {(job.company || "?")[0].toUpperCase()}
                         </span>
                         <div>
-                          <h4 className="font-semibold text-zinc-300 text-sm">
+                          <h4 className="font-semibold text-foreground text-sm">
                             {job.company || "Empresa não informada"}
                           </h4>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-900 text-zinc-500 mt-1 border border-zinc-850 select-none">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-muted text-muted-foreground mt-1 border border-border select-none">
                             {job.source}
                           </span>
                         </div>
@@ -525,12 +544,12 @@ function JobsPageContent() {
                       {isAuthenticated && (
                         <button
                           onClick={() => handleToggleFavorite(job.id, !!job.isFavorite)}
-                          className="text-zinc-500 hover:text-yellow-500 transition-colors p-1 cursor-pointer"
+                          className="text-muted-foreground hover:text-yellow-500 transition-colors p-1 cursor-pointer"
                           title={job.isFavorite ? "Remover dos Favoritos" : "Favoritar Vaga"}
                         >
                           <Icon
                             icon={job.isFavorite ? "hugeicons:star" : "hugeicons:star"}
-                            className={`size-5 ${job.isFavorite ? "text-yellow-500 fill-yellow-500" : "text-zinc-500"}`}
+                            className={`size-5 ${job.isFavorite ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`}
                           />
                         </button>
                       )}
@@ -538,29 +557,29 @@ function JobsPageContent() {
                   </CardHeader>
 
                   <CardBody className="p-6 py-4 flex-1">
-                    <h3 className="text-sm font-bold text-zinc-200 line-clamp-1 hover:text-zinc-100 transition-colors">
+                    <h3 className="text-sm font-bold text-foreground line-clamp-1 hover:text-muted-foreground transition-colors">
                       {job.title}
                     </h3>
                     <div className="flex flex-wrap gap-1.5 mt-3">
                       {job.modality && (
-                        <span className="text-[10px] bg-zinc-900 border border-zinc-850 text-zinc-400 px-2 py-0.5 rounded-full font-medium">
+                        <span className="text-[10px] bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded-full font-medium">
                           {job.modality}
                         </span>
                       )}
                       {job.level && (
-                        <span className="text-[10px] bg-zinc-900 border border-zinc-850 text-zinc-400 px-2 py-0.5 rounded-full font-medium">
+                        <span className="text-[10px] bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded-full font-medium">
                           {job.level}
                         </span>
                       )}
                       {job.location && (
-                        <span className="text-[10px] bg-zinc-900 border border-zinc-850 text-zinc-400 px-2 py-0.5 rounded-full font-medium truncate max-w-[150px]">
+                        <span className="text-[10px] bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded-full font-medium truncate max-w-[150px]">
                           {job.location}
                         </span>
                       )}
                     </div>
                   </CardBody>
 
-                  <CardFooter className="p-6 pt-0 mt-2 flex items-center justify-between text-[11px] text-zinc-500">
+                  <CardFooter className="p-6 pt-0 mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
                     <div className="flex items-center space-x-3">
                       <span>
                         Publicada em:{" "}
@@ -574,8 +593,8 @@ function JobsPageContent() {
                           onClick={() => handleToggleApplied(job.id, !!job.isApplied)}
                           className={`flex items-center space-x-1 px-1.5 py-0.5 rounded border text-[9px] font-bold cursor-pointer transition-colors ${
                             job.isApplied
-                              ? "bg-zinc-800 border-zinc-700 text-zinc-300"
-                              : "bg-zinc-900/50 border-zinc-850 text-zinc-500 hover:text-zinc-400 hover:border-zinc-800"
+                              ? "bg-default border-border text-foreground"
+                              : "bg-muted/50 border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground"
                           }`}
                         >
                           <Icon
@@ -591,7 +610,7 @@ function JobsPageContent() {
                       href={job.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-zinc-400 hover:text-zinc-200 transition-colors font-semibold flex items-center space-x-1 cursor-pointer"
+                      className="text-muted-foreground hover:text-foreground transition-colors font-semibold flex items-center space-x-1 cursor-pointer"
                     >
                       <span>Ver Vaga</span>
                       <span>→</span>
@@ -601,8 +620,8 @@ function JobsPageContent() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-zinc-900/5 border border-dashed border-zinc-900 rounded-2xl w-full flex flex-col items-center">
-              <p className="text-zinc-500 text-sm mb-4">Nenhuma vaga encontrada no banco de dados.</p>
+            <div className="text-center py-20 bg-muted/10 border border-dashed border-border rounded-2xl w-full flex flex-col items-center">
+              <p className="text-muted-foreground text-sm mb-4">Nenhuma vaga encontrada no banco de dados.</p>
               <Button
                 onClick={handleSyncJobs}
                 color="default"
@@ -638,7 +657,7 @@ function JobsPageContent() {
 export default function Home() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Spinner size="lg" color="default" label="Carregando..." />
       </div>
     }>
