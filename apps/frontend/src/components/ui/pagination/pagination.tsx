@@ -196,11 +196,11 @@ PaginationLast.displayName = "PaginationLast";
 
 const PaginationPrevious = ({
   className,
-  label = "Previous",
+  label = "Anterior",
   ...props
 }: React.ComponentProps<typeof PaginationLink> & { label?: string }) => (
   <PaginationLink
-    aria-label="Go to previous page"
+    aria-label="Ir para página anterior"
     className={cn("gap-1.5 pl-2.5", className)}
     {...props}
   >
@@ -212,11 +212,11 @@ PaginationPrevious.displayName = "PaginationPrevious";
 
 const PaginationNext = ({
   className,
-  label = "Next",
+  label = "Próximo",
   ...props
 }: React.ComponentProps<typeof PaginationLink> & { label?: string }) => (
   <PaginationLink
-    aria-label="Go to next page"
+    aria-label="Ir para próxima página"
     className={cn("gap-1.5 pr-2.5", className)}
     {...props}
   >
@@ -314,22 +314,22 @@ export function PaginationToolbar({
     >
       {showTotal && (
         <div className="flex items-center gap-1 font-medium">
-          Showing{" "}
+          Exibindo{" "}
           <span className="font-bold text-zinc-900 dark:text-zinc-100">
             {startItem}-{endItem}
           </span>{" "}
-          of{" "}
+          de{" "}
           <span className="font-bold text-zinc-900 dark:text-zinc-100">
             {total}
           </span>{" "}
-          items
+          itens
         </div>
       )}
 
       <div className="flex items-center gap-3">
         {showRowsPerPage && onPageSizeChange && (
           <div className="flex items-center gap-1.5">
-            <span>Rows per page:</span>
+            <span>Linhas por página:</span>
             <select
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
@@ -419,7 +419,7 @@ export function PaginationToolbar({
             onSubmit={handleJumperSubmit}
             className="flex items-center gap-1.5"
           >
-            <span>Go to:</span>
+            <span>Ir para:</span>
             <input
               type="text"
               value={jumperVal}
