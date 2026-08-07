@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox, CheckboxGroup } from "@/components/ui/checkbox";
 import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Select } from "@/components/ui/select/select";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import { Skeleton } from "@/components/ui/skeleton/skeleton";
@@ -68,6 +69,7 @@ function JobsPageContent() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [viewLayout, setViewLayout] = useState<"grid" | "list">("grid");
 
   const [buscaQuery, setBuscaQuery] = useQueryState("busca", parseAsString.withDefault(""));
   const [companyQuery, setCompanyQuery] = useQueryState("company", parseAsString.withDefault(""));
@@ -295,6 +297,12 @@ function JobsPageContent() {
                 variant="default"
                 radius="lg"
                 size="sm"
+                startContent={
+                  <Icon
+                    icon={isSyncing ? "hugeicons:loading" : "hugeicons:refresh"}
+                    className={isSyncing ? "animate-spin size-4" : "size-4"}
+                  />
+                }
               >
                 {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
               </Button>
@@ -310,6 +318,7 @@ function JobsPageContent() {
                     variant="flat"
                     radius="lg"
                     size="sm"
+                    endContent={<Icon icon="hugeicons:logout-01" className="size-4" />}
                   >
                     Sair
                   </Button>
@@ -321,6 +330,7 @@ function JobsPageContent() {
                   variant="default"
                   radius="lg"
                   size="sm"
+                  startContent={<Icon icon="hugeicons:user" className="size-4" />}
                 >
                   Entrar
                 </Button>
@@ -335,7 +345,9 @@ function JobsPageContent() {
               variant="flat"
               radius="lg"
               size="sm"
-              className="w-9 h-9 p-0 flex items-center justify-center cursor-pointer"
+              isIconOnly
+              ariaLabel="Alterar Tema"
+              className="cursor-pointer"
               title="Alterar Tema"
             >
               {mounted && (
@@ -504,18 +516,38 @@ function JobsPageContent() {
         </aside>
 
         <section className="flex-1 space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pb-4 border-b border-border">
             <div>
               <h1 className="text-xl font-bold tracking-tight text-foreground">Vagas Encontradas</h1>
               <p className="text-xs text-muted-foreground mt-1">
                 {pagination ? `${pagination.total} oportunidades disponíveis` : "Carregando..."}
               </p>
             </div>
-            {pagination && (
-              <span className="text-xs text-muted-foreground font-medium">
-                Página {pagination.page} de {pagination.pages || 1}
-              </span>
-            )}
+            <div className="flex items-center space-x-4">
+              <ButtonGroup variant="flat" size="sm" radius="lg">
+                <Button
+                  onClick={() => setViewLayout("grid")}
+                  color={viewLayout === "grid" ? "primary" : "secondary"}
+                  isIconOnly
+                  ariaLabel="Visualizar em Grid"
+                >
+                  <Icon icon="hugeicons:grid-view" className="size-4" />
+                </Button>
+                <Button
+                  onClick={() => setViewLayout("list")}
+                  color={viewLayout === "list" ? "primary" : "secondary"}
+                  isIconOnly
+                  ariaLabel="Visualizar em Lista"
+                >
+                  <Icon icon="hugeicons:menu-02" className="size-4" />
+                </Button>
+              </ButtonGroup>
+              {pagination && (
+                <span className="text-xs text-muted-foreground font-medium select-none">
+                  Página {pagination.page} de {pagination.pages || 1}
+                </span>
+              )}
+            </div>
           </div>
 
           {error && (
@@ -525,12 +557,12 @@ function JobsPageContent() {
           )}
 
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className={viewLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "flex flex-col gap-3"}>
               {[...Array(6)].map((_, i) => (
                 <Card
                   key={i}
-                  variant="bordered"
-                  className="bg-card border-border p-6 h-44 flex flex-col justify-between"
+                  variant="flat"
+                  className="bg-card border border-border p-6 h-44 flex flex-col justify-between"
                 >
                   <div className="space-y-3">
                     <Skeleton className="h-4 w-1/3 bg-muted" />
@@ -541,13 +573,13 @@ function JobsPageContent() {
               ))}
             </div>
           ) : jobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className={viewLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "flex flex-col gap-3"}>
               {jobs.map((job) => (
                 <Card
                   key={job.id}
-                  variant="bordered"
+                  variant="flat"
                   isHoverable
-                  className="bg-card border-border flex flex-col justify-between h-full hover:border-muted-foreground/35 transition-colors relative"
+                  className="bg-card border border-border flex flex-col justify-between h-full hover:border-muted-foreground/35 transition-colors relative"
                 >
                   <CardHeader className="p-6 pb-0 flex flex-col space-y-4">
                     <div className="flex items-center justify-between">
@@ -650,6 +682,7 @@ function JobsPageContent() {
                 onClick={handleSyncJobs}
                 color="primary"
                 radius="lg"
+                startContent={<Icon icon="hugeicons:refresh" className="size-4" />}
               >
                 Buscar Novas Vagas Agora
               </Button>
