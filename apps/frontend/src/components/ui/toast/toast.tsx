@@ -91,7 +91,7 @@ const createCustomToast = (
     (t) => (
       <div
         className={cn(
-          "relative flex items-start gap-3.5 w-80 max-w-sm p-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl text-zinc-900 dark:text-zinc-100 shadow-2xl transition-all duration-300 overflow-hidden",
+          "relative flex items-start gap-3.5 w-80 max-w-sm p-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl text-zinc-900 dark:text-zinc-100 shadow-2xl transition-all duration-300 overflow-hidden pointer-events-auto",
         )}
       >
         <div className={cn("absolute left-0 top-0 bottom-0 w-1", style.bar)} />
@@ -138,7 +138,7 @@ const createCustomToast = (
         <button
           type="button"
           onClick={() => sonnerToast.dismiss(t)}
-          className="absolute right-2.5 top-2.5 p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+          className="absolute right-2.5 top-2.5 p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer z-50"
           aria-label="Dismiss toast"
         >
           <Icon icon="hugeicons:cancel-01" className="size-4" />
