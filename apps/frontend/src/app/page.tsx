@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useQueryState, parseAsInteger, parseAsString, parseAsArrayOf } from "nuqs";
 import { Input } from "@/components/ui/input";
 import { Checkbox, CheckboxGroup } from "@/components/ui/checkbox";
@@ -160,6 +160,21 @@ function JobsPageContent() {
     setSourcesQuery(null);
   };
 
+  const handleBuscaDebounced = useCallback((val: string) => {
+    setPageQuery(1);
+    setBuscaQuery(val || null);
+  }, [setPageQuery, setBuscaQuery]);
+
+  const handleCompanyDebounced = useCallback((val: string) => {
+    setPageQuery(1);
+    setCompanyQuery(val || null);
+  }, [setPageQuery, setCompanyQuery]);
+
+  const handleLocationDebounced = useCallback((val: string) => {
+    setPageQuery(1);
+    setLocationQuery(val || null);
+  }, [setPageQuery, setLocationQuery]);
+
   const toggleModality = (val: string) => {
     setPageQuery(1);
     setModalitiesQuery((prev) =>
@@ -234,10 +249,7 @@ function JobsPageContent() {
               <Input
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                debouncedOnChange={(val) => {
-                  setPageQuery(1);
-                  setBuscaQuery(val || null);
-                }}
+                debouncedOnChange={handleBuscaDebounced}
                 debounceTimeout={400}
                 placeholder="Ex: Node.js, React, Python"
                 label="Palavra-chave ou Tecnologia"
@@ -248,10 +260,7 @@ function JobsPageContent() {
               <Input
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
-                debouncedOnChange={(val) => {
-                  setPageQuery(1);
-                  setCompanyQuery(val || null);
-                }}
+                debouncedOnChange={handleCompanyDebounced}
                 debounceTimeout={400}
                 placeholder="Ex: Nubank, Google"
                 label="Empresa"
@@ -262,10 +271,7 @@ function JobsPageContent() {
               <Input
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                debouncedOnChange={(val) => {
-                  setPageQuery(1);
-                  setLocationQuery(val || null);
-                }}
+                debouncedOnChange={handleLocationDebounced}
                 debounceTimeout={400}
                 placeholder="Ex: São Paulo, Remoto"
                 label="Localização"
@@ -354,7 +360,7 @@ function JobsPageContent() {
           </div>
 
           {error && (
-            <div className="bg-red-950/15 border border-red-900/30 rounded-2xl p-6 text-red-200 text-sm">
+            <div className="bg-red-950/20 border border-red-900/30 rounded-2xl p-6 text-red-200 text-sm">
               {error}
             </div>
           )}
