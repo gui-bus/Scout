@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { normalizeLink } from "./utils/link-normalizer";
 import { identifyLevel } from "./utils/job-classifier";
+import { extractMetadata } from "./utils/job-extractor";
 
 @Injectable()
 export class JobService {
@@ -40,7 +41,25 @@ export class JobService {
     }
 
     if (filters.source && filters.source.length > 0) {
-      where.source = { in: Array.isArray(filters.source) ? filters.source : [filters.source] };
+      const sourcesList = Array.isArray(filters.source) ? filters.source : [filters.source];
+      const hasGithub = sourcesList.includes("GitHub");
+
+      if (hasGithub) {
+        where.OR = [
+          { source: { startsWith: "GitHub" } },
+          { source: { in: sourcesList.filter((s: string) => s !== "GitHub") } },
+        ];
+      } else {
+        where.source = { in: sourcesList };
+      }
+    }
+
+    if (filters.contractType && filters.contractType !== "todos") {
+      if (filters.contractType === "CLT") {
+        where.contractType = { in: ["CLT", "CLT/PJ"] };
+      } else if (filters.contractType === "PJ") {
+        where.contractType = { in: ["PJ", "CLT/PJ"] };
+      }
     }
 
     if (userId) {
@@ -67,12 +86,21 @@ export class JobService {
       if (filters.period === "hoje") {
         dateLimit.setHours(0, 0, 0, 0);
         where.publishedAt = { gte: dateLimit };
+      } else if (filters.period === "24h") {
+        dateLimit.setHours(dateLimit.getHours() - 24);
+        where.publishedAt = { gte: dateLimit };
+      } else if (filters.period === "3dias") {
+        dateLimit.setDate(dateLimit.getDate() - 3);
+        where.publishedAt = { gte: dateLimit };
       } else if (filters.period === "semana") {
         dateLimit.setDate(dateLimit.getDate() - 7);
         where.publishedAt = { gte: dateLimit };
       } else if (filters.period === "mes") {
         dateLimit.setDate(dateLimit.getDate() - 30);
         where.publishedAt = { gte: dateLimit };
+      } else if (filters.period === "coletadas_hoje") {
+        dateLimit.setHours(0, 0, 0, 0);
+        where.collectedAt = { gte: dateLimit };
       }
     }
 
@@ -180,6 +208,8 @@ export class JobService {
       return { job: existing, created: false };
     }
 
+    const metadata = extractMetadata(data.description);
+
     const job = await this.prisma.job.create({
       data: {
         title: data.title,
@@ -188,10 +218,13 @@ export class JobService {
         location: data.location || null,
         modality: data.modality || null,
         level: data.level || identifyLevel(data),
-        technologies: data.technologies || null,
+        technologies: data.technologies || metadata.technologies || null,
         source: data.source || null,
         link: normalized,
         publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
+        contractType: data.contractType || metadata.contractType,
+        salaryText: data.salaryText || metadata.salaryText,
+        contactsText: data.contactsText || metadata.contactsText,
       },
     });
 

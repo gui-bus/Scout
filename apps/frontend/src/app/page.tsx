@@ -43,6 +43,7 @@ function JobsPageContent() {
   const [sourcesQuery, setSourcesQuery] = useQueryState("sources", parseAsArrayOf(parseAsString).withDefault([]));
   const [favoritesOnlyQuery, setFavoritesOnlyQuery] = useQueryState("favoritos", parseAsString.withDefault(""));
   const [appliedOnlyQuery, setAppliedOnlyQuery] = useQueryState("candidatados", parseAsString.withDefault(""));
+  const [contractTypeQuery, setContractTypeQuery] = useQueryState("contrato", parseAsString.withDefault("todos"));
   const [pageQuery, setPageQuery] = useQueryState("page", parseAsInteger.withDefault(1));
   const [perPageQuery, setPerPageQuery] = useQueryState("limite", parseAsInteger.withDefault(10));
 
@@ -68,6 +69,7 @@ function JobsPageContent() {
       sourcesQuery,
       favoritesOnlyQuery,
       appliedOnlyQuery,
+      contractTypeQuery,
       pageQuery,
       perPageQuery,
       token,
@@ -80,6 +82,9 @@ function JobsPageContent() {
       if (periodQuery) params.append("period", periodQuery);
       if (favoritesOnlyQuery) params.append("favoritesOnly", "true");
       if (appliedOnlyQuery) params.append("appliedOnly", "true");
+      if (contractTypeQuery && contractTypeQuery !== "todos") {
+        params.append("contractType", contractTypeQuery);
+      }
 
       modalitiesQuery.forEach((m) => params.append("modality", m));
       levelsQuery.forEach((l) => params.append("level", l));
@@ -134,6 +139,10 @@ function JobsPageContent() {
     prevCollectingRef.current = isCollecting;
   }, [syncStatus, queryClient]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [pageQuery]);
+
   const syncJobsMutation = useMutation({
     mutationFn: async () => {
       const response = await fetch("http://localhost:3001/api/collect", {
@@ -171,7 +180,8 @@ function JobsPageContent() {
     setSourcesQuery(null);
     setFavoritesOnlyQuery(null);
     setAppliedOnlyQuery(null);
-  }, [setPageQuery, setBuscaQuery, setCompanyQuery, setLocationQuery, setPeriodQuery, setModalitiesQuery, setLevelsQuery, setSourcesQuery, setFavoritesOnlyQuery, setAppliedOnlyQuery]);
+    setContractTypeQuery(null);
+  }, [setPageQuery, setBuscaQuery, setCompanyQuery, setLocationQuery, setPeriodQuery, setModalitiesQuery, setLevelsQuery, setSourcesQuery, setFavoritesOnlyQuery, setAppliedOnlyQuery, setContractTypeQuery]);
 
   const handleBuscaDebounced = useCallback((val: string) => {
     setPageQuery(1);
@@ -335,6 +345,8 @@ function JobsPageContent() {
           onLocationDebounced={handleLocationDebounced}
           period={periodQuery}
           onPeriodChange={handlePeriodChange}
+          contractType={contractTypeQuery}
+          onContractTypeChange={setContractTypeQuery}
           sources={sourcesQuery}
           onSourcesChange={handleSourcesChange}
           modalities={modalitiesQuery}

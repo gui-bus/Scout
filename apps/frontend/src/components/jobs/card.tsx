@@ -81,6 +81,33 @@ function renderSourceLogo(source: string | null) {
       />
     );
   }
+  if (srcLower.includes("github")) {
+    return (
+      <>
+        <Image
+          src="/utils/icons/github_logo_black.svg"
+          alt="GitHub"
+          width={55}
+          height={16}
+          className="dark:hidden select-none object-contain"
+        />
+        <Image
+          src="/utils/icons/github_logo_white.svg"
+          alt="GitHub"
+          width={55}
+          height={16}
+          className="hidden dark:block select-none object-contain"
+        />
+      </>
+    );
+  }
+  if (srcLower.includes("remotive")) {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/10 text-sky-600 border border-sky-500/20 select-none">
+        Remotive
+      </span>
+    );
+  }
 
   return (
     <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-muted text-muted-foreground border border-border select-none">
@@ -192,6 +219,11 @@ export function JobCardItem({
                 {job.level}
               </span>
             )}
+            {job.contractType && job.contractType !== "Não especificado" && (
+              <span className="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full font-bold">
+                {job.contractType}
+              </span>
+            )}
           </div>
 
           {techList.length > 0 && (
@@ -252,8 +284,41 @@ export function JobCardItem({
             </div>
           )}
 
+          {job.salaryText && (
+            <div className="flex items-center text-xs text-emerald-600 dark:text-emerald-400 mt-3.5 font-bold">
+              <Icon icon="ph:currency-dollar" className="size-4 mr-1 shrink-0 text-emerald-500" />
+              <span>{job.salaryText}</span>
+            </div>
+          )}
+
+          {job.contactsText && (
+            <div className="mt-3.5 p-3 bg-primary/5 border border-primary/10 rounded-lg flex flex-col gap-2">
+              <div className="text-[10px] text-primary font-bold flex items-center gap-1">
+                <Icon icon="ph:paper-plane-tilt-bold" className="size-3.5" />
+                <span>Candidatura direta / Contato:</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {job.contactsText.split(",").map((contact, idx) => {
+                  const cTrim = contact.trim();
+                  const isEmail = cTrim.includes("@");
+                  return (
+                    <a
+                      key={idx}
+                      href={isEmail ? `mailto:${cTrim}` : cTrim}
+                      target={isEmail ? undefined : "_blank"}
+                      rel={isEmail ? undefined : "noopener noreferrer"}
+                      className="text-[10px] bg-card border border-border text-foreground hover:border-primary hover:text-primary px-2.5 py-1 rounded transition-all truncate max-w-full font-semibold shadow-sm"
+                    >
+                      {cTrim}
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {job.location && (
-            <div className="flex items-center text-xs text-muted-foreground mt-3 font-medium">
+            <div className="flex items-center text-xs text-muted-foreground mt-3.5 font-medium">
               <Icon icon="ph:map-pin" className="size-4 mr-1 shrink-0 text-primary" />
               <span className="truncate max-w-[200px] sm:max-w-xs">{job.location}</span>
             </div>

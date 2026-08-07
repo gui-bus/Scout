@@ -5,6 +5,8 @@ import { GupyCollector } from "./collectors/gupy-collector";
 import { SolidesCollector } from "./collectors/solides-collector";
 import { RemotarCollector } from "./collectors/remotar-collector";
 import { JoobleCollector } from "./collectors/jooble-collector";
+import { GithubCollector } from "./collectors/github-collector";
+import { RemotiveCollector } from "./collectors/remotive-collector";
 import { BaseCollector } from "./collectors/base-collector";
 import { isSoftwareJob, identifyLevel } from "./utils/job-classifier";
 
@@ -59,6 +61,12 @@ export class CollectService {
         new RemotarCollector(17, [4, 7, 13, 14], 100, 90),
         new RemotarCollector(21, [4, 7, 13, 14], 100, 90),
         new RemotarCollector(23, [4, 7, 13, 14], 100, 90),
+
+        new GithubCollector("backend-br/vagas", 90),
+        new GithubCollector("frontendbr/vagas", 90),
+        new GithubCollector("react-brasil/vagas", 90),
+
+        new RemotiveCollector(90),
       ];
 
       if (joobleApiKey) {

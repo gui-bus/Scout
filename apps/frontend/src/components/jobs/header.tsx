@@ -48,7 +48,7 @@ export function JobsHeader({
   }, []);
 
   return (
-    <header className="bg-background border-b border-border">
+    <header>
       <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="h-8 relative w-[120px] flex items-center">

@@ -11,6 +11,9 @@ export interface Job {
   link: string;
   publishedAt: string | null;
   collectedAt?: string | null;
+  contractType?: string | null;
+  salaryText?: string | null;
+  contactsText?: string | null;
   isFavorite?: boolean;
   isApplied?: boolean;
 }

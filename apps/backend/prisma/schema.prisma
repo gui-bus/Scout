@@ -21,6 +21,9 @@ model Job {
   link         String         @unique
   publishedAt  DateTime?
   collectedAt  DateTime       @default(now())
+  contractType String?
+  salaryText   String?
+  contactsText String?
   jobStates    UserJobState[]
 
   @@map("jobs")

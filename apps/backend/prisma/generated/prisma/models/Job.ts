@@ -47,6 +47,9 @@ export type JobMinAggregateOutputType = {
   link: string | null
   publishedAt: Date | null
   collectedAt: Date | null
+  contractType: string | null
+  salaryText: string | null
+  contactsText: string | null
 }
 
 export type JobMaxAggregateOutputType = {
@@ -62,6 +65,9 @@ export type JobMaxAggregateOutputType = {
   link: string | null
   publishedAt: Date | null
   collectedAt: Date | null
+  contractType: string | null
+  salaryText: string | null
+  contactsText: string | null
 }
 
 export type JobCountAggregateOutputType = {
@@ -77,6 +83,9 @@ export type JobCountAggregateOutputType = {
   link: number
   publishedAt: number
   collectedAt: number
+  contractType: number
+  salaryText: number
+  contactsText: number
   _all: number
 }
 
@@ -102,6 +111,9 @@ export type JobMinAggregateInputType = {
   link?: true
   publishedAt?: true
   collectedAt?: true
+  contractType?: true
+  salaryText?: true
+  contactsText?: true
 }
 
 export type JobMaxAggregateInputType = {
@@ -117,6 +129,9 @@ export type JobMaxAggregateInputType = {
   link?: true
   publishedAt?: true
   collectedAt?: true
+  contractType?: true
+  salaryText?: true
+  contactsText?: true
 }
 
 export type JobCountAggregateInputType = {
@@ -132,6 +147,9 @@ export type JobCountAggregateInputType = {
   link?: true
   publishedAt?: true
   collectedAt?: true
+  contractType?: true
+  salaryText?: true
+  contactsText?: true
   _all?: true
 }
 
@@ -234,6 +252,9 @@ export type JobGroupByOutputType = {
   link: string
   publishedAt: Date | null
   collectedAt: Date
+  contractType: string | null
+  salaryText: string | null
+  contactsText: string | null
   _count: JobCountAggregateOutputType | null
   _avg: JobAvgAggregateOutputType | null
   _sum: JobSumAggregateOutputType | null
@@ -272,6 +293,9 @@ export type JobWhereInput = {
   link?: Prisma.StringFilter<"Job"> | string
   publishedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   collectedAt?: Prisma.DateTimeFilter<"Job"> | Date | string
+  contractType?: Prisma.StringNullableFilter<"Job"> | string | null
+  salaryText?: Prisma.StringNullableFilter<"Job"> | string | null
+  contactsText?: Prisma.StringNullableFilter<"Job"> | string | null
   jobStates?: Prisma.UserJobStateListRelationFilter
 }
 
@@ -288,6 +312,9 @@ export type JobOrderByWithRelationInput = {
   link?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   collectedAt?: Prisma.SortOrder
+  contractType?: Prisma.SortOrderInput | Prisma.SortOrder
+  salaryText?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactsText?: Prisma.SortOrderInput | Prisma.SortOrder
   jobStates?: Prisma.UserJobStateOrderByRelationAggregateInput
 }
 
@@ -307,6 +334,9 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.StringNullableFilter<"Job"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   collectedAt?: Prisma.DateTimeFilter<"Job"> | Date | string
+  contractType?: Prisma.StringNullableFilter<"Job"> | string | null
+  salaryText?: Prisma.StringNullableFilter<"Job"> | string | null
+  contactsText?: Prisma.StringNullableFilter<"Job"> | string | null
   jobStates?: Prisma.UserJobStateListRelationFilter
 }, "id" | "link">
 
@@ -323,6 +353,9 @@ export type JobOrderByWithAggregationInput = {
   link?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   collectedAt?: Prisma.SortOrder
+  contractType?: Prisma.SortOrderInput | Prisma.SortOrder
+  salaryText?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactsText?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.JobCountOrderByAggregateInput
   _avg?: Prisma.JobAvgOrderByAggregateInput
   _max?: Prisma.JobMaxOrderByAggregateInput
@@ -346,6 +379,9 @@ export type JobScalarWhereWithAggregatesInput = {
   link?: Prisma.StringWithAggregatesFilter<"Job"> | string
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
   collectedAt?: Prisma.DateTimeWithAggregatesFilter<"Job"> | Date | string
+  contractType?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  salaryText?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  contactsText?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
 }
 
 export type JobCreateInput = {
@@ -360,6 +396,9 @@ export type JobCreateInput = {
   link: string
   publishedAt?: Date | string | null
   collectedAt?: Date | string
+  contractType?: string | null
+  salaryText?: string | null
+  contactsText?: string | null
   jobStates?: Prisma.UserJobStateCreateNestedManyWithoutJobInput
 }
 
@@ -376,6 +415,9 @@ export type JobUncheckedCreateInput = {
   link: string
   publishedAt?: Date | string | null
   collectedAt?: Date | string
+  contractType?: string | null
+  salaryText?: string | null
+  contactsText?: string | null
   jobStates?: Prisma.UserJobStateUncheckedCreateNestedManyWithoutJobInput
 }
 
@@ -391,6 +433,9 @@ export type JobUpdateInput = {
   link?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   collectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  contractType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salaryText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactsText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobStates?: Prisma.UserJobStateUpdateManyWithoutJobNestedInput
 }
 
@@ -407,6 +452,9 @@ export type JobUncheckedUpdateInput = {
   link?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   collectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  contractType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salaryText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactsText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobStates?: Prisma.UserJobStateUncheckedUpdateManyWithoutJobNestedInput
 }
 
@@ -423,6 +471,9 @@ export type JobCreateManyInput = {
   link: string
   publishedAt?: Date | string | null
   collectedAt?: Date | string
+  contractType?: string | null
+  salaryText?: string | null
+  contactsText?: string | null
 }
 
 export type JobUpdateManyMutationInput = {
@@ -437,6 +488,9 @@ export type JobUpdateManyMutationInput = {
   link?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   collectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  contractType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salaryText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactsText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type JobUncheckedUpdateManyInput = {
@@ -452,6 +506,9 @@ export type JobUncheckedUpdateManyInput = {
   link?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   collectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  contractType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salaryText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactsText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type JobCountOrderByAggregateInput = {
@@ -467,6 +524,9 @@ export type JobCountOrderByAggregateInput = {
   link?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   collectedAt?: Prisma.SortOrder
+  contractType?: Prisma.SortOrder
+  salaryText?: Prisma.SortOrder
+  contactsText?: Prisma.SortOrder
 }
 
 export type JobAvgOrderByAggregateInput = {
@@ -486,6 +546,9 @@ export type JobMaxOrderByAggregateInput = {
   link?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   collectedAt?: Prisma.SortOrder
+  contractType?: Prisma.SortOrder
+  salaryText?: Prisma.SortOrder
+  contactsText?: Prisma.SortOrder
 }
 
 export type JobMinOrderByAggregateInput = {
@@ -501,6 +564,9 @@ export type JobMinOrderByAggregateInput = {
   link?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   collectedAt?: Prisma.SortOrder
+  contractType?: Prisma.SortOrder
+  salaryText?: Prisma.SortOrder
+  contactsText?: Prisma.SortOrder
 }
 
 export type JobSumOrderByAggregateInput = {
@@ -562,6 +628,9 @@ export type JobCreateWithoutJobStatesInput = {
   link: string
   publishedAt?: Date | string | null
   collectedAt?: Date | string
+  contractType?: string | null
+  salaryText?: string | null
+  contactsText?: string | null
 }
 
 export type JobUncheckedCreateWithoutJobStatesInput = {
@@ -577,6 +646,9 @@ export type JobUncheckedCreateWithoutJobStatesInput = {
   link: string
   publishedAt?: Date | string | null
   collectedAt?: Date | string
+  contractType?: string | null
+  salaryText?: string | null
+  contactsText?: string | null
 }
 
 export type JobCreateOrConnectWithoutJobStatesInput = {
@@ -607,6 +679,9 @@ export type JobUpdateWithoutJobStatesInput = {
   link?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   collectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  contractType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salaryText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactsText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type JobUncheckedUpdateWithoutJobStatesInput = {
@@ -622,6 +697,9 @@ export type JobUncheckedUpdateWithoutJobStatesInput = {
   link?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   collectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  contractType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salaryText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactsText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -668,6 +746,9 @@ export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   link?: boolean
   publishedAt?: boolean
   collectedAt?: boolean
+  contractType?: boolean
+  salaryText?: boolean
+  contactsText?: boolean
   jobStates?: boolean | Prisma.Job$jobStatesArgs<ExtArgs>
   _count?: boolean | Prisma.JobCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["job"]>
@@ -685,6 +766,9 @@ export type JobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   link?: boolean
   publishedAt?: boolean
   collectedAt?: boolean
+  contractType?: boolean
+  salaryText?: boolean
+  contactsText?: boolean
 }, ExtArgs["result"]["job"]>
 
 export type JobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -700,6 +784,9 @@ export type JobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   link?: boolean
   publishedAt?: boolean
   collectedAt?: boolean
+  contractType?: boolean
+  salaryText?: boolean
+  contactsText?: boolean
 }, ExtArgs["result"]["job"]>
 
 export type JobSelectScalar = {
@@ -715,9 +802,12 @@ export type JobSelectScalar = {
   link?: boolean
   publishedAt?: boolean
   collectedAt?: boolean
+  contractType?: boolean
+  salaryText?: boolean
+  contactsText?: boolean
 }
 
-export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "company" | "location" | "modality" | "level" | "technologies" | "source" | "link" | "publishedAt" | "collectedAt", ExtArgs["result"]["job"]>
+export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "company" | "location" | "modality" | "level" | "technologies" | "source" | "link" | "publishedAt" | "collectedAt" | "contractType" | "salaryText" | "contactsText", ExtArgs["result"]["job"]>
 export type JobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   jobStates?: boolean | Prisma.Job$jobStatesArgs<ExtArgs>
   _count?: boolean | Prisma.JobCountOutputTypeDefaultArgs<ExtArgs>
@@ -743,6 +833,9 @@ export type $JobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     link: string
     publishedAt: Date | null
     collectedAt: Date
+    contractType: string | null
+    salaryText: string | null
+    contactsText: string | null
   }, ExtArgs["result"]["job"]>
   composites: {}
 }
@@ -1179,6 +1272,9 @@ export interface JobFieldRefs {
   readonly link: Prisma.FieldRef<"Job", 'String'>
   readonly publishedAt: Prisma.FieldRef<"Job", 'DateTime'>
   readonly collectedAt: Prisma.FieldRef<"Job", 'DateTime'>
+  readonly contractType: Prisma.FieldRef<"Job", 'String'>
+  readonly salaryText: Prisma.FieldRef<"Job", 'String'>
+  readonly contactsText: Prisma.FieldRef<"Job", 'String'>
 }
     
 

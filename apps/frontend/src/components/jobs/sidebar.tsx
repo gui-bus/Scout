@@ -22,6 +22,8 @@ interface JobsSidebarProps {
   onLocationDebounced: (val: string) => void;
   period: string;
   onPeriodChange: (val: string) => void;
+  contractType: string;
+  onContractTypeChange: (val: string) => void;
   sources: string[];
   onSourcesChange: (val: string[]) => void;
   modalities: string[];
@@ -36,6 +38,8 @@ const sourceOptions = [
   { value: "Solides", label: "Sólides" },
   { value: "Remotar", label: "Remotar" },
   { value: "Jooble", label: "Jooble" },
+  { value: "GitHub", label: "GitHub" },
+  { value: "Remotive", label: "Remotive" },
 ];
 
 const modalityOptions = [
@@ -71,6 +75,8 @@ export function JobsSidebar({
   onLocationDebounced,
   period,
   onPeriodChange,
+  contractType,
+  onContractTypeChange,
   sources,
   onSourcesChange,
   modalities,
@@ -160,7 +166,21 @@ export function JobsSidebar({
         />
 
         <Select
-          label="Período de Publicação"
+          label="Tipo de Contrato"
+          value={contractType}
+          onValueChange={onContractTypeChange}
+          placeholder="Todos os contratos"
+          radius="lg"
+          variant="default"
+          options={[
+            { value: "todos", label: "Todos os contratos" },
+            { value: "CLT", label: "Apenas CLT" },
+            { value: "PJ", label: "Apenas PJ" },
+          ]}
+        />
+
+        <Select
+          label="Período de Publicação / Coleta"
           value={period}
           onValueChange={onPeriodChange}
           placeholder="Qualquer data"
@@ -168,7 +188,10 @@ export function JobsSidebar({
           variant="default"
           options={[
             { value: "", label: "Qualquer data" },
-            { value: "hoje", label: "Hoje" },
+            { value: "coletadas_hoje", label: "Coletadas hoje" },
+            { value: "hoje", label: "Publicadas hoje" },
+            { value: "24h", label: "Últimas 24 horas" },
+            { value: "3dias", label: "Últimos 3 dias" },
             { value: "semana", label: "Últimos 7 dias" },
             { value: "mes", label: "Últimos 30 dias" },
           ]}
