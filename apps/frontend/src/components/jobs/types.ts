@@ -10,6 +10,7 @@ export interface Job {
   source: string | null;
   link: string;
   publishedAt: string | null;
+  collectedAt?: string | null;
   isFavorite?: boolean;
   isApplied?: boolean;
 }

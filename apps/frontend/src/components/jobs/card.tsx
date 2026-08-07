@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
@@ -88,12 +88,31 @@ function renderSourceLogo(source: string | null) {
   );
 }
 
+function sanitizeDescription(desc: string | null): string {
+  if (!desc) return "";
+  let clean = desc
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"');
+
+  // Adiciona espaçamento entre emojis grudados e letras se necessário
+  clean = clean.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, " $1 ");
+
+  // Remove espaços múltiplos e limpa as pontas
+  return clean.replace(/\s+/g, " ").trim();
+}
+
 export function JobCardItem({
   job,
   isAuthenticated,
   onToggleFavorite,
   onToggleApplied,
 }: JobCardItemProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const sanitizedDesc = sanitizeDescription(job.description);
+
   return (
     <Card
       variant="flat"
@@ -130,39 +149,100 @@ export function JobCardItem({
         </div>
       </CardHeader>
 
-      <CardBody className="p-6 py-4 flex-1">
-        <h3 className="text-sm font-bold text-foreground line-clamp-1 hover:text-muted-foreground transition-colors">
-          {job.title}
-        </h3>
-        <div className="flex flex-wrap gap-1.5 mt-3">
-          {job.modality && (
-            <span className="text-[10px] bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded-full font-medium">
-              {job.modality}
-            </span>
+      <CardBody className="p-6 py-4 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 className="text-sm font-bold text-foreground hover:text-muted-foreground transition-colors">
+            {job.title}
+          </h3>
+
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {job.modality && (
+              <span className="text-[10px] bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded-full font-medium">
+                {job.modality}
+              </span>
+            )}
+            {job.level && (
+              <span className="text-[10px] bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded-full font-medium">
+                {job.level}
+              </span>
+            )}
+          </div>
+
+          {job.technologies && (
+            <div className="flex flex-wrap gap-1 mt-3">
+              {job.technologies.split(",").map((tech, idx) => (
+                <span
+                  key={idx}
+                  className="text-[9px] font-semibold bg-primary/10 border border-primary/20 text-primary px-1.5 py-0.5 rounded"
+                >
+                  {tech.trim()}
+                </span>
+              ))}
+            </div>
           )}
-          {job.level && (
-            <span className="text-[10px] bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded-full font-medium">
-              {job.level}
-            </span>
+
+          {sanitizedDesc && (
+            <div className="mt-3">
+              <p
+                className={`text-xs text-muted-foreground leading-relaxed transition-all ${
+                  isExpanded ? "" : "line-clamp-3"
+                }`}
+              >
+                {sanitizedDesc}
+              </p>
+              {sanitizedDesc.length > 160 && (
+                <button
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="text-[11px] text-primary hover:underline font-bold mt-1 cursor-pointer focus:outline-none flex items-center gap-0.5"
+                >
+                  <span>{isExpanded ? "Ver menos" : "Ver mais"}</span>
+                  <Icon
+                    icon={isExpanded ? "ph:caret-up-bold" : "ph:caret-down-bold"}
+                    className="size-3"
+                  />
+                </button>
+              )}
+            </div>
+          )}
+
+          {job.location && (
+            <div className="flex items-center text-xs text-muted-foreground mt-3 font-medium">
+              <Icon icon="ph:map-pin" className="size-4 mr-1 shrink-0 text-primary" />
+              <span className="truncate max-w-[200px] sm:max-w-xs">{job.location}</span>
+            </div>
           )}
         </div>
-        {job.location && (
-          <div className="flex items-center text-xs text-muted-foreground mt-3 font-medium">
-            <Icon icon="ph:map-pin" className="size-4 mr-1 shrink-0 text-primary" />
-            <span className="truncate max-w-[200px] sm:max-w-xs">{job.location}</span>
+
+        <div className="flex flex-col gap-1.5 text-[10px] text-muted-foreground mt-4 border-t border-border/50 pt-4">
+          <div className="flex items-center gap-1.5">
+            <Icon icon="ph:calendar-blank" className="size-3.5 text-muted-foreground/75" />
+            <span>
+              Publicada:{" "}
+              {job.publishedAt
+                ? new Date(job.publishedAt).toLocaleString("pt-BR", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  })
+                : "Não informada"}
+            </span>
           </div>
-        )}
+          <div className="flex items-center gap-1.5">
+            <Icon icon="ph:clock" className="size-3.5 text-muted-foreground/75" />
+            <span>
+              Coletada:{" "}
+              {job.collectedAt
+                ? new Date(job.collectedAt).toLocaleString("pt-BR", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  })
+                : "Não informada"}
+            </span>
+          </div>
+        </div>
       </CardBody>
 
       <CardFooter className="p-6 pt-0 mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px] text-muted-foreground">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 w-full sm:w-auto">
-          <span>
-            Publicada em:{" "}
-            {job.publishedAt
-              ? new Date(job.publishedAt).toLocaleDateString("pt-BR")
-              : "Não informada"}
-          </span>
-
+        <div className="w-full sm:w-auto">
           {isAuthenticated && (
             <button
               onClick={() => onToggleApplied(job.id, !!job.isApplied)}
