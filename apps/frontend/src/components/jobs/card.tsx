@@ -97,11 +97,34 @@ function sanitizeDescription(desc: string | null): string {
     .replace(/&gt;/gi, ">")
     .replace(/&quot;/gi, '"');
 
-  // Adiciona espaçamento entre emojis grudados e letras se necessário
   clean = clean.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, " $1 ");
 
-  // Remove espaços múltiplos e limpa as pontas
   return clean.replace(/\s+/g, " ").trim();
+}
+
+function formatRelativeDate(dateInput: string | Date | null | undefined): string {
+  if (!dateInput) return "Não informada";
+  const date = new Date(dateInput);
+  const now = new Date();
+
+  const d1 = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const d2 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffTime = d2.getTime() - d1.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  const timeStr = date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+  if (diffDays === 0) {
+    return `hoje às ${timeStr}`;
+  }
+  if (diffDays === 1) {
+    return `ontem às ${timeStr}`;
+  }
+  if (diffDays < 0) {
+    return `hoje às ${timeStr}`;
+  }
+
+  return `${diffDays} dias atrás às ${timeStr} (${date.toLocaleDateString("pt-BR")})`;
 }
 
 export function JobCardItem({
@@ -217,25 +240,13 @@ export function JobCardItem({
           <div className="flex items-center gap-1.5">
             <Icon icon="ph:calendar-blank" className="size-3.5 text-muted-foreground/75" />
             <span>
-              Publicada:{" "}
-              {job.publishedAt
-                ? new Date(job.publishedAt).toLocaleString("pt-BR", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })
-                : "Não informada"}
+              Publicada: {formatRelativeDate(job.publishedAt)}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             <Icon icon="ph:clock" className="size-3.5 text-muted-foreground/75" />
             <span>
-              Coletada:{" "}
-              {job.collectedAt
-                ? new Date(job.collectedAt).toLocaleString("pt-BR", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })
-                : "Não informada"}
+              Coletada: {formatRelativeDate(job.collectedAt)}
             </span>
           </div>
         </div>
