@@ -152,7 +152,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
           <Button
             type="submit"
-            color="default"
+            color="primary"
             variant="default"
             radius="lg"
             className="w-full"

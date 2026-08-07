@@ -282,7 +282,7 @@ function JobsPageContent() {
           <div className="flex items-center space-x-3">
             {isSyncing && (
               <div className="flex items-center space-x-2 text-xs text-muted-foreground mr-2">
-                <Spinner size="xs" color="default" />
+                <Spinner size="xs" color="primary" />
                 <span>Buscando novas vagas...</span>
               </div>
             )}
@@ -291,7 +291,7 @@ function JobsPageContent() {
               <Button
                 onClick={handleSyncJobs}
                 disabled={isSyncing}
-                color="default"
+                color="primary"
                 variant="default"
                 radius="lg"
                 size="sm"
@@ -306,7 +306,7 @@ function JobsPageContent() {
                   </span>
                   <Button
                     onClick={logout}
-                    color="default"
+                    color="primary"
                     variant="flat"
                     radius="lg"
                     size="sm"
@@ -317,7 +317,7 @@ function JobsPageContent() {
               ) : (
                 <Button
                   onClick={() => setAuthModalOpen(true)}
-                  color="default"
+                  color="primary"
                   variant="default"
                   radius="lg"
                   size="sm"
@@ -331,7 +331,7 @@ function JobsPageContent() {
 
             <Button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              color="default"
+              color="primary"
               variant="flat"
               radius="lg"
               size="sm"
@@ -373,7 +373,7 @@ function JobsPageContent() {
                     setFavoritesOnlyQuery(val ? "true" : null);
                   }}
                   label="Apenas Favoritas"
-                  color="default"
+                  color="primary"
                 />
                 <Checkbox
                   checked={appliedOnlyQuery === "true"}
@@ -382,7 +382,7 @@ function JobsPageContent() {
                     setAppliedOnlyQuery(val ? "true" : null);
                   }}
                   label="Candidaturas Feitas"
-                  color="default"
+                  color="primary"
                 />
               </CheckboxGroup>
             )}
@@ -648,7 +648,7 @@ function JobsPageContent() {
               <p className="text-muted-foreground text-sm mb-4">Nenhuma vaga encontrada no banco de dados.</p>
               <Button
                 onClick={handleSyncJobs}
-                color="default"
+                color="primary"
                 radius="lg"
               >
                 Buscar Novas Vagas Agora
@@ -666,7 +666,7 @@ function JobsPageContent() {
               showJumper={false}
               showFirstButton={false}
               showLastButton={false}
-              color="default"
+              color="primary"
               className="w-full mt-6"
             />
           )}
@@ -682,7 +682,7 @@ export default function Home() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Spinner size="lg" color="default" label="Carregando..." />
+        <Spinner size="lg" color="primary" label="Carregando..." />
       </div>
     }>
       <JobsPageContent />
