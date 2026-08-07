@@ -135,7 +135,9 @@ export function JobCardItem({
   onToggleApplied,
 }: JobCardItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isTechsExpanded, setIsTechsExpanded] = useState(false);
   const sanitizedDesc = sanitizeDescription(job.description);
+  const techList = job.technologies ? job.technologies.split(",") : [];
 
   return (
     <Card
@@ -192,20 +194,37 @@ export function JobCardItem({
             )}
           </div>
 
-          {job.technologies && (
-            <div className="flex flex-wrap gap-1 mt-3">
-              {job.technologies.split(",").map((tech, idx) => (
-                <Badge
-                  key={idx}
-                  color="primary"
-                  variant="flat"
-                  size="sm"
-                  radius="sm"
-                  className="text-[9px] font-semibold"
-                >
-                  {tech.trim()}
-                </Badge>
-              ))}
+          {techList.length > 0 && (
+            <div className="mt-3">
+              <div className="flex flex-wrap gap-1">
+                {techList
+                  .slice(0, isTechsExpanded ? undefined : 8)
+                  .map((tech, idx) => (
+                    <Badge
+                      key={idx}
+                      color="primary"
+                      variant="flat"
+                      size="sm"
+                      radius="sm"
+                      className="text-[9px] font-semibold"
+                    >
+                      {tech.trim()}
+                    </Badge>
+                  ))}
+
+                {techList.length > 8 && (
+                  <button
+                    onClick={() => setIsTechsExpanded(!isTechsExpanded)}
+                    className="text-[10px] text-primary hover:underline font-bold px-1.5 py-0.5 rounded cursor-pointer focus:outline-none flex items-center gap-0.5"
+                  >
+                    <span>
+                      {isTechsExpanded
+                        ? "Ver menos"
+                        : `+${techList.length - 8} mais`}
+                    </span>
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
