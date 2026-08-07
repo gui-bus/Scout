@@ -149,13 +149,13 @@ export function JobCardItem({
         {job.location && (
           <div className="flex items-center text-xs text-muted-foreground mt-3 font-medium">
             <Icon icon="ph:map-pin" className="size-4 mr-1 shrink-0 text-primary" />
-            <span className="truncate">{job.location}</span>
+            <span className="truncate max-w-[200px] sm:max-w-xs">{job.location}</span>
           </div>
         )}
       </CardBody>
 
-      <CardFooter className="p-6 pt-0 mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-        <div className="flex items-center space-x-3">
+      <CardFooter className="p-6 pt-0 mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px] text-muted-foreground">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 w-full sm:w-auto">
           <span>
             Publicada em:{" "}
             {job.publishedAt
@@ -166,7 +166,7 @@ export function JobCardItem({
           {isAuthenticated && (
             <button
               onClick={() => onToggleApplied(job.id, !!job.isApplied)}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold cursor-pointer transition-all ${
+              className={`flex items-center justify-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold cursor-pointer transition-all w-fit ${
                 job.isApplied
                   ? "bg-emerald-500/10 dark:bg-emerald-500/20 border-emerald-500/30 dark:border-emerald-500/40 text-emerald-600 dark:text-emerald-400 shadow-sm"
                   : "bg-muted/40 border-border text-muted-foreground hover:bg-emerald-500/10 hover:border-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-400"
@@ -185,7 +185,7 @@ export function JobCardItem({
           href={job.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground hover:text-foreground transition-colors font-semibold flex items-center space-x-1 cursor-pointer"
+          className="text-muted-foreground hover:text-foreground transition-colors font-semibold flex items-center space-x-1 cursor-pointer self-end sm:self-auto shrink-0 mt-1 sm:mt-0"
         >
           <span>Ver Vaga</span>
           <span>→</span>

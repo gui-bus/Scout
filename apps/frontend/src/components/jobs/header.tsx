@@ -15,6 +15,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu/dropdown-menu";
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+} from "@/components/ui/drawer/drawer";
 
 interface JobsHeaderProps {
   isSyncing: boolean;
@@ -43,10 +48,10 @@ export function JobsHeader({
   }, []);
 
   return (
-    <header>
-      <div className="w-full px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <header className="bg-background border-b border-border">
+      <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="h-8 relative w-30 flex items-center">
+          <div className="h-8 relative w-[120px] flex items-center">
             <Image
               src="/logos/logo_white.svg"
               alt="Scout Logo"
@@ -66,7 +71,8 @@ export function JobsHeader({
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-3">
           {isSyncing && (
             <div className="flex items-center space-x-2 text-xs text-muted-foreground mr-2">
               <Spinner size="xs" color="primary" />
@@ -81,7 +87,7 @@ export function JobsHeader({
               color="primary"
               variant="default"
               radius="lg"
-              size="md"
+              size="sm"
               startContent={
                 <Icon
                   icon={isSyncing ? "hugeicons:loading" : "hugeicons:refresh"}
@@ -129,7 +135,7 @@ export function JobsHeader({
                 color="primary"
                 variant="default"
                 radius="lg"
-                size="md"
+                size="sm"
                 startContent={<Icon icon="hugeicons:user" className="size-4" />}
               >
                 Entrar
@@ -142,9 +148,9 @@ export function JobsHeader({
           <Button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             color="primary"
-            variant="light"
+            variant="flat"
             radius="lg"
-            size="md"
+            size="sm"
             isIconOnly
             ariaLabel="Alterar Tema"
             className="cursor-pointer"
@@ -157,6 +163,125 @@ export function JobsHeader({
               />
             )}
           </Button>
+        </div>
+
+        {/* Mobile Navigation (Drawer) */}
+        <div className="md:hidden flex items-center">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button
+                color="primary"
+                variant="flat"
+                radius="lg"
+                size="sm"
+                isIconOnly
+                ariaLabel="Abrir Menu"
+                className="cursor-pointer"
+              >
+                <Icon icon="hugeicons:menu-01" className="size-5" />
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent
+              position="right"
+              size="sm"
+              className="bg-background border-l border-border"
+            >
+              <div className="flex flex-col space-y-6 mt-8">
+                <div className="flex items-center justify-between border-b border-border pb-4">
+                  <span className="font-bold text-sm">Menu</span>
+                </div>
+
+                {isSyncing && (
+                  <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                    <Spinner size="xs" color="primary" />
+                    <span>Buscando novas vagas...</span>
+                  </div>
+                )}
+
+                <Button
+                  onClick={async () => {
+                    await onSync();
+                  }}
+                  disabled={isSyncing}
+                  color="primary"
+                  variant="default"
+                  radius="lg"
+                  size="sm"
+                  className="w-full justify-start"
+                  startContent={
+                    <Icon
+                      icon={isSyncing ? "hugeicons:loading" : "hugeicons:refresh"}
+                      className={isSyncing ? "animate-spin size-4" : "size-4"}
+                    />
+                  }
+                >
+                  {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
+                </Button>
+
+                {isAuthenticated ? (
+                  <div className="flex flex-col space-y-4 border-t border-border pt-4">
+                    <div className="flex items-center space-x-3">
+                      <Avatar size="sm" color="primary" isBordered>
+                        <AvatarFallback>
+                          {userEmail ? userEmail.slice(0, 2).toUpperCase() : "US"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-foreground">Usuário</span>
+                        <span className="text-[10px] text-muted-foreground truncate max-w-[180px]">
+                          {userEmail}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={onLogout}
+                      color="danger"
+                      variant="flat"
+                      radius="lg"
+                      size="sm"
+                      className="w-full justify-start"
+                      startContent={<Icon icon="hugeicons:logout-01" className="size-4" />}
+                    >
+                      Sair da Conta
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={onOpenAuthModal}
+                    color="primary"
+                    variant="default"
+                    radius="lg"
+                    size="sm"
+                    className="w-full justify-start"
+                    startContent={<Icon icon="hugeicons:user" className="size-4" />}
+                  >
+                    Entrar
+                  </Button>
+                )}
+
+                <div className="border-t border-border pt-4 flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">Tema do Sistema</span>
+                  <Button
+                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                    color="primary"
+                    variant="flat"
+                    radius="lg"
+                    size="sm"
+                    isIconOnly
+                    ariaLabel="Alterar Tema"
+                    className="cursor-pointer"
+                  >
+                    {mounted && (
+                      <Icon
+                        icon={theme === "dark" ? "hugeicons:sun-01" : "hugeicons:moon-02"}
+                        className="size-4 text-muted-foreground"
+                      />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
       </div>
     </header>
