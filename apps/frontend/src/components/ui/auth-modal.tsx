@@ -22,12 +22,19 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!email || !password) {
-      toast.error("Erro", { description: "Por favor, preencha todos os campos." });
+      toast.error("Erro", { description: "Por favor, preencha todos os campos obrigatórios." });
+      return;
+    }
+
+    if (isRegister && password !== confirmPassword) {
+      toast.error("Erro", { description: "A confirmação da senha não corresponde." });
       return;
     }
 
@@ -61,6 +68,17 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     }
   };
 
+  const handleReset = () => {
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+  };
+
+  const toggleMode = () => {
+    setIsRegister(!isRegister);
+    handleReset();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} modal>
       <DialogContent size="sm" overlay="blur" className="bg-zinc-900 border-zinc-800">
@@ -77,6 +95,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             placeholder="seu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onClear={() => setEmail("")}
+            isClearable
             variant="default"
             radius="lg"
           />
@@ -87,9 +107,23 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             placeholder="Sua senha"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            isPasswordToggle
             variant="default"
             radius="lg"
           />
+
+          {isRegister && (
+            <Input
+              type="password"
+              label="Confirmar Senha"
+              placeholder="Confirme sua senha"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              isPasswordToggle
+              variant="default"
+              radius="lg"
+            />
+          )}
 
           <Button
             type="submit"
@@ -105,7 +139,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <div className="text-center mt-4">
             <button
               type="button"
-              onClick={() => setIsRegister(!isRegister)}
+              onClick={toggleMode}
               className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors underline cursor-pointer"
             >
               {isRegister
