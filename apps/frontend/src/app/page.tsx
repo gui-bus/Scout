@@ -3,71 +3,21 @@
 import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useQueryState, parseAsInteger, parseAsString, parseAsArrayOf } from "nuqs";
 import { Icon } from "@iconify/react";
-import { useTheme } from "next-themes";
-import { Input } from "@/components/ui/input";
-import { Checkbox, CheckboxGroup } from "@/components/ui/checkbox";
-import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Select } from "@/components/ui/select/select";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import { Skeleton } from "@/components/ui/skeleton/skeleton";
 import { PaginationToolbar } from "@/components/ui/pagination/pagination";
 import { AuthModal } from "@/components/ui/auth-modal";
 import { useAuth } from "@/lib/contexts/AuthContext";
-
-interface Job {
-  id: number;
-  title: string;
-  description: string | null;
-  company: string | null;
-  location: string | null;
-  modality: string | null;
-  level: string;
-  technologies: string | null;
-  source: string | null;
-  link: string;
-  publishedAt: string | null;
-  isFavorite?: boolean;
-  isApplied?: boolean;
-}
-
-interface Pagination {
-  page: number;
-  perPage: number;
-  total: number;
-  pages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-}
-
-const sourceOptions = [
-  { value: "Gupy", label: "Gupy" },
-  { value: "Solides", label: "Sólides" },
-  { value: "Remotar", label: "Remotar" },
-  { value: "Jooble", label: "Jooble" }
-];
-
-const modalityOptions = [
-  { value: "Remoto", label: "Remoto" },
-  { value: "Híbrido", label: "Híbrido" },
-  { value: "Presencial", label: "Presencial" }
-];
-
-const levelOptions = [
-  { value: "Estágio", label: "Estágio" },
-  { value: "Júnior", label: "Júnior" },
-  { value: "Júnior/Pleno", label: "Júnior/Pleno" },
-  { value: "Pleno", label: "Pleno" },
-  { value: "Pleno/Sênior", label: "Pleno/Sênior" },
-  { value: "Sênior", label: "Sênior" },
-  { value: "Não informado", label: "Não informado" }
-];
+import { Job, Pagination } from "@/components/jobs/types";
+import { JobsHeader } from "@/components/jobs/header";
+import { JobsSidebar } from "@/components/jobs/sidebar";
+import { JobCardItem } from "@/components/jobs/card";
 
 function JobsPageContent() {
   const { user, logout, token, isAuthenticated } = useAuth();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [viewLayout, setViewLayout] = useState<"grid" | "list">("grid");
 
@@ -94,7 +44,7 @@ function JobsPageContent() {
 
   const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -130,14 +80,15 @@ function JobsPageContent() {
       const data = await response.json();
       setJobs(data.items || []);
       setPagination(data.pagination || null);
-    } catch (err: any) {
-      setError(err.message || "Algo deu errado");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Algo deu errado";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [buscaQuery, companyQuery, locationQuery, periodQuery, modalitiesQuery, levelsQuery, sourcesQuery, favoritesOnlyQuery, appliedOnlyQuery, pageQuery, token]);
 
-  const checkSyncStatus = async () => {
+  const checkSyncStatus = useCallback(async () => {
     try {
       const response = await fetch("http://localhost:3001/api/collect/status");
       if (response.ok) {
@@ -158,7 +109,7 @@ function JobsPageContent() {
       }
       setIsSyncing(false);
     }
-  };
+  }, [fetchJobs]);
 
   const handleSyncJobs = async () => {
     if (isSyncing) return;
@@ -178,23 +129,23 @@ function JobsPageContent() {
       }
 
       syncIntervalRef.current = setInterval(checkSyncStatus, 2000);
-    } catch (err: any) {
-      setError(err.message || "Erro ao sincronizar");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Erro ao sincronizar";
+      setError(errorMessage);
       setIsSyncing(false);
     }
   };
 
   useEffect(() => {
-    setMounted(true);
     fetchJobs();
     return () => {
       if (syncIntervalRef.current) {
         clearInterval(syncIntervalRef.current);
       }
     };
-  }, [pageQuery, buscaQuery, companyQuery, locationQuery, periodQuery, modalitiesQuery, levelsQuery, sourcesQuery, favoritesOnlyQuery, appliedOnlyQuery, token]);
+  }, [fetchJobs]);
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     setBusca("");
     setCompany("");
     setLocation("");
@@ -209,7 +160,7 @@ function JobsPageContent() {
     setSourcesQuery(null);
     setFavoritesOnlyQuery(null);
     setAppliedOnlyQuery(null);
-  };
+  }, [setPageQuery, setBuscaQuery, setCompanyQuery, setLocationQuery, setPeriodQuery, setModalitiesQuery, setLevelsQuery, setSourcesQuery, setFavoritesOnlyQuery, setAppliedOnlyQuery]);
 
   const handleBuscaDebounced = useCallback((val: string) => {
     setPageQuery(1);
@@ -226,7 +177,37 @@ function JobsPageContent() {
     setLocationQuery(val || null);
   }, [setPageQuery, setLocationQuery]);
 
-  const handleToggleFavorite = async (jobId: number, currentVal: boolean) => {
+  const handlePeriodChange = useCallback((val: string) => {
+    setPageQuery(1);
+    setPeriodQuery(val || null);
+  }, [setPageQuery, setPeriodQuery]);
+
+  const handleSourcesChange = useCallback((val: string[]) => {
+    setPageQuery(1);
+    setSourcesQuery(val);
+  }, [setPageQuery, setSourcesQuery]);
+
+  const handleModalitiesChange = useCallback((val: string[]) => {
+    setPageQuery(1);
+    setModalitiesQuery(val);
+  }, [setPageQuery, setModalitiesQuery]);
+
+  const handleLevelsChange = useCallback((val: string[]) => {
+    setPageQuery(1);
+    setLevelsQuery(val);
+  }, [setPageQuery, setLevelsQuery]);
+
+  const handleFavoritesOnlyChange = useCallback((val: boolean) => {
+    setPageQuery(1);
+    setFavoritesOnlyQuery(val ? "true" : null);
+  }, [setPageQuery, setFavoritesOnlyQuery]);
+
+  const handleAppliedOnlyChange = useCallback((val: boolean) => {
+    setPageQuery(1);
+    setAppliedOnlyQuery(val ? "true" : null);
+  }, [setPageQuery, setAppliedOnlyQuery]);
+
+  const handleToggleFavorite = useCallback(async (jobId: number, currentVal: boolean) => {
     if (!token) return;
     setJobs((prev) =>
       prev.map((j) => (j.id === jobId ? { ...j, isFavorite: !currentVal } : j))
@@ -246,9 +227,9 @@ function JobsPageContent() {
         prev.map((j) => (j.id === jobId ? { ...j, isFavorite: currentVal } : j))
       );
     }
-  };
+  }, [token]);
 
-  const handleToggleApplied = async (jobId: number, currentVal: boolean) => {
+  const handleToggleApplied = useCallback(async (jobId: number, currentVal: boolean) => {
     if (!token) return;
     setJobs((prev) =>
       prev.map((j) => (j.id === jobId ? { ...j, isApplied: !currentVal } : j))
@@ -268,252 +249,45 @@ function JobsPageContent() {
         prev.map((j) => (j.id === jobId ? { ...j, isApplied: currentVal } : j))
       );
     }
-  };
+  }, [token]);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
-      <header className="bg-background border-b border-border">
-        <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="h-9 flex items-center">
-              <img src="/logos/logo_white.svg" alt="Scout Logo" className="h-8 hidden dark:block select-none" />
-              <img src="/logos/logo_black.svg" alt="Scout Logo" className="h-8 block dark:hidden select-none" />
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            {isSyncing && (
-              <div className="flex items-center space-x-2 text-xs text-muted-foreground mr-2">
-                <Spinner size="xs" color="primary" />
-                <span>Buscando novas vagas...</span>
-              </div>
-            )}
-
-            <div className="flex items-center space-x-3">
-              <Button
-                onClick={handleSyncJobs}
-                disabled={isSyncing}
-                color="primary"
-                variant="default"
-                radius="lg"
-                size="sm"
-                startContent={
-                  <Icon
-                    icon={isSyncing ? "hugeicons:loading" : "hugeicons:refresh"}
-                    className={isSyncing ? "animate-spin size-4" : "size-4"}
-                  />
-                }
-              >
-                {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
-              </Button>
-
-              {isAuthenticated ? (
-                <div className="flex items-center space-x-3">
-                  <span className="text-xs text-muted-foreground font-medium select-none max-w-[150px] truncate">
-                    {user?.email}
-                  </span>
-                  <Button
-                    onClick={logout}
-                    color="primary"
-                    variant="flat"
-                    radius="lg"
-                    size="sm"
-                    endContent={<Icon icon="hugeicons:logout-01" className="size-4" />}
-                  >
-                    Sair
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  onClick={() => setAuthModalOpen(true)}
-                  color="primary"
-                  variant="default"
-                  radius="lg"
-                  size="sm"
-                  startContent={<Icon icon="hugeicons:user" className="size-4" />}
-                >
-                  Entrar
-                </Button>
-              )}
-            </div>
-
-            <span className="text-border select-none font-light">|</span>
-
-            <Button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              color="primary"
-              variant="flat"
-              radius="lg"
-              size="sm"
-              isIconOnly
-              ariaLabel="Alterar Tema"
-              className="cursor-pointer"
-              title="Alterar Tema"
-            >
-              {mounted && (
-                <Icon
-                  icon={theme === "dark" ? "hugeicons:sun-01" : "hugeicons:moon-02"}
-                  className="size-4 text-muted-foreground"
-                />
-              )}
-            </Button>
-          </div>
-        </div>
-      </header>
+      <JobsHeader
+        isSyncing={isSyncing}
+        onSync={handleSyncJobs}
+        userEmail={user?.email}
+        isAuthenticated={isAuthenticated}
+        onLogout={logout}
+        onOpenAuthModal={() => setAuthModalOpen(true)}
+      />
 
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
-        <aside className="w-full lg:w-80 shrink-0 space-y-6 lg:border-r lg:border-border lg:pr-8">
-          <div className="flex items-center justify-between pb-4 border-b border-border">
-            <h2 className="text-sm font-bold tracking-wider text-muted-foreground uppercase">
-              Filtros
-            </h2>
-            <button
-              onClick={handleClearFilters}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors font-semibold cursor-pointer"
-            >
-              Limpar Todos
-            </button>
-          </div>
-
-          <div className="space-y-5">
-            {isAuthenticated && (
-              <CheckboxGroup label="Painel Pessoal">
-                <Checkbox
-                  checked={favoritesOnlyQuery === "true"}
-                  onCheckedChange={(val) => {
-                    setPageQuery(1);
-                    setFavoritesOnlyQuery(val ? "true" : null);
-                  }}
-                  label="Apenas Favoritas"
-                  color="primary"
-                />
-                <Checkbox
-                  checked={appliedOnlyQuery === "true"}
-                  onCheckedChange={(val) => {
-                    setPageQuery(1);
-                    setAppliedOnlyQuery(val ? "true" : null);
-                  }}
-                  label="Candidaturas Feitas"
-                  color="primary"
-                />
-              </CheckboxGroup>
-            )}
-
-            <Input
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              debouncedOnChange={handleBuscaDebounced}
-              debounceTimeout={400}
-              onClear={() => {
-                setBusca("");
-                setPageQuery(1);
-                setBuscaQuery(null);
-              }}
-              isClearable
-              placeholder="Ex: Node.js, React, Python"
-              label="Palavra-chave ou Tecnologia"
-              variant="default"
-              radius="lg"
-            />
-
-            <Input
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              debouncedOnChange={handleCompanyDebounced}
-              debounceTimeout={400}
-              onClear={() => {
-                setCompany("");
-                setPageQuery(1);
-                setCompanyQuery(null);
-              }}
-              isClearable
-              placeholder="Ex: Nubank, Google"
-              label="Empresa"
-              variant="default"
-              radius="lg"
-            />
-
-            <Input
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              debouncedOnChange={handleLocationDebounced}
-              debounceTimeout={400}
-              onClear={() => {
-                setLocation("");
-                setPageQuery(1);
-                setLocationQuery(null);
-              }}
-              isClearable
-              placeholder="Ex: São Paulo, Remoto"
-              label="Localização"
-              variant="default"
-              radius="lg"
-            />
-
-            <Select
-              label="Período de Publicação"
-              value={periodQuery}
-              onValueChange={(val) => {
-                setPageQuery(1);
-                setPeriodQuery(val || null);
-              }}
-              placeholder="Qualquer data"
-              radius="lg"
-              variant="default"
-              options={[
-                { value: "", label: "Qualquer data" },
-                { value: "hoje", label: "Hoje" },
-                { value: "semana", label: "Últimos 7 dias" },
-                { value: "mes", label: "Últimos 30 dias" },
-              ]}
-            />
-
-            <Select
-              label="Origem"
-              placeholder="Todas as origens"
-              isMultiSelect
-              multiValue={sourcesQuery}
-              onMultiValueChange={(val) => {
-                setPageQuery(1);
-                setSourcesQuery(val);
-              }}
-              options={sourceOptions}
-              radius="lg"
-              variant="default"
-              maxTagsVisible={2}
-            />
-
-            <Select
-              label="Modalidade"
-              placeholder="Todas as modalidades"
-              isMultiSelect
-              multiValue={modalitiesQuery}
-              onMultiValueChange={(val) => {
-                setPageQuery(1);
-                setModalitiesQuery(val);
-              }}
-              options={modalityOptions}
-              radius="lg"
-              variant="default"
-              maxTagsVisible={2}
-            />
-
-            <Select
-              label="Nível"
-              placeholder="Todos os níveis"
-              isMultiSelect
-              multiValue={levelsQuery}
-              onMultiValueChange={(val) => {
-                setPageQuery(1);
-                setLevelsQuery(val);
-              }}
-              options={levelOptions}
-              radius="lg"
-              variant="default"
-              maxTagsVisible={1}
-            />
-          </div>
-        </aside>
+        <JobsSidebar
+          isAuthenticated={isAuthenticated}
+          favoritesOnly={favoritesOnlyQuery === "true"}
+          onFavoritesOnlyChange={handleFavoritesOnlyChange}
+          appliedOnly={appliedOnlyQuery === "true"}
+          onAppliedOnlyChange={handleAppliedOnlyChange}
+          busca={busca}
+          onBuscaChange={setBusca}
+          onBuscaDebounced={handleBuscaDebounced}
+          company={company}
+          onCompanyChange={setCompany}
+          onCompanyDebounced={handleCompanyDebounced}
+          location={location}
+          onLocationChange={setLocation}
+          onLocationDebounced={handleLocationDebounced}
+          period={periodQuery}
+          onPeriodChange={handlePeriodChange}
+          sources={sourcesQuery}
+          onSourcesChange={handleSourcesChange}
+          modalities={modalitiesQuery}
+          onModalitiesChange={handleModalitiesChange}
+          levels={levelsQuery}
+          onLevelsChange={handleLevelsChange}
+          onClearFilters={handleClearFilters}
+        />
 
         <section className="flex-1 space-y-6">
           <div className="flex items-center justify-between pb-4 border-b border-border">
@@ -575,104 +349,13 @@ function JobsPageContent() {
           ) : jobs.length > 0 ? (
             <div className={viewLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "flex flex-col gap-3"}>
               {jobs.map((job) => (
-                <Card
+                <JobCardItem
                   key={job.id}
-                  variant="flat"
-                  isHoverable
-                  className="bg-card border border-border flex flex-col justify-between h-full hover:border-muted-foreground/35 transition-colors relative"
-                >
-                  <CardHeader className="p-6 pb-0 flex flex-col space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <span className="h-9 w-9 rounded-lg bg-muted text-muted-foreground font-bold text-xs flex items-center justify-center border border-border">
-                          {(job.company || "?")[0].toUpperCase()}
-                        </span>
-                        <div>
-                          <h4 className="font-semibold text-foreground text-sm">
-                            {job.company || "Empresa não informada"}
-                          </h4>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-muted text-muted-foreground mt-1 border border-border select-none">
-                            {job.source}
-                          </span>
-                        </div>
-                      </div>
-
-                      {isAuthenticated && (
-                        <button
-                          onClick={() => handleToggleFavorite(job.id, !!job.isFavorite)}
-                          className="text-muted-foreground hover:text-yellow-500 transition-colors p-1 cursor-pointer"
-                          title={job.isFavorite ? "Remover dos Favoritos" : "Favoritar Vaga"}
-                        >
-                          <Icon
-                            icon={job.isFavorite ? "hugeicons:star" : "hugeicons:star"}
-                            className={`size-5 ${job.isFavorite ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`}
-                          />
-                        </button>
-                      )}
-                    </div>
-                  </CardHeader>
-
-                  <CardBody className="p-6 py-4 flex-1">
-                    <h3 className="text-sm font-bold text-foreground line-clamp-1 hover:text-muted-foreground transition-colors">
-                      {job.title}
-                    </h3>
-                    <div className="flex flex-wrap gap-1.5 mt-3">
-                      {job.modality && (
-                        <span className="text-[10px] bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded-full font-medium">
-                          {job.modality}
-                        </span>
-                      )}
-                      {job.level && (
-                        <span className="text-[10px] bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded-full font-medium">
-                          {job.level}
-                        </span>
-                      )}
-                      {job.location && (
-                        <span className="text-[10px] bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded-full font-medium truncate max-w-[150px]">
-                          {job.location}
-                        </span>
-                      )}
-                    </div>
-                  </CardBody>
-
-                  <CardFooter className="p-6 pt-0 mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-                    <div className="flex items-center space-x-3">
-                      <span>
-                        Publicada em:{" "}
-                        {job.publishedAt
-                          ? new Date(job.publishedAt).toLocaleDateString("pt-BR")
-                          : "Não informada"}
-                      </span>
-
-                      {isAuthenticated && (
-                        <button
-                          onClick={() => handleToggleApplied(job.id, !!job.isApplied)}
-                          className={`flex items-center space-x-1 px-1.5 py-0.5 rounded border text-[9px] font-bold cursor-pointer transition-colors ${
-                            job.isApplied
-                              ? "bg-default border-border text-foreground"
-                              : "bg-muted/50 border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground"
-                          }`}
-                        >
-                          <Icon
-                            icon={job.isApplied ? "hugeicons:tick-02" : "hugeicons:tick-02"}
-                            className="size-3"
-                          />
-                          <span>{job.isApplied ? "Candidatado" : "Marcar Candidatura"}</span>
-                        </button>
-                      )}
-                    </div>
-
-                    <a
-                      href={job.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-foreground transition-colors font-semibold flex items-center space-x-1 cursor-pointer"
-                    >
-                      <span>Ver Vaga</span>
-                      <span>→</span>
-                    </a>
-                  </CardFooter>
-                </Card>
+                  job={job}
+                  isAuthenticated={isAuthenticated}
+                  onToggleFavorite={handleToggleFavorite}
+                  onToggleApplied={handleToggleApplied}
+                />
               ))}
             </div>
           ) : (
