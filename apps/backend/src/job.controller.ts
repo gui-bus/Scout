@@ -18,6 +18,7 @@ export class JobController {
     @Query("level") level?: string | string[],
     @Query("period") period?: string,
     @Query("source") source?: string | string[],
+    @Query("contractType") contractType?: string,
     @Query("favoritesOnly") favoritesOnly?: string,
     @Query("appliedOnly") appliedOnly?: string,
     @Query("page") page = 1,
@@ -32,6 +33,7 @@ export class JobController {
       level,
       period,
       source,
+      contractType,
       favoritesOnly,
       appliedOnly,
     };
