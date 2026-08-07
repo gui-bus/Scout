@@ -177,6 +177,7 @@ export function JobCardItem({
 }: JobCardItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isTechsExpanded, setIsTechsExpanded] = useState(false);
+  const [copiedContact, setCopiedContact] = useState<string | null>(null);
   const sanitizedDesc = sanitizeDescription(job.description);
   const techList = job.technologies ? job.technologies.split(",") : [];
 
@@ -329,15 +330,24 @@ export function JobCardItem({
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(cTrim);
+                              setCopiedContact(cTrim);
                               toast.success("E-mail copiado!", {
                                 description: "O endereço foi copiado para a área de transferência.",
                               });
+                              setTimeout(() => setCopiedContact(null), 2000);
                             }}
-                            className="text-[10px] flex items-center gap-1 px-2.5 py-1 bg-muted hover:bg-muted/80 text-foreground font-semibold rounded transition-colors cursor-pointer border border-border"
+                            className={`text-[10px] flex items-center gap-1 px-2.5 py-1 font-semibold rounded transition-all cursor-pointer border ${
+                              copiedContact === cTrim
+                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                                : "bg-muted hover:bg-muted/80 text-foreground border-border"
+                            }`}
                             title="Copiar e-mail"
                           >
-                            <Icon icon="ph:copy-bold" className="size-3" />
-                            <span>Copiar</span>
+                            <Icon
+                              icon={copiedContact === cTrim ? "ph:check-bold" : "ph:copy-bold"}
+                              className="size-3"
+                            />
+                            <span>{copiedContact === cTrim ? "Copiado!" : "Copiar"}</span>
                           </button>
                           <a
                             href={`mailto:${cTrim}`}
