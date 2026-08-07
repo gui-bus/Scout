@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/gui-bus/Scout/master/apps/frontend/public/logos/logo_white.svg" alt="Scout Logo" width="240" />
+  <img src="./apps/frontend/public/logos/logo_white.svg" alt="Scout Logo" width="240" />
 
 # Scout — Agregador e Rastreador Inteligente de Vagas de Tecnologia
 
