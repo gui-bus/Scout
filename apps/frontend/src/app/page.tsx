@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useQueryState, parseAsInteger, parseAsString, parseAsArrayOf } from "nuqs";
 import { Icon } from "@iconify/react";
+import Link from "next/link";
+import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -413,6 +415,80 @@ function JobsPageContent() {
       </main>
 
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+
+      <footer className="border-t border-border bg-background mt-auto py-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8 max-w-[110rem] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-muted-foreground select-none">
+              &copy; {new Date().getFullYear()} Scout. Desenvolvido por
+            </span>
+            <Link
+              href="https://github.com/gui-bus"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-bold text-foreground hover:text-primary transition-colors underline cursor-pointer"
+            >
+              gui-bus
+            </Link>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
+              <Link
+                href="https://github.com/gui-bus"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:scale-105 transition-transform duration-200 cursor-pointer flex items-center justify-center"
+                title="GitHub"
+              >
+                <Image
+                  src="/utils/icons/github_black.svg"
+                  alt="GitHub"
+                  width={20}
+                  height={20}
+                  className="dark:hidden select-none"
+                />
+                <Image
+                  src="/utils/icons/github_white.svg"
+                  alt="GitHub"
+                  width={20}
+                  height={20}
+                  className="hidden dark:block select-none"
+                />
+              </Link>
+              <Link
+                href="https://www.linkedin.com/in/gui-bus/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:scale-105 transition-transform duration-200 cursor-pointer flex items-center justify-center"
+                title="LinkedIn"
+              >
+                <Image
+                  src="/utils/icons/linkedin.svg"
+                  alt="LinkedIn"
+                  width={20}
+                  height={20}
+                  className="select-none"
+                />
+              </Link>
+            </div>
+
+            <span className="text-border select-none font-light">|</span>
+
+            <Button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              color="primary"
+              variant="flat"
+              radius="lg"
+              size="sm"
+              className="flex items-center space-x-1 font-semibold text-xs py-1.5 cursor-pointer"
+              startContent={<Icon icon="hugeicons:arrow-up-01" className="size-4" />}
+            >
+              Voltar ao topo
+            </Button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
