@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
 import type { Job } from "./types";
@@ -102,7 +103,7 @@ export function JobCardItem({
           )}
         </div>
 
-        <a
+        <Link
           href={job.link}
           target="_blank"
           rel="noopener noreferrer"
@@ -110,7 +111,7 @@ export function JobCardItem({
         >
           <span>Ver Vaga</span>
           <span>→</span>
-        </a>
+        </Link>
       </CardFooter>
     </Card>
   );

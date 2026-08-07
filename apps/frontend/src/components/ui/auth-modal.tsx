@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Input } from "./input";
 import { Button } from "./button/button";
 import { PasswordInput } from "./password-input";
@@ -92,9 +93,21 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} modal>
       <DialogContent size="sm" overlay="blur" className="bg-card border-border">
         <DialogHeader className="flex flex-col items-center">
-          <div className="flex justify-center mb-3">
-            <img src="/logos/logo_white.svg" className="h-7 hidden dark:block select-none" alt="Scout Logo" />
-            <img src="/logos/logo_black.svg" className="h-7 block dark:hidden select-none" alt="Scout Logo" />
+          <div className="flex justify-center mb-3 relative w-[105px] h-[28px]">
+            <Image
+              src="/logos/logo_white.svg"
+              width={105}
+              height={28}
+              className="hidden dark:block select-none object-contain"
+              alt="Scout Logo"
+            />
+            <Image
+              src="/logos/logo_black.svg"
+              width={105}
+              height={28}
+              className="block dark:hidden select-none object-contain"
+              alt="Scout Logo"
+            />
           </div>
           <DialogTitle className="text-foreground font-bold">
             {isRegister ? "Criar Conta" : "Entrar no Scout"}

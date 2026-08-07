@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button/button";
@@ -34,16 +35,22 @@ export function JobsHeader({
     <header className="bg-background border-b border-border">
       <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="h-9 flex items-center">
-            <img
+          <div className="h-8 relative w-[120px] flex items-center">
+            <Image
               src="/logos/logo_white.svg"
               alt="Scout Logo"
-              className="h-8 hidden dark:block select-none"
+              width={120}
+              height={32}
+              priority
+              className="hidden dark:block select-none object-contain"
             />
-            <img
+            <Image
               src="/logos/logo_black.svg"
               alt="Scout Logo"
-              className="h-8 block dark:hidden select-none"
+              width={120}
+              height={32}
+              priority
+              className="block dark:hidden select-none object-contain"
             />
           </div>
         </div>

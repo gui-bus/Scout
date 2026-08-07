@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import * as React from "react";
+import Image from "next/image";
 import { designRadius } from "../../../lib/design-system";
 import { cn } from "../../../lib/utils";
 
@@ -218,9 +219,12 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 shrink-0"
             >
               {opt.avatar && (
-                <img
+                <Image
                   src={opt.avatar}
                   alt=""
+                  width={14}
+                  height={14}
+                  unoptimized
                   className="size-3.5 rounded-full object-cover shrink-0"
                 />
               )}
@@ -295,9 +299,12 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
       return (
         <div className="flex items-center gap-2 truncate">
           {selectedSingleOpt.avatar && (
-            <img
+            <Image
               src={selectedSingleOpt.avatar}
               alt=""
+              width={20}
+              height={20}
+              unoptimized
               className="size-5 rounded-full object-cover shrink-0"
             />
           )}
@@ -522,9 +529,12 @@ function renderOptionItem(
       ) : (
         <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
           {opt.avatar && (
-            <img
+            <Image
               src={opt.avatar}
               alt=""
+              width={24}
+              height={24}
+              unoptimized
               className="size-6 rounded-full object-cover shrink-0"
             />
           )}
