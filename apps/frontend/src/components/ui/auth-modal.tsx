@@ -91,7 +91,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} modal>
-      <DialogContent size="sm" overlay="blur" className="bg-card border-border">
+      <DialogContent size="md" overlay="blur" className="bg-card border-border">
         <DialogHeader className="flex flex-col items-center">
           <div className="flex justify-center mb-3 relative w-[105px] h-[28px]">
             <Image
