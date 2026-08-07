@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge/badge";
 import type { Job } from "./types";
 
 interface JobCardItemProps {
@@ -194,12 +195,16 @@ export function JobCardItem({
           {job.technologies && (
             <div className="flex flex-wrap gap-1 mt-3">
               {job.technologies.split(",").map((tech, idx) => (
-                <span
+                <Badge
                   key={idx}
-                  className="text-[9px] font-semibold bg-primary/10 border border-primary/20 text-primary px-1.5 py-0.5 rounded"
+                  color="primary"
+                  variant="flat"
+                  size="sm"
+                  radius="sm"
+                  className="text-[9px] font-semibold"
                 >
                   {tech.trim()}
-                </span>
+                </Badge>
               ))}
             </div>
           )}
