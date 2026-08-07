@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import type { ButtonProps } from "../button/button";
+import type { ButtonProps } from "./button/button";
 
 export type ButtonGroupProps = {
   children: React.ReactNode;

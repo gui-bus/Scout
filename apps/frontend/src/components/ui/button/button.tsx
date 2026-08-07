@@ -4,8 +4,8 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { designColors, designRadius, designSizes } from "../../../lib/design-system";
-import { Ripple } from "@/lib/ripple/ripple";
-import { useRipples } from "@/lib/ripple/useRipple";
+import { Ripple } from "@/lib/ripple";
+import { useRipples } from "@/lib/useRipple";
 import { cn } from "../../../lib/utils";
 
 type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
