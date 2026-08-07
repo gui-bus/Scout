@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { Toaster } from "sonner";
+import { Toast } from "@/components/ui/toast/toast";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </div>
             </ThemeProvider>
           </AuthProvider>
-          <Toaster theme="dark" richColors position="top-right" />
+          <Toast position="top-right" />
         </NuqsAdapter>
       </body>
     </html>
