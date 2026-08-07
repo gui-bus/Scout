@@ -17,7 +17,7 @@ import { AuthModal } from "@/components/ui/auth-modal";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { Job, Pagination } from "@/components/jobs/types";
 import { JobsHeader } from "@/components/jobs/header";
-import { JobsSidebar } from "@/components/jobs/sidebar";
+import { JobsSidebar, SavedFilterState } from "@/components/jobs/sidebar";
 import { JobCardItem } from "@/components/jobs/card";
 import { toast } from "@/components/ui/toast/toast";
 
@@ -459,6 +459,93 @@ function JobsPageContent() {
     toggleViewedMutation.mutate({ jobId });
   }, [token, toggleViewedMutation]);
 
+  const { data: savedFilters = [], refetch: refetchSavedFilters } = useQuery<(SavedFilterState | null)[]>({
+    queryKey: ["saved-filters", token],
+    queryFn: async () => {
+      if (!token) return [];
+      const res = await fetch("http://localhost:3001/api/auth/filters", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Erro ao carregar filtros salvos");
+      return res.json();
+    },
+    enabled: !!token,
+  });
+
+  const saveFiltersMutation = useMutation({
+    mutationFn: async (newFilters: (SavedFilterState | null)[]) => {
+      const res = await fetch("http://localhost:3001/api/auth/filters", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ filters: newFilters }),
+      });
+      if (!res.ok) throw new Error("Erro ao salvar filtros");
+      return res.json();
+    },
+    onSuccess: () => {
+      refetchSavedFilters();
+      toast.success("Filtros salvos!", {
+        description: "Seus slots de filtros salvos foram atualizados.",
+      });
+    },
+  });
+
+  const handleSaveFilter = useCallback((index: number) => {
+    const currentFilterState = {
+      busca: buscaQuery || "",
+      company: companyQuery || "",
+      location: locationQuery || "",
+      city: cityQuery || "",
+      period: periodQuery || "",
+      contractType: contractTypeQuery || "todos",
+      favoritesOnly: favoritesOnlyQuery === "true",
+      appliedOnly: appliedOnlyQuery === "true",
+      directContactsOnly: directContactsOnlyQuery,
+      exclude: excludeQuery || "",
+      sources: sourcesQuery,
+      modalities: modalitiesQuery,
+      levels: levelsQuery,
+    };
+
+    const newFilters = [...savedFilters];
+    newFilters[index] = currentFilterState;
+    saveFiltersMutation.mutate(newFilters);
+  }, [buscaQuery, companyQuery, locationQuery, cityQuery, periodQuery, contractTypeQuery, favoritesOnlyQuery, appliedOnlyQuery, directContactsOnlyQuery, excludeQuery, sourcesQuery, modalitiesQuery, levelsQuery, savedFilters, saveFiltersMutation]);
+
+  const handleDeleteFilter = useCallback((index: number) => {
+    const newFilters = [...savedFilters];
+    newFilters[index] = null;
+    saveFiltersMutation.mutate(newFilters);
+  }, [savedFilters, saveFiltersMutation]);
+
+  const handleApplyFilter = useCallback((f: SavedFilterState) => {
+    setBusca(f.busca || "");
+    setCompany(f.company || "");
+    setExclude(f.exclude || "");
+
+    setBuscaQuery(f.busca || null);
+    setCompanyQuery(f.company || null);
+    setLocationQuery(f.location || null);
+    setCityQuery(f.city || null);
+    setPeriodQuery(f.period || null);
+    setContractTypeQuery(f.contractType || "todos");
+    setFavoritesOnlyQuery(f.favoritesOnly ? "true" : null);
+    setAppliedOnlyQuery(f.appliedOnly ? "true" : null);
+    setDirectContactsOnlyQuery(f.directContactsOnly || false);
+    setExcludeQuery(f.exclude || null);
+    setSourcesQuery(f.sources || []);
+    setModalitiesQuery(f.modalities || []);
+    setLevelsQuery(f.levels || []);
+    setPageQuery(1);
+
+    toast.success("Filtros aplicados!", {
+      description: "A busca foi atualizada com sua combinação salva.",
+    });
+  }, [setBuscaQuery, setCompanyQuery, setLocationQuery, setCityQuery, setPeriodQuery, setContractTypeQuery, setFavoritesOnlyQuery, setAppliedOnlyQuery, setDirectContactsOnlyQuery, setExcludeQuery, setSourcesQuery, setModalitiesQuery, setLevelsQuery, setPageQuery]);
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
       <JobsHeader
@@ -509,6 +596,10 @@ function JobsPageContent() {
           exclude={exclude}
           onExcludeChange={setExclude}
           onExcludeDebounced={handleExcludeDebounced}
+          savedFilters={savedFilters}
+          onSaveFilter={handleSaveFilter}
+          onDeleteFilter={handleDeleteFilter}
+          onApplyFilter={handleApplyFilter}
           onClearFilters={handleClearFilters}
         />
 

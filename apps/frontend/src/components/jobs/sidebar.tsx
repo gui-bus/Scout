@@ -4,6 +4,25 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Checkbox, CheckboxGroup } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select/select";
+import { Icon } from "@iconify/react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible/collapsible";
+import { toast } from "@/components/ui/toast/toast";
+
+export interface SavedFilterState {
+  busca?: string;
+  company?: string;
+  location?: string;
+  city?: string;
+  period?: string;
+  contractType?: string;
+  favoritesOnly?: boolean;
+  appliedOnly?: boolean;
+  directContactsOnly?: boolean;
+  exclude?: string;
+  sources?: string[];
+  modalities?: string[];
+  levels?: string[];
+}
 
 interface JobsSidebarProps {
   isAuthenticated: boolean;
@@ -36,7 +55,24 @@ interface JobsSidebarProps {
   exclude: string;
   onExcludeChange: (val: string) => void;
   onExcludeDebounced: (val: string) => void;
+  savedFilters: (SavedFilterState | null)[];
+  onSaveFilter: (index: number) => void;
+  onDeleteFilter: (index: number) => void;
+  onApplyFilter: (filterData: SavedFilterState) => void;
   onClearFilters: () => void;
+}
+
+function generateFilterName(f: SavedFilterState) {
+  const parts: string[] = [];
+  if (f.busca) parts.push(f.busca);
+  if (f.location) parts.push(f.location.split(",")[1]?.trim() || f.location);
+  if (f.city) parts.push(f.city);
+  if (f.contractType && f.contractType !== "todos") parts.push(f.contractType);
+  if (f.directContactsOnly) parts.push("Direta");
+  if (f.modalities && f.modalities.length > 0) parts.push(f.modalities.join("/"));
+  if (f.levels && f.levels.length > 0) parts.push(f.levels.join("/"));
+
+  return parts.join(" · ") || "Filtro Ativo";
 }
 
 const sourceOptions = [
@@ -95,6 +131,10 @@ export function JobsSidebar({
   exclude,
   onExcludeChange,
   onExcludeDebounced,
+  savedFilters = [],
+  onSaveFilter,
+  onDeleteFilter,
+  onApplyFilter,
   onClearFilters,
 }: JobsSidebarProps) {
   const [cities, setCities] = React.useState<{ value: string; label: string }[]>([]);
@@ -134,6 +174,22 @@ export function JobsSidebar({
     };
   }, [uf]);
 
+  const isAnyFilterActive = !!(
+    busca ||
+    company ||
+    location ||
+    city ||
+    (contractType && contractType !== "todos") ||
+    period ||
+    (sources && sources.length > 0) ||
+    (modalities && modalities.length > 0) ||
+    (levels && levels.length > 0) ||
+    directContactsOnly ||
+    exclude ||
+    favoritesOnly ||
+    appliedOnly
+  );
+
   return (
     <aside className="w-full lg:w-80 shrink-0 space-y-6 lg:border-r lg:border-border lg:pr-8">
       <div className="flex items-center justify-between pb-4 border-b border-border">
@@ -149,6 +205,81 @@ export function JobsSidebar({
       </div>
 
       <div className="space-y-5">
+        {isAuthenticated && (
+          <div className="pb-4 border-b border-border">
+            <Collapsible defaultOpen={true}>
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Filtros Salvos (Slots)
+                </h3>
+                <CollapsibleTrigger asChild>
+                  <button className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors p-1 rounded hover:bg-muted/40 group">
+                    <Icon
+                      icon="ph:caret-down-bold"
+                      className="size-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180"
+                    />
+                  </button>
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent className="mt-3">
+                <div className="space-y-2">
+                  {[0, 1, 2].map((idx) => {
+                    const filter = savedFilters[idx];
+                    const displayName = filter ? generateFilterName(filter) : null;
+
+                    return (
+                      <div key={idx} className="flex items-center justify-between gap-2 p-2 bg-muted/20 border border-border rounded-lg text-xs">
+                        {filter ? (
+                          <>
+                            <button
+                              onClick={() => onApplyFilter(filter)}
+                              className="flex-1 text-left font-semibold text-foreground truncate hover:text-primary transition-colors cursor-pointer"
+                              title="Clique para aplicar esta combinação"
+                            >
+                              Slot {idx + 1}: <span className="text-muted-foreground font-medium">{displayName}</span>
+                            </button>
+                            <button
+                              onClick={() => onDeleteFilter(idx)}
+                              className="text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                              title="Excluir Slot"
+                            >
+                              <Icon icon="ph:trash-bold" className="size-3.5" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-muted-foreground italic text-[11px]">Slot {idx + 1} Vazio</span>
+                            <button
+                              onClick={() => {
+                                if (!isAnyFilterActive) {
+                                  toast.warning("Nenhum filtro ativo!", {
+                                    description: "Por favor, selecione pelo menos um filtro na barra lateral antes de salvar.",
+                                  });
+                                  return;
+                                }
+                                onSaveFilter(idx);
+                              }}
+                              disabled={!isAnyFilterActive}
+                              className={`text-[10px] font-bold transition-all cursor-pointer ${
+                                isAnyFilterActive
+                                  ? "text-primary hover:underline"
+                                  : "text-muted-foreground/40 cursor-not-allowed"
+                              }`}
+                              title={isAnyFilterActive ? "Salvar filtros ativos neste slot" : "Nenhum filtro ativo para salvar"}
+                            >
+                              + Salvar Atual
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+        )}
+
          {isAuthenticated && (
           <CheckboxGroup label="Painel Pessoal">
             <Checkbox

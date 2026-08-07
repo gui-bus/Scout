@@ -67,4 +67,26 @@ export class AuthService {
       },
     };
   }
+
+  async getSavedFilters(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { savedFilters: true },
+    });
+    return user?.savedFilters ? JSON.parse(user.savedFilters) : [];
+  }
+
+  async updateSavedFilters(userId: number, filters: any[]) {
+    if (filters.length > 3) {
+      throw new BadRequestException("You can only save up to 3 filter combinations.");
+    }
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        savedFilters: JSON.stringify(filters),
+      },
+      select: { savedFilters: true },
+    });
+    return updated.savedFilters ? JSON.parse(updated.savedFilters) : [];
+  }
 }

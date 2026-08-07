@@ -21,4 +21,16 @@ export class AuthController {
   async getProfile(@Request() req: any) {
     return req.user;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("filters")
+  async getFilters(@Request() req: any) {
+    return this.authService.getSavedFilters(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("filters")
+  async saveFilters(@Request() req: any, @Body() body: { filters: any[] }) {
+    return this.authService.updateSavedFilters(req.user.id, body.filters);
+  }
 }
