@@ -323,7 +323,7 @@ function JobsPageContent() {
                 ]}
               />
 
-              <ButtonGroup variant="flat" size="sm" radius="lg">
+              <ButtonGroup variant="light" size="sm" radius="none">
                 <Button
                   onClick={() => setViewLayout("grid")}
                   color={viewLayout === "grid" ? "primary" : "secondary"}
@@ -418,18 +418,21 @@ function JobsPageContent() {
 
       <footer className="border-t border-border bg-background mt-auto py-8">
         <div className="w-full px-4 sm:px-6 lg:px-8 max-w-[110rem] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-xs text-muted-foreground select-none">
-              &copy; {new Date().getFullYear()} Scout. Desenvolvido por
-            </span>
-            <Link
-              href="https://github.com/gui-bus"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-bold text-foreground hover:text-primary transition-colors underline cursor-pointer"
-            >
-              gui-bus
-            </Link>
+          <div className="h-6 relative w-[90px] flex items-center">
+            <Image
+              src="/logos/logo_white.svg"
+              alt="Scout Logo"
+              width={90}
+              height={24}
+              className="hidden dark:block select-none object-contain"
+            />
+            <Image
+              src="/logos/logo_black.svg"
+              alt="Scout Logo"
+              width={90}
+              height={24}
+              className="block dark:hidden select-none object-contain"
+            />
           </div>
 
           <div className="flex items-center space-x-4">
