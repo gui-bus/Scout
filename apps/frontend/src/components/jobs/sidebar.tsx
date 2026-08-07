@@ -207,7 +207,7 @@ export function JobsSidebar({
       <div className="space-y-5">
         {isAuthenticated && (
           <div className="pb-4 border-b border-border">
-            <Collapsible defaultOpen={true}>
+            <Collapsible defaultOpen={false}>
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Filtros Salvos (Slots)
