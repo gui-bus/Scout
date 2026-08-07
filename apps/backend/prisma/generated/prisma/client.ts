@@ -49,3 +49,13 @@ export type Job = Prisma.JobModel
  * 
  */
 export type CollectionState = Prisma.CollectionStateModel
+/**
+ * Model User
+ * 
+ */
+export type User = Prisma.UserModel
+/**
+ * Model UserJobState
+ * 
+ */
+export type UserJobState = Prisma.UserJobStateModel

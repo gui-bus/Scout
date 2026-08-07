@@ -9,18 +9,19 @@ generator client {
 }
 
 model Job {
-  id           Int      @id @default(autoincrement())
+  id           Int            @id @default(autoincrement())
   title        String
   description  String?
   company      String?
   location     String?
   modality     String?
-  level        String   @default("Not specified")
+  level        String         @default("Not specified")
   technologies String?
   source       String?
-  link         String   @unique
+  link         String         @unique
   publishedAt  DateTime?
-  collectedAt  DateTime @default(now())
+  collectedAt  DateTime       @default(now())
+  jobStates    UserJobState[]
 
   @@map("jobs")
 }
@@ -35,4 +36,29 @@ model CollectionState {
 
   @@unique([source, queryKey])
   @@map("collection_states")
+}
+
+model User {
+  id        Int            @id @default(autoincrement())
+  email     String         @unique
+  password  String
+  createdAt DateTime       @default(now())
+  jobStates UserJobState[]
+
+  @@map("users")
+}
+
+model UserJobState {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  jobId      Int
+  isFavorite Boolean  @default(false)
+  isApplied  Boolean  @default(false)
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@map("user_job_states")
 }

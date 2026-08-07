@@ -1,12 +1,15 @@
-import { Controller, Get, Post, Param, Query, Body, ParseIntPipe, NotFoundException } from "@nestjs/common";
+import { Controller, Get, Post, Param, Query, Body, ParseIntPipe, NotFoundException, UseGuards, Request } from "@nestjs/common";
 import { JobService } from "./job.service";
+import { JwtAuthGuard, OptionalJwtAuthGuard } from "./auth/jwt-auth.guard";
 
 @Controller("api/jobs")
 export class JobController {
   constructor(private readonly jobService: JobService) {}
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get()
   async listJobs(
+    @Request() req: any,
     @Query("busca") busca?: string,
     @Query("company") company?: string,
     @Query("technology") technology?: string,
@@ -15,6 +18,8 @@ export class JobController {
     @Query("level") level?: string | string[],
     @Query("period") period?: string,
     @Query("source") source?: string | string[],
+    @Query("favoritesOnly") favoritesOnly?: string,
+    @Query("appliedOnly") appliedOnly?: string,
     @Query("page") page = 1,
     @Query("per_page") perPage = 20
   ) {
@@ -27,9 +32,24 @@ export class JobController {
       level,
       period,
       source,
+      favoritesOnly,
+      appliedOnly,
     };
 
-    return this.jobService.listJobs(filters, Number(page), Number(perPage));
+    const userId = req.user?.id;
+
+    return this.jobService.listJobs(filters, Number(page), Number(perPage), userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(":id/state")
+  async setJobState(
+    @Request() req: any,
+    @Param("id", ParseIntPipe) id: number,
+    @Body() body: { isFavorite?: boolean; isApplied?: boolean }
+  ) {
+    const userId = req.user.id;
+    return this.jobService.setJobState(userId, id, body);
   }
 
   @Get(":id")

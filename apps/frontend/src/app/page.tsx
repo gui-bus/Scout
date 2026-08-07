@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useQueryState, parseAsInteger, parseAsString, parseAsArrayOf } from "nuqs";
+import { Icon } from "@iconify/react";
 import { Input } from "@/components/ui/input";
 import { Checkbox, CheckboxGroup } from "@/components/ui/checkbox";
 import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
@@ -10,6 +11,8 @@ import { Select } from "@/components/ui/select/select";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import { Skeleton } from "@/components/ui/skeleton/skeleton";
 import { PaginationToolbar } from "@/components/ui/pagination/pagination";
+import { AuthModal } from "@/components/ui/auth-modal";
+import { useAuth } from "@/lib/contexts/AuthContext";
 
 interface Job {
   id: number;
@@ -23,6 +26,8 @@ interface Job {
   source: string | null;
   link: string;
   publishedAt: string | null;
+  isFavorite?: boolean;
+  isApplied?: boolean;
 }
 
 interface Pagination {
@@ -35,6 +40,9 @@ interface Pagination {
 }
 
 function JobsPageContent() {
+  const { user, logout, token, isAuthenticated } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
   const [buscaQuery, setBuscaQuery] = useQueryState("busca", parseAsString.withDefault(""));
   const [companyQuery, setCompanyQuery] = useQueryState("company", parseAsString.withDefault(""));
   const [locationQuery, setLocationQuery] = useQueryState("location", parseAsString.withDefault(""));
@@ -42,6 +50,8 @@ function JobsPageContent() {
   const [modalitiesQuery, setModalitiesQuery] = useQueryState("modalities", parseAsArrayOf(parseAsString).withDefault([]));
   const [levelsQuery, setLevelsQuery] = useQueryState("levels", parseAsArrayOf(parseAsString).withDefault([]));
   const [sourcesQuery, setSourcesQuery] = useQueryState("sources", parseAsArrayOf(parseAsString).withDefault([]));
+  const [favoritesOnlyQuery, setFavoritesOnlyQuery] = useQueryState("favoritos", parseAsString.withDefault(""));
+  const [appliedOnlyQuery, setAppliedOnlyQuery] = useQueryState("candidatados", parseAsString.withDefault(""));
   const [pageQuery, setPageQuery] = useQueryState("page", parseAsInteger.withDefault(1));
 
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -66,6 +76,8 @@ function JobsPageContent() {
       if (companyQuery) params.append("company", companyQuery);
       if (locationQuery) params.append("location", locationQuery);
       if (periodQuery) params.append("period", periodQuery);
+      if (favoritesOnlyQuery) params.append("favoritesOnly", "true");
+      if (appliedOnlyQuery) params.append("appliedOnly", "true");
 
       modalitiesQuery.forEach((m) => params.append("modality", m));
       levelsQuery.forEach((l) => params.append("level", l));
@@ -74,7 +86,15 @@ function JobsPageContent() {
       params.append("page", pageQuery.toString());
       params.append("per_page", "12");
 
-      const response = await fetch(`http://localhost:3001/api/jobs?${params.toString()}`);
+      const headers: HeadersInit = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`http://localhost:3001/api/jobs?${params.toString()}`, {
+        headers,
+      });
+
       if (!response.ok) {
         throw new Error("Erro ao carregar as vagas");
       }
@@ -143,7 +163,7 @@ function JobsPageContent() {
         clearInterval(syncIntervalRef.current);
       }
     };
-  }, [pageQuery, buscaQuery, companyQuery, locationQuery, periodQuery, modalitiesQuery, levelsQuery, sourcesQuery]);
+  }, [pageQuery, buscaQuery, companyQuery, locationQuery, periodQuery, modalitiesQuery, levelsQuery, sourcesQuery, favoritesOnlyQuery, appliedOnlyQuery, token]);
 
   const handleClearFilters = () => {
     setBusca("");
@@ -158,6 +178,8 @@ function JobsPageContent() {
     setModalitiesQuery(null);
     setLevelsQuery(null);
     setSourcesQuery(null);
+    setFavoritesOnlyQuery(null);
+    setAppliedOnlyQuery(null);
   };
 
   const handleBuscaDebounced = useCallback((val: string) => {
@@ -196,6 +218,50 @@ function JobsPageContent() {
     );
   };
 
+  const handleToggleFavorite = async (jobId: number, currentVal: boolean) => {
+    if (!token) return;
+    setJobs((prev) =>
+      prev.map((j) => (j.id === jobId ? { ...j, isFavorite: !currentVal } : j))
+    );
+
+    try {
+      await fetch(`http://localhost:3001/api/jobs/${jobId}/state`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isFavorite: !currentVal }),
+      });
+    } catch {
+      setJobs((prev) =>
+        prev.map((j) => (j.id === jobId ? { ...j, isFavorite: currentVal } : j))
+      );
+    }
+  };
+
+  const handleToggleApplied = async (jobId: number, currentVal: boolean) => {
+    if (!token) return;
+    setJobs((prev) =>
+      prev.map((j) => (j.id === jobId ? { ...j, isApplied: !currentVal } : j))
+    );
+
+    try {
+      await fetch(`http://localhost:3001/api/jobs/${jobId}/state`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isApplied: !currentVal }),
+      });
+    } catch {
+      setJobs((prev) =>
+        prev.map((j) => (j.id === jobId ? { ...j, isApplied: currentVal } : j))
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans">
       <header className="bg-zinc-950 border-b border-zinc-900">
@@ -226,6 +292,33 @@ function JobsPageContent() {
             >
               {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
             </Button>
+
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <span className="text-xs text-zinc-400 font-medium select-none">
+                  {user?.email}
+                </span>
+                <Button
+                  onClick={logout}
+                  color="default"
+                  variant="flat"
+                  radius="lg"
+                  size="sm"
+                >
+                  Sair
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => setAuthModalOpen(true)}
+                color="default"
+                variant="default"
+                radius="lg"
+                size="sm"
+              >
+                Entrar
+              </Button>
+            )}
           </div>
         </div>
       </header>
@@ -246,6 +339,29 @@ function JobsPageContent() {
             </div>
 
             <div className="space-y-5">
+              {isAuthenticated && (
+                <CheckboxGroup label="Painel Pessoal">
+                  <Checkbox
+                    checked={favoritesOnlyQuery === "true"}
+                    onCheckedChange={(val) => {
+                      setPageQuery(1);
+                      setFavoritesOnlyQuery(val ? "true" : null);
+                    }}
+                    label="Apenas Favoritas"
+                    color="default"
+                  />
+                  <Checkbox
+                    checked={appliedOnlyQuery === "true"}
+                    onCheckedChange={(val) => {
+                      setPageQuery(1);
+                      setAppliedOnlyQuery(val ? "true" : null);
+                    }}
+                    label="Candidaturas Feitas"
+                    color="default"
+                  />
+                </CheckboxGroup>
+              )}
+
               <Input
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
@@ -388,21 +504,36 @@ function JobsPageContent() {
                   key={job.id}
                   variant="bordered"
                   isHoverable
-                  className="bg-zinc-900/15 border-zinc-900 flex flex-col justify-between h-full hover:border-zinc-800 transition-colors"
+                  className="bg-zinc-900/15 border-zinc-900 flex flex-col justify-between h-full hover:border-zinc-800 transition-colors relative"
                 >
                   <CardHeader className="p-6 pb-0 flex flex-col space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <span className="h-9 w-9 rounded-lg bg-zinc-900 text-zinc-400 font-bold text-xs flex items-center justify-center border border-zinc-850">
-                        {(job.company || "?")[0].toUpperCase()}
-                      </span>
-                      <div>
-                        <h4 className="font-semibold text-zinc-300 text-sm">
-                          {job.company || "Empresa não informada"}
-                        </h4>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-900 text-zinc-500 mt-1 border border-zinc-850">
-                          {job.source}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className="h-9 w-9 rounded-lg bg-zinc-900 text-zinc-400 font-bold text-xs flex items-center justify-center border border-zinc-850">
+                          {(job.company || "?")[0].toUpperCase()}
                         </span>
+                        <div>
+                          <h4 className="font-semibold text-zinc-300 text-sm">
+                            {job.company || "Empresa não informada"}
+                          </h4>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-900 text-zinc-500 mt-1 border border-zinc-850 select-none">
+                            {job.source}
+                          </span>
+                        </div>
                       </div>
+
+                      {isAuthenticated && (
+                        <button
+                          onClick={() => handleToggleFavorite(job.id, !!job.isFavorite)}
+                          className="text-zinc-500 hover:text-yellow-500 transition-colors p-1 cursor-pointer"
+                          title={job.isFavorite ? "Remover dos Favoritos" : "Favoritar Vaga"}
+                        >
+                          <Icon
+                            icon={job.isFavorite ? "hugeicons:star" : "hugeicons:star"}
+                            className={`size-5 ${job.isFavorite ? "text-yellow-500 fill-yellow-500" : "text-zinc-500"}`}
+                          />
+                        </button>
+                      )}
                     </div>
                   </CardHeader>
 
@@ -430,12 +561,32 @@ function JobsPageContent() {
                   </CardBody>
 
                   <CardFooter className="p-6 pt-0 mt-2 flex items-center justify-between text-[11px] text-zinc-500">
-                    <span>
-                      Publicada em:{" "}
-                      {job.publishedAt
-                        ? new Date(job.publishedAt).toLocaleDateString("pt-BR")
-                        : "Não informada"}
-                    </span>
+                    <div className="flex items-center space-x-3">
+                      <span>
+                        Publicada em:{" "}
+                        {job.publishedAt
+                          ? new Date(job.publishedAt).toLocaleDateString("pt-BR")
+                          : "Não informada"}
+                      </span>
+
+                      {isAuthenticated && (
+                        <button
+                          onClick={() => handleToggleApplied(job.id, !!job.isApplied)}
+                          className={`flex items-center space-x-1 px-1.5 py-0.5 rounded border text-[9px] font-bold cursor-pointer transition-colors ${
+                            job.isApplied
+                              ? "bg-zinc-800 border-zinc-700 text-zinc-300"
+                              : "bg-zinc-900/50 border-zinc-850 text-zinc-500 hover:text-zinc-400 hover:border-zinc-800"
+                          }`}
+                        >
+                          <Icon
+                            icon={job.isApplied ? "hugeicons:tick-02" : "hugeicons:tick-02"}
+                            className="size-3"
+                          />
+                          <span>{job.isApplied ? "Candidatado" : "Marcar Candidatura"}</span>
+                        </button>
+                      )}
+                    </div>
+
                     <a
                       href={job.link}
                       target="_blank"
@@ -478,6 +629,8 @@ function JobsPageContent() {
           )}
         </section>
       </main>
+
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </div>
   );
 }

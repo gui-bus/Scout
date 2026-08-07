@@ -7,7 +7,7 @@ import { identifyLevel } from "./utils/job-classifier";
 export class JobService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async listJobs(filters: any = {}, page = 1, perPage = 20) {
+  async listJobs(filters: any = {}, page = 1, perPage = 20, userId?: number) {
     const where: any = {};
 
     if (filters.busca) {
@@ -43,6 +43,25 @@ export class JobService {
       where.source = { in: Array.isArray(filters.source) ? filters.source : [filters.source] };
     }
 
+    if (userId) {
+      if (filters.favoritesOnly === "true" || filters.favoritesOnly === true) {
+        where.jobStates = {
+          some: {
+            userId,
+            isFavorite: true,
+          },
+        };
+      }
+      if (filters.appliedOnly === "true" || filters.appliedOnly === true) {
+        where.jobStates = {
+          some: {
+            userId,
+            isApplied: true,
+          },
+        };
+      }
+    }
+
     if (filters.period) {
       const dateLimit = new Date();
       if (filters.period === "hoje") {
@@ -73,10 +92,29 @@ export class JobService {
       this.prisma.job.count({ where }),
     ]);
 
+    let userStates: any[] = [];
+    if (userId && items.length > 0) {
+      userStates = await this.prisma.userJobState.findMany({
+        where: {
+          userId,
+          jobId: { in: items.map((item) => item.id) },
+        },
+      });
+    }
+
+    const itemsWithState = items.map((item) => {
+      const state = userStates.find((s) => s.jobId === item.id);
+      return {
+        ...item,
+        isFavorite: state?.isFavorite ?? false,
+        isApplied: state?.isApplied ?? false,
+      };
+    });
+
     const pages = Math.ceil(total / perPage);
 
     return {
-      items,
+      items: itemsWithState,
       pagination: {
         page,
         perPage,
@@ -91,6 +129,36 @@ export class JobService {
   async getJobById(id: number) {
     return this.prisma.job.findUnique({
       where: { id },
+    });
+  }
+
+  async setJobState(userId: number, jobId: number, data: { isFavorite?: boolean; isApplied?: boolean }) {
+    const existing = await this.prisma.userJobState.findUnique({
+      where: {
+        userId_jobId: {
+          userId,
+          jobId,
+        },
+      },
+    });
+
+    return this.prisma.userJobState.upsert({
+      where: {
+        userId_jobId: {
+          userId,
+          jobId,
+        },
+      },
+      update: {
+        isFavorite: data.isFavorite !== undefined ? data.isFavorite : existing?.isFavorite,
+        isApplied: data.isApplied !== undefined ? data.isApplied : existing?.isApplied,
+      },
+      create: {
+        userId,
+        jobId,
+        isFavorite: data.isFavorite ?? false,
+        isApplied: data.isApplied ?? false,
+      },
     });
   }
 

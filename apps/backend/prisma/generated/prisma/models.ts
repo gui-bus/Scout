@@ -10,4 +10,6 @@
  */
 export type * from './models/Job'
 export type * from './models/CollectionState'
+export type * from './models/User'
+export type * from './models/UserJobState'
 export type * from './commonInputTypes'

@@ -52,7 +52,9 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Job: 'Job',
-  CollectionState: 'CollectionState'
+  CollectionState: 'CollectionState',
+  User: 'User',
+  UserJobState: 'UserJobState'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -96,6 +98,28 @@ export const CollectionStateScalarFieldEnum = {
 } as const
 
 export type CollectionStateScalarFieldEnum = (typeof CollectionStateScalarFieldEnum)[keyof typeof CollectionStateScalarFieldEnum]
+
+
+export const UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  password: 'password',
+  createdAt: 'createdAt'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const UserJobStateScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  jobId: 'jobId',
+  isFavorite: 'isFavorite',
+  isApplied: 'isApplied',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserJobStateScalarFieldEnum = (typeof UserJobStateScalarFieldEnum)[keyof typeof UserJobStateScalarFieldEnum]
 
 
 export const SortOrder = {
