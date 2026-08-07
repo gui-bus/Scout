@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Input } from "./input";
 import { Button } from "./button/button";
+import { PasswordInput } from "./password-input";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,9 +35,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       return;
     }
 
-    if (isRegister && password !== confirmPassword) {
-      toast.error("Erro", { description: "A confirmação da senha não corresponde." });
-      return;
+    if (isRegister) {
+      if (!isPasswordValid) {
+        toast.error("Senha fraca", { description: "Por favor, atenda a todos os requisitos de segurança da senha." });
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error("Erro", { description: "A confirmação da senha não corresponde." });
+        return;
+      }
     }
 
     setLoading(true);
@@ -72,6 +80,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
+    setIsPasswordValid(false);
   };
 
   const toggleMode = () => {
@@ -81,9 +90,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} modal>
-      <DialogContent size="sm" overlay="blur" className="bg-zinc-900 border-zinc-800">
-        <DialogHeader>
-          <DialogTitle className="text-zinc-100 font-bold">
+      <DialogContent size="sm" overlay="blur" className="bg-card border-border">
+        <DialogHeader className="flex flex-col items-center">
+          <div className="flex justify-center mb-3">
+            <img src="/logos/logo_white.svg" className="h-7 hidden dark:block select-none" alt="Scout Logo" />
+            <img src="/logos/logo_black.svg" className="h-7 block dark:hidden select-none" alt="Scout Logo" />
+          </div>
+          <DialogTitle className="text-foreground font-bold">
             {isRegister ? "Criar Conta" : "Entrar no Scout"}
           </DialogTitle>
         </DialogHeader>
@@ -101,16 +114,28 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             radius="lg"
           />
 
-          <Input
-            type="password"
-            label="Senha"
-            placeholder="Sua senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            isPasswordToggle
-            variant="default"
-            radius="lg"
-          />
+          {isRegister ? (
+            <PasswordInput
+              label="Senha"
+              placeholder="Crie uma senha forte"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onValidityChange={setIsPasswordValid}
+              variant="default"
+              radius="lg"
+            />
+          ) : (
+            <Input
+              type="password"
+              label="Senha"
+              placeholder="Sua senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              isPasswordToggle
+              variant="default"
+              radius="lg"
+            />
+          )}
 
           {isRegister && (
             <Input
@@ -140,7 +165,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <button
               type="button"
               onClick={toggleMode}
-              className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors underline cursor-pointer"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors underline cursor-pointer"
             >
               {isRegister
                 ? "Já tem conta? Faça Login"

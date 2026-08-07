@@ -274,8 +274,8 @@ function JobsPageContent() {
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="h-9 flex items-center">
-              <img src="/logos/logo_white.svg" alt="Scout Logo" className="h-6 hidden dark:block select-none" />
-              <img src="/logos/logo_black.svg" alt="Scout Logo" className="h-6 block dark:hidden select-none" />
+              <img src="/logos/logo_white.svg" alt="Scout Logo" className="h-8 hidden dark:block select-none" />
+              <img src="/logos/logo_black.svg" alt="Scout Logo" className="h-8 block dark:hidden select-none" />
             </div>
           </div>
 
@@ -286,16 +286,48 @@ function JobsPageContent() {
                 <span>Buscando novas vagas...</span>
               </div>
             )}
-            <Button
-              onClick={handleSyncJobs}
-              disabled={isSyncing}
-              color="default"
-              variant="default"
-              radius="lg"
-              size="sm"
-            >
-              {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
-            </Button>
+
+            <div className="flex items-center space-x-3">
+              <Button
+                onClick={handleSyncJobs}
+                disabled={isSyncing}
+                color="default"
+                variant="default"
+                radius="lg"
+                size="sm"
+              >
+                {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
+              </Button>
+
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-3">
+                  <span className="text-xs text-muted-foreground font-medium select-none max-w-[150px] truncate">
+                    {user?.email}
+                  </span>
+                  <Button
+                    onClick={logout}
+                    color="default"
+                    variant="flat"
+                    radius="lg"
+                    size="sm"
+                  >
+                    Sair
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => setAuthModalOpen(true)}
+                  color="default"
+                  variant="default"
+                  radius="lg"
+                  size="sm"
+                >
+                  Entrar
+                </Button>
+              )}
+            </div>
+
+            <span className="text-border select-none font-light">|</span>
 
             <Button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -313,33 +345,6 @@ function JobsPageContent() {
                 />
               )}
             </Button>
-
-            {isAuthenticated ? (
-              <div className="flex items-center space-x-3 pl-1 border-l border-border">
-                <span className="text-xs text-muted-foreground font-medium select-none max-w-[150px] truncate">
-                  {user?.email}
-                </span>
-                <Button
-                  onClick={logout}
-                  color="default"
-                  variant="flat"
-                  radius="lg"
-                  size="sm"
-                >
-                  Sair
-                </Button>
-              </div>
-            ) : (
-              <Button
-                onClick={() => setAuthModalOpen(true)}
-                color="default"
-                variant="default"
-                radius="lg"
-                size="sm"
-              >
-                Entrar
-              </Button>
-            )}
           </div>
         </div>
       </header>
