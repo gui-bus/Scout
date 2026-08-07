@@ -3,7 +3,12 @@
 import React, { useState } from "react";
 import { Input } from "./input";
 import { Button } from "./button/button";
-import { Card, CardHeader, CardTitle, CardBody } from "./card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "./dialog/dialog";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { toast } from "./toast/toast";
 
@@ -18,8 +23,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
-  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,68 +62,59 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs">
-      <div className="w-full max-w-sm p-4">
-        <Card variant="bordered" className="bg-zinc-900 border-zinc-800">
-          <CardHeader className="flex flex-row items-center justify-between p-6 pb-0">
-            <CardTitle className="text-zinc-100 font-bold">
-              {isRegister ? "Criar Conta" : "Entrar no Scout"}
-            </CardTitle>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} modal>
+      <DialogContent size="sm" overlay="blur" className="bg-zinc-900 border-zinc-800">
+        <DialogHeader>
+          <DialogTitle className="text-zinc-100 font-bold">
+            {isRegister ? "Criar Conta" : "Entrar no Scout"}
+          </DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+          <Input
+            type="email"
+            label="E-mail"
+            placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            variant="default"
+            radius="lg"
+          />
+
+          <Input
+            type="password"
+            label="Senha"
+            placeholder="Sua senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            variant="default"
+            radius="lg"
+          />
+
+          <Button
+            type="submit"
+            color="default"
+            variant="default"
+            radius="lg"
+            className="w-full"
+            isLoading={loading}
+          >
+            {isRegister ? "Registrar" : "Entrar"}
+          </Button>
+
+          <div className="text-center mt-4">
             <button
-              onClick={onClose}
-              className="text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer text-lg font-bold"
+              type="button"
+              onClick={() => setIsRegister(!isRegister)}
+              className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors underline cursor-pointer"
             >
-              &times;
+              {isRegister
+                ? "Já tem conta? Faça Login"
+                : "Não tem conta? Registre-se"}
             </button>
-          </CardHeader>
-          <CardBody className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                type="email"
-                label="E-mail"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                variant="default"
-                radius="lg"
-              />
-
-              <Input
-                type="password"
-                label="Senha"
-                placeholder="Sua senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                variant="default"
-                radius="lg"
-              />
-
-              <Button
-                type="submit"
-                color="default"
-                variant="default"
-                radius="lg"
-                className="w-full"
-                isLoading={loading}
-              >
-                {isRegister ? "Registrar" : "Entrar"}
-              </Button>
-
-              <div className="text-center mt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsRegister(!isRegister)}
-                  className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors underline cursor-pointer"
-                >
-                  {isRegister
-                    ? "Já tem conta? Faça Login"
-                    : "Não tem conta? Registre-se"}
-                </button>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
-      </div>
-    </div>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
