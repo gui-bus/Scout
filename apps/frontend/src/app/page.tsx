@@ -25,6 +25,10 @@ interface QueryData {
   pagination: Pagination;
 }
 
+interface SyncStatusData {
+  collecting: boolean;
+}
+
 function JobsPageContent() {
   const { user, logout, token, isAuthenticated } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -42,20 +46,16 @@ function JobsPageContent() {
   const [pageQuery, setPageQuery] = useQueryState("page", parseAsInteger.withDefault(1));
   const [perPageQuery, setPerPageQuery] = useQueryState("limite", parseAsInteger.withDefault(10));
 
-  const [isSyncing, setIsSyncing] = useState(false);
-
   const [busca, setBusca] = useState(buscaQuery);
   const [company, setCompany] = useState(companyQuery);
   const [location, setLocation] = useState(locationQuery);
 
-  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const queryClient = useQueryClient();
 
   const {
     data: jobsData,
     isLoading: loading,
     error: queryError,
-    refetch: fetchJobs,
   } = useQuery<QueryData, Error>({
     queryKey: [
       "jobs",
@@ -103,35 +103,36 @@ function JobsPageContent() {
 
       return response.json();
     },
-    refetchInterval: 300000, // Autocompare to backend every 5 minutes
+    refetchInterval: 300000,
   });
 
+  const { data: syncStatus } = useQuery<SyncStatusData, Error>({
+    queryKey: ["syncStatus"],
+    queryFn: async () => {
+      const response = await fetch("http://localhost:3001/api/collect/status");
+      if (!response.ok) {
+        throw new Error("Erro ao checar status de sincronização");
+      }
+      return response.json();
+    },
+    refetchInterval: (query) => {
+      return query.state.data?.collecting ? 2000 : 15000;
+    },
+  });
+
+  const isSyncing = !!syncStatus?.collecting;
   const jobs = jobsData?.items || [];
   const pagination = jobsData?.pagination || null;
   const error = queryError ? queryError.message : null;
 
-  const checkSyncStatus = useCallback(async () => {
-    try {
-      const response = await fetch("http://localhost:3001/api/collect/status");
-      if (response.ok) {
-        const data = await response.json();
-        if (!data.collecting) {
-          if (syncIntervalRef.current) {
-            clearInterval(syncIntervalRef.current);
-            syncIntervalRef.current = null;
-          }
-          setIsSyncing(false);
-          fetchJobs();
-        }
-      }
-    } catch {
-      if (syncIntervalRef.current) {
-        clearInterval(syncIntervalRef.current);
-        syncIntervalRef.current = null;
-      }
-      setIsSyncing(false);
+  const prevCollectingRef = useRef(false);
+  useEffect(() => {
+    const isCollecting = !!syncStatus?.collecting;
+    if (prevCollectingRef.current && !isCollecting) {
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
     }
-  }, [fetchJobs]);
+    prevCollectingRef.current = isCollecting;
+  }, [syncStatus, queryClient]);
 
   const syncJobsMutation = useMutation({
     mutationFn: async () => {
@@ -146,8 +147,7 @@ function JobsPageContent() {
       }
     },
     onSuccess: () => {
-      setIsSyncing(true);
-      syncIntervalRef.current = setInterval(checkSyncStatus, 2000);
+      queryClient.invalidateQueries({ queryKey: ["syncStatus"] });
     },
   });
 
@@ -155,14 +155,6 @@ function JobsPageContent() {
     if (isSyncing) return;
     syncJobsMutation.mutate();
   };
-
-  useEffect(() => {
-    return () => {
-      if (syncIntervalRef.current) {
-        clearInterval(syncIntervalRef.current);
-      }
-    };
-  }, []);
 
   const handleClearFilters = useCallback(() => {
     setBusca("");
