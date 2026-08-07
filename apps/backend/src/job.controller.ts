@@ -21,6 +21,7 @@ export class JobController {
     @Query("contractType") contractType?: string,
     @Query("directContactsOnly") directContactsOnly?: string,
     @Query("exclude") exclude?: string,
+    @Query("city") city?: string,
     @Query("favoritesOnly") favoritesOnly?: string,
     @Query("appliedOnly") appliedOnly?: string,
     @Query("page") page = 1,
@@ -38,6 +39,7 @@ export class JobController {
       contractType,
       directContactsOnly,
       exclude,
+      city,
       favoritesOnly,
       appliedOnly,
     };

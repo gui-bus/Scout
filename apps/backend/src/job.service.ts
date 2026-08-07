@@ -28,7 +28,9 @@ export class JobService {
       where.technologies = { contains: filters.technology };
     }
 
-    if (filters.location) {
+    if (filters.city) {
+      where.location = { contains: filters.city };
+    } else if (filters.location) {
       const matchState = filters.location.match(/,\s*([A-Z]{2})$/);
       if (matchState) {
         const uf = matchState[1];

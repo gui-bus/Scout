@@ -95,6 +95,7 @@ function JobsPageContent() {
   const [contractTypeQuery, setContractTypeQuery] = useQueryState("contrato", parseAsString.withDefault("todos"));
   const [directContactsOnlyQuery, setDirectContactsOnlyQuery] = useQueryState("direta", parseAsBoolean.withDefault(false));
   const [excludeQuery, setExcludeQuery] = useQueryState("ocultar", parseAsString.withDefault(""));
+  const [cityQuery, setCityQuery] = useQueryState("cidade", parseAsString.withDefault(""));
   const [pageQuery, setPageQuery] = useQueryState("page", parseAsInteger.withDefault(1));
   const [perPageQuery, setPerPageQuery] = useQueryState("limite", parseAsInteger.withDefault(10));
 
@@ -123,6 +124,7 @@ function JobsPageContent() {
       contractTypeQuery,
       directContactsOnlyQuery,
       excludeQuery,
+      cityQuery,
       pageQuery,
       perPageQuery,
       token,
@@ -140,6 +142,7 @@ function JobsPageContent() {
       }
       if (directContactsOnlyQuery) params.append("directContactsOnly", "true");
       if (excludeQuery) params.append("exclude", excludeQuery);
+      if (cityQuery) params.append("city", cityQuery);
 
       modalitiesQuery.forEach((m) => params.append("modality", m));
       levelsQuery.forEach((l) => params.append("level", l));
@@ -247,8 +250,9 @@ function JobsPageContent() {
     setContractTypeQuery(null);
     setDirectContactsOnlyQuery(null);
     setExcludeQuery(null);
+    setCityQuery(null);
     setExclude("");
-  }, [setPageQuery, setBuscaQuery, setCompanyQuery, setLocationQuery, setPeriodQuery, setModalitiesQuery, setLevelsQuery, setSourcesQuery, setFavoritesOnlyQuery, setAppliedOnlyQuery, setContractTypeQuery, setDirectContactsOnlyQuery, setExcludeQuery]);
+  }, [setPageQuery, setBuscaQuery, setCompanyQuery, setLocationQuery, setPeriodQuery, setModalitiesQuery, setLevelsQuery, setSourcesQuery, setFavoritesOnlyQuery, setAppliedOnlyQuery, setContractTypeQuery, setDirectContactsOnlyQuery, setExcludeQuery, setCityQuery]);
 
   const handleBuscaDebounced = useCallback((val: string) => {
     setPageQuery(1);
@@ -483,6 +487,12 @@ function JobsPageContent() {
           onLocationChange={(val) => {
             setPageQuery(1);
             setLocationQuery(val || null);
+            setCityQuery(null);
+          }}
+          city={cityQuery}
+          onCityChange={(val) => {
+            setPageQuery(1);
+            setCityQuery(val || null);
           }}
           period={periodQuery}
           onPeriodChange={handlePeriodChange}

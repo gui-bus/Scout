@@ -19,6 +19,8 @@ interface JobsSidebarProps {
   onCompanyDebounced: (val: string) => void;
   location: string;
   onLocationChange: (val: string) => void;
+  city: string;
+  onCityChange: (val: string) => void;
   period: string;
   onPeriodChange: (val: string) => void;
   contractType: string;
@@ -76,6 +78,8 @@ export function JobsSidebar({
   onCompanyDebounced,
   location,
   onLocationChange,
+  city,
+  onCityChange,
   period,
   onPeriodChange,
   contractType,
@@ -93,6 +97,43 @@ export function JobsSidebar({
   onExcludeDebounced,
   onClearFilters,
 }: JobsSidebarProps) {
+  const [cities, setCities] = React.useState<{ value: string; label: string }[]>([]);
+  const [loadingCities, setLoadingCities] = React.useState(false);
+
+  const uf = location && location.includes(",") ? location.split(",")[1]?.trim() : "";
+
+  React.useEffect(() => {
+    if (!uf) {
+      Promise.resolve().then(() => setCities([]));
+      return;
+    }
+
+    let active = true;
+    Promise.resolve().then(() => setLoadingCities(true));
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`)
+      .then((res) => res.json())
+      .then((data: unknown) => {
+        if (!active) return;
+        const parsed = (data as { nome: string }[]).map((item) => ({
+          value: item.nome,
+          label: item.nome,
+        }));
+        parsed.sort((a, b) => a.label.localeCompare(b.label));
+        setCities([
+          { value: "", label: "Todas as cidades" },
+          ...parsed,
+        ]);
+        setLoadingCities(false);
+      })
+      .catch(() => {
+        if (active) setLoadingCities(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [uf]);
+
   return (
     <aside className="w-full lg:w-80 shrink-0 space-y-6 lg:border-r lg:border-border lg:pr-8">
       <div className="flex items-center justify-between pb-4 border-b border-border">
@@ -206,6 +247,20 @@ export function JobsSidebar({
             { value: "Tocantins, TO", label: "Tocantins, TO" },
           ]}
         />
+
+        {uf && (
+          <Select
+            label="Cidade"
+            value={city}
+            onValueChange={onCityChange}
+            placeholder={loadingCities ? "Carregando cidades..." : "Todas as cidades"}
+            radius="lg"
+            variant="default"
+            options={cities}
+            isSearchable
+            disabled={loadingCities}
+          />
+        )}
 
         <Input
           value={exclude}
