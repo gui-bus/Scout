@@ -19,115 +19,55 @@ interface JobCardItemProps {
 
 function renderSourceLogo(source: string | null) {
   if (!source) return null;
-  const srcLower = source.toLowerCase();
-
-  if (srcLower.includes("gupy")) {
-    return (
-      <>
-        <Image
-          src="/utils/icons/gupy_black.svg"
-          alt="Gupy"
-          width={45}
-          height={16}
-          className="dark:hidden select-none object-contain"
-        />
-        <Image
-          src="/utils/icons/gupy_white.svg"
-          alt="Gupy"
-          width={45}
-          height={16}
-          className="hidden dark:block select-none object-contain"
-        />
-      </>
-    );
-  }
-  if (srcLower.includes("solides") || srcLower.includes("sólides")) {
-    return (
-      <Image
-        src="/utils/icons/solides.svg"
-        alt="Sólides"
-        width={55}
-        height={16}
-        className="select-none object-contain"
-      />
-    );
-  }
-  if (srcLower.includes("remotar")) {
-    return (
-      <>
-        <Image
-          src="/utils/icons/remotar_black.svg"
-          alt="Remotar"
-          width={55}
-          height={16}
-          className="dark:hidden select-none object-contain"
-        />
-        <Image
-          src="/utils/icons/remotar_white.svg"
-          alt="Remotar"
-          width={55}
-          height={16}
-          className="hidden dark:block select-none object-contain"
-        />
-      </>
-    );
-  }
-  if (srcLower.includes("jooble")) {
-    return (
-      <Image
-        src="/utils/icons/jooble.svg"
-        alt="Jooble"
-        width={45}
-        height={16}
-        className="select-none object-contain"
-      />
-    );
-  }
-  if (srcLower.includes("github")) {
-    return (
-      <>
-        <Image
-          src="/utils/icons/github_logo_black.svg"
-          alt="GitHub"
-          width={55}
-          height={16}
-          className="dark:hidden select-none object-contain"
-        />
-        <Image
-          src="/utils/icons/github_logo_white.svg"
-          alt="GitHub"
-          width={55}
-          height={16}
-          className="hidden dark:block select-none object-contain"
-        />
-      </>
-    );
-  }
-  if (srcLower.includes("remotive")) {
-    return (
-      <>
-        <Image
-          src="/utils/icons/remotive_black.svg"
-          alt="Remotive"
-          width={65}
-          height={16}
-          className="dark:hidden select-none object-contain"
-        />
-        <Image
-          src="/utils/icons/remotive_white.svg"
-          alt="Remotive"
-          width={65}
-          height={16}
-          className="hidden dark:block select-none object-contain"
-        />
-      </>
-    );
-  }
+  const sources = source.split(",").map((s) => s.trim());
 
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-muted text-muted-foreground border border-border select-none">
-      {source}
-    </span>
+    <div className="flex items-center gap-2 flex-wrap">
+      {sources.map((src, idx) => {
+        const srcLower = src.toLowerCase();
+        let logo = null;
+        if (srcLower.includes("gupy")) {
+          logo = (
+            <>
+              <Image src="/utils/icons/gupy_black.svg" alt="Gupy" width={45} height={16} className="dark:hidden select-none object-contain" />
+              <Image src="/utils/icons/gupy_white.svg" alt="Gupy" width={45} height={16} className="hidden dark:block select-none object-contain" />
+            </>
+          );
+        } else if (srcLower.includes("solides") || srcLower.includes("sólides")) {
+          logo = <Image src="/utils/icons/solides.svg" alt="Sólides" width={55} height={16} className="select-none object-contain" />;
+        } else if (srcLower.includes("remotar")) {
+          logo = (
+            <>
+              <Image src="/utils/icons/remotar_black.svg" alt="Remotar" width={55} height={16} className="dark:hidden select-none object-contain" />
+              <Image src="/utils/icons/remotar_white.svg" alt="Remotar" width={55} height={16} className="hidden dark:block select-none object-contain" />
+            </>
+          );
+        } else if (srcLower.includes("jooble")) {
+          logo = <Image src="/utils/icons/jooble.svg" alt="Jooble" width={45} height={16} className="select-none object-contain" />;
+        } else if (srcLower.includes("github")) {
+          logo = (
+            <>
+              <Image src="/utils/icons/github_logo_black.svg" alt="GitHub" width={55} height={16} className="dark:hidden select-none object-contain" />
+              <Image src="/utils/icons/github_logo_white.svg" alt="GitHub" width={55} height={16} className="hidden dark:block select-none object-contain" />
+            </>
+          );
+        } else if (srcLower.includes("remotive")) {
+          logo = (
+            <>
+              <Image src="/utils/icons/remotive_black.svg" alt="Remotive" width={65} height={16} className="dark:hidden select-none object-contain" />
+              <Image src="/utils/icons/remotive_white.svg" alt="Remotive" width={65} height={16} className="hidden dark:block select-none object-contain" />
+            </>
+          );
+        } else {
+          logo = (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-muted text-muted-foreground border border-border select-none">
+              {src}
+            </span>
+          );
+        }
+        return <React.Fragment key={idx}>{logo}</React.Fragment>;
+      })}
+    </div>
   );
 }
 
@@ -182,6 +122,8 @@ export function JobCardItem({
   const [copiedContact, setCopiedContact] = useState<string | null>(null);
   const sanitizedDesc = sanitizeDescription(job.description);
   const techList = job.technologies ? job.technologies.split(",") : [];
+  const linkList = job.link ? job.link.split(",") : [];
+  const sourceList = job.source ? job.source.split(",").map((s) => s.trim()) : [];
 
   return (
     <Card
@@ -497,16 +439,24 @@ export function JobCardItem({
           )}
         </div>
 
-        <Link
-          href={job.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => onMarkAsViewed?.(job.id)}
-          className="text-muted-foreground hover:text-foreground transition-colors font-semibold flex items-center space-x-1 cursor-pointer self-end sm:self-auto shrink-0 mt-1 sm:mt-0"
-        >
-          <span>Ver Vaga</span>
-          <span>→</span>
-        </Link>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 self-end sm:self-auto mt-1 sm:mt-0 shrink-0">
+          {linkList.map((link, idx) => {
+            const sourceName = sourceList[idx] || "Ver Vaga";
+            return (
+              <Link
+                key={idx}
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => onMarkAsViewed?.(job.id)}
+                className="text-muted-foreground hover:text-foreground transition-colors font-semibold flex items-center space-x-1 cursor-pointer"
+              >
+                <span>{linkList.length > 1 ? `Ver no ${sourceName}` : "Ver Vaga"}</span>
+                <span>→</span>
+              </Link>
+            );
+          })}
+        </div>
       </CardFooter>
     </Card>
   );

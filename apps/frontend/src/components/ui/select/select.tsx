@@ -105,10 +105,10 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
       onMultiValueChange,
       maxTagsVisible = 2,
       isSearchable = false,
-      searchPlaceholder = "Search...",
+      searchPlaceholder = "Pesquisar...",
       showBatchActions = false,
-      selectAllLabel = "Select All",
-      deselectAllLabel = "Deselect All",
+      selectAllLabel = "Selecionar Tudo",
+      deselectAllLabel = "Desmarcar Tudo",
       renderOption,
       renderValue,
       children,
@@ -432,7 +432,7 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
 
                 {filteredOptions.length === 0 ? (
                   <div className="py-6 text-center text-xs text-zinc-400 dark:text-zinc-500">
-                    No options found.
+                    Nenhuma opção encontrada.
                   </div>
                 ) : (
                   <div className="space-y-1">

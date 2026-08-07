@@ -100,7 +100,6 @@ function JobsPageContent() {
 
   const [busca, setBusca] = useState(buscaQuery);
   const [company, setCompany] = useState(companyQuery);
-  const [location, setLocation] = useState(locationQuery);
   const [exclude, setExclude] = useState(excludeQuery);
 
   const queryClient = useQueryClient();
@@ -234,7 +233,6 @@ function JobsPageContent() {
   const handleClearFilters = useCallback(() => {
     setBusca("");
     setCompany("");
-    setLocation("");
 
     setPageQuery(1);
     setBuscaQuery(null);
@@ -261,11 +259,6 @@ function JobsPageContent() {
     setPageQuery(1);
     setCompanyQuery(val || null);
   }, [setPageQuery, setCompanyQuery]);
-
-  const handleLocationDebounced = useCallback((val: string) => {
-    setPageQuery(1);
-    setLocationQuery(val || null);
-  }, [setPageQuery, setLocationQuery]);
 
   const handleExcludeDebounced = useCallback((val: string) => {
     setPageQuery(1);
@@ -486,9 +479,11 @@ function JobsPageContent() {
           company={company}
           onCompanyChange={setCompany}
           onCompanyDebounced={handleCompanyDebounced}
-          location={location}
-          onLocationChange={setLocation}
-          onLocationDebounced={handleLocationDebounced}
+          location={locationQuery}
+          onLocationChange={(val) => {
+            setPageQuery(1);
+            setLocationQuery(val || null);
+          }}
           period={periodQuery}
           onPeriodChange={handlePeriodChange}
           contractType={contractTypeQuery}

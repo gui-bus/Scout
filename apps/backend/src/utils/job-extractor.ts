@@ -398,3 +398,55 @@ export function extractMetadata(description: string | null | undefined): Extract
 
   return result;
 }
+
+const stateMapping: Record<string, { name: string; uf: string }> = {
+  ac: { name: "Acre", uf: "AC" },
+  al: { name: "Alagoas", uf: "AL" },
+  ap: { name: "Amapá", uf: "AP" },
+  am: { name: "Amazonas", uf: "AM" },
+  ba: { name: "Bahia", uf: "BA" },
+  ce: { name: "Ceará", uf: "CE" },
+  df: { name: "Distrito Federal", uf: "DF" },
+  es: { name: "Espírito Santo", uf: "ES" },
+  go: { name: "Goiás", uf: "GO" },
+  ma: { name: "Maranhão", uf: "MA" },
+  mt: { name: "Mato Grosso", uf: "MT" },
+  ms: { name: "Mato Grosso do Sul", uf: "MS" },
+  mg: { name: "Minas Gerais", uf: "MG" },
+  pa: { name: "Pará", uf: "PA" },
+  pb: { name: "Paraíba", uf: "PB" },
+  pr: { name: "Paraná", uf: "PR" },
+  pe: { name: "Pernambuco", uf: "PE" },
+  pi: { name: "Piauí", uf: "PI" },
+  rj: { name: "Rio de Janeiro", uf: "RJ" },
+  rn: { name: "Rio Grande do Norte", uf: "RN" },
+  rs: { name: "Rio Grande do Sul", uf: "RS" },
+  ro: { name: "Rondônia", uf: "RO" },
+  rr: { name: "Roraima", uf: "RR" },
+  sc: { name: "Santa Catarina", uf: "SC" },
+  sp: { name: "São Paulo", uf: "SP" },
+  se: { name: "Sergipe", uf: "SE" },
+  to: { name: "Tocantins", uf: "TO" },
+};
+
+export function extractState(locationText: string | null): string | null {
+  if (!locationText) return null;
+  const normalized = locationText.toLowerCase();
+
+  if (normalized.includes("remoto") || normalized.includes("remote") || normalized.includes("anywhere") || normalized.includes("teletrabalho")) {
+    return "Remoto";
+  }
+
+  for (const [, state] of Object.entries(stateMapping)) {
+    const regexUF = new RegExp(`\\b${state.uf}\\b`, "i");
+    const regexName = new RegExp(`\\b${state.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")}\\b`, "i");
+
+    const textNormalized = normalized.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    if (regexUF.test(normalized) || regexName.test(textNormalized)) {
+      return `${state.name}, ${state.uf}`;
+    }
+  }
+
+  return locationText;
+}

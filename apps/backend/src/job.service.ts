@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { normalizeLink } from "./utils/link-normalizer";
 import { identifyLevel } from "./utils/job-classifier";
-import { extractMetadata } from "./utils/job-extractor";
+import { extractMetadata, extractState } from "./utils/job-extractor";
 
 @Injectable()
 export class JobService {
@@ -29,7 +29,13 @@ export class JobService {
     }
 
     if (filters.location) {
-      where.location = { contains: filters.location };
+      const matchState = filters.location.match(/,\s*([A-Z]{2})$/);
+      if (matchState) {
+        const uf = matchState[1];
+        where.location = { contains: uf };
+      } else {
+        where.location = { contains: filters.location };
+      }
     }
 
     if (filters.modality && filters.modality.length > 0) {
@@ -248,31 +254,69 @@ export class JobService {
   }
 
   async createJob(data: any) {
-    if (!data.title) {
-      throw new BadRequestException("Title is required.");
-    }
-    if (!data.link) {
-      throw new BadRequestException("Link is required.");
-    }
-
     const normalized = normalizeLink(data.link) || data.link;
 
-    const existing = await this.prisma.job.findUnique({
-      where: { link: normalized },
+    const existingByLink = await this.prisma.job.findFirst({
+      where: {
+        link: {
+          contains: normalized,
+        },
+      },
     });
 
-    if (existing) {
-      return { job: existing, created: false };
+    if (existingByLink) {
+      return { job: existingByLink, created: false };
+    }
+
+    if (data.title && data.company) {
+      const titleLower = data.title.toLowerCase().trim();
+      const companyLower = data.company.toLowerCase().trim();
+
+      const candidateJobs = await this.prisma.job.findMany({
+        where: {
+          company: data.company,
+        },
+      });
+
+      const matchedJob = candidateJobs.find(
+        (j) =>
+          j.title.toLowerCase().trim() === titleLower &&
+          j.company?.toLowerCase().trim() === companyLower
+      );
+
+      if (matchedJob) {
+        const currentSources = matchedJob.source ? matchedJob.source.split(",").map((s) => s.trim()) : [];
+        const newSource = data.source ? data.source.trim() : "";
+        if (newSource && !currentSources.includes(newSource)) {
+          currentSources.push(newSource);
+        }
+
+        const currentLinks = matchedJob.link ? matchedJob.link.split(",").map((l) => l.trim()) : [];
+        if (normalized && !currentLinks.includes(normalized)) {
+          currentLinks.push(normalized);
+        }
+
+        const updatedJob = await this.prisma.job.update({
+          where: { id: matchedJob.id },
+          data: {
+            source: currentSources.join(", "),
+            link: currentLinks.join(","),
+          },
+        });
+
+        return { job: updatedJob, created: false };
+      }
     }
 
     const metadata = extractMetadata(data.description);
+    const normalizedLoc = extractState(data.location || null);
 
     const job = await this.prisma.job.create({
       data: {
         title: data.title,
         description: data.description || null,
         company: data.company || null,
-        location: data.location || null,
+        location: normalizedLoc,
         modality: data.modality || null,
         level: data.level || identifyLevel(data),
         technologies: data.technologies || metadata.technologies || null,

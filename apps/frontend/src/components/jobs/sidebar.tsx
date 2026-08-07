@@ -19,7 +19,6 @@ interface JobsSidebarProps {
   onCompanyDebounced: (val: string) => void;
   location: string;
   onLocationChange: (val: string) => void;
-  onLocationDebounced: (val: string) => void;
   period: string;
   onPeriodChange: (val: string) => void;
   contractType: string;
@@ -77,7 +76,6 @@ export function JobsSidebar({
   onCompanyDebounced,
   location,
   onLocationChange,
-  onLocationDebounced,
   period,
   onPeriodChange,
   contractType,
@@ -168,20 +166,45 @@ export function JobsSidebar({
           radius="lg"
         />
 
-        <Input
+        <Select
+          label="Localização / Estado"
           value={location}
-          onChange={(e) => onLocationChange(e.target.value)}
-          debouncedOnChange={onLocationDebounced}
-          debounceTimeout={400}
-          onClear={() => {
-            onLocationChange("");
-            onLocationDebounced("");
-          }}
-          isClearable
-          placeholder="Ex: São Paulo, Remoto"
-          label="Localização"
-          variant="default"
+          onValueChange={onLocationChange}
+          placeholder="Todas as localizações"
           radius="lg"
+          variant="default"
+          isSearchable
+          options={[
+            { value: "", label: "Todas as localizações" },
+            { value: "Remoto", label: "Remoto" },
+            { value: "Acre, AC", label: "Acre, AC" },
+            { value: "Alagoas, AL", label: "Alagoas, AL" },
+            { value: "Amapá, AP", label: "Amapá, AP" },
+            { value: "Amazonas, AM", label: "Amazonas, AM" },
+            { value: "Bahia, BA", label: "Bahia, BA" },
+            { value: "Ceará, CE", label: "Ceará, CE" },
+            { value: "Distrito Federal, DF", label: "Distrito Federal, DF" },
+            { value: "Espírito Santo, ES", label: "Espírito Santo, ES" },
+            { value: "Goiás, GO", label: "Goiás, GO" },
+            { value: "Maranhão, MA", label: "Maranhão, MA" },
+            { value: "Mato Grosso, MT", label: "Mato Grosso, MT" },
+            { value: "Mato Grosso do Sul, MS", label: "Mato Grosso do Sul, MS" },
+            { value: "Minas Gerais, MG", label: "Minas Gerais, MG" },
+            { value: "Pará, PA", label: "Pará, PA" },
+            { value: "Paraíba, PB", label: "Paraíba, PB" },
+            { value: "Paraná, PR", label: "Paraná, PR" },
+            { value: "Pernambuco, PE", label: "Pernambuco, PE" },
+            { value: "Piauí, PI", label: "Piauí, PI" },
+            { value: "Rio de Janeiro, RJ", label: "Rio de Janeiro, RJ" },
+            { value: "Rio Grande do Norte, RN", label: "Rio Grande do Norte, RN" },
+            { value: "Rio Grande do Sul, RS", label: "Rio Grande do Sul, RS" },
+            { value: "Rondônia, RO", label: "Rondônia, RO" },
+            { value: "Roraima, RR", label: "Roraima, RR" },
+            { value: "Santa Catarina, SC", label: "Santa Catarina, SC" },
+            { value: "São Paulo, SP", label: "São Paulo, SP" },
+            { value: "Sergipe, SE", label: "Sergipe, SE" },
+            { value: "Tocantins, TO", label: "Tocantins, TO" },
+          ]}
         />
 
         <Input
@@ -207,6 +230,7 @@ export function JobsSidebar({
           placeholder="Todos os contratos"
           radius="lg"
           variant="default"
+          isSearchable
           options={[
             { value: "todos", label: "Todos os contratos" },
             { value: "CLT", label: "Apenas CLT" },
@@ -221,6 +245,7 @@ export function JobsSidebar({
           placeholder="Qualquer data"
           radius="lg"
           variant="default"
+          isSearchable
           options={[
             { value: "", label: "Qualquer data" },
             { value: "coletadas_hoje", label: "Coletadas hoje" },
@@ -242,6 +267,7 @@ export function JobsSidebar({
           radius="lg"
           variant="default"
           maxTagsVisible={2}
+          isSearchable
         />
 
         <Select
@@ -254,6 +280,7 @@ export function JobsSidebar({
           radius="lg"
           variant="default"
           maxTagsVisible={2}
+          isSearchable
         />
 
         <Select
@@ -266,6 +293,7 @@ export function JobsSidebar({
           radius="lg"
           variant="default"
           maxTagsVisible={1}
+          isSearchable
         />
       </div>
     </aside>
