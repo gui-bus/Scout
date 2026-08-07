@@ -16,6 +16,7 @@ export interface Job {
   contactsText?: string | null;
   isFavorite?: boolean;
   isApplied?: boolean;
+  isViewed?: boolean;
 }
 
 export interface Pagination {

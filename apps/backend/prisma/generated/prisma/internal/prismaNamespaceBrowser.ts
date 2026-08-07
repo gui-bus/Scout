@@ -119,6 +119,7 @@ export const UserJobStateScalarFieldEnum = {
   jobId: 'jobId',
   isFavorite: 'isFavorite',
   isApplied: 'isApplied',
+  isViewed: 'isViewed',
   updatedAt: 'updatedAt'
 } as const
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
-import { useQueryState, parseAsInteger, parseAsString, parseAsArrayOf } from "nuqs";
+import { useQueryState, parseAsInteger, parseAsString, parseAsArrayOf, parseAsBoolean } from "nuqs";
 import { Icon } from "@iconify/react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -30,6 +30,54 @@ interface SyncStatusData {
   collecting: boolean;
 }
 
+function renderMiniSourceLogo(source: string) {
+  const srcLower = source.toLowerCase();
+
+  if (srcLower.includes("gupy")) {
+    return (
+      <span className="inline-flex items-center shrink-0">
+        <Image src="/utils/icons/gupy_black.svg" alt="Gupy" width={32} height={10} className="dark:hidden select-none object-contain" />
+        <Image src="/utils/icons/gupy_white.svg" alt="Gupy" width={32} height={10} className="hidden dark:block select-none object-contain" />
+      </span>
+    );
+  }
+  if (srcLower.includes("solides") || srcLower.includes("sólides")) {
+    return (
+      <Image src="/utils/icons/solides.svg" alt="Sólides" width={36} height={10} className="select-none object-contain shrink-0" />
+    );
+  }
+  if (srcLower.includes("remotar")) {
+    return (
+      <span className="inline-flex items-center shrink-0">
+        <Image src="/utils/icons/remotar_black.svg" alt="Remotar" width={36} height={10} className="dark:hidden select-none object-contain" />
+        <Image src="/utils/icons/remotar_white.svg" alt="Remotar" width={36} height={10} className="hidden dark:block select-none object-contain" />
+      </span>
+    );
+  }
+  if (srcLower.includes("jooble")) {
+    return (
+      <Image src="/utils/icons/jooble.svg" alt="Jooble" width={32} height={10} className="select-none object-contain shrink-0" />
+    );
+  }
+  if (srcLower.includes("github")) {
+    return (
+      <span className="inline-flex items-center shrink-0">
+        <Image src="/utils/icons/github_logo_black.svg" alt="GitHub" width={36} height={10} className="dark:hidden select-none object-contain" />
+        <Image src="/utils/icons/github_logo_white.svg" alt="GitHub" width={36} height={10} className="hidden dark:block select-none object-contain" />
+      </span>
+    );
+  }
+  if (srcLower.includes("remotive")) {
+    return (
+      <span className="inline-flex items-center shrink-0">
+        <Image src="/utils/icons/remotive_black.svg" alt="Remotive" width={42} height={10} className="dark:hidden select-none object-contain" />
+        <Image src="/utils/icons/remotive_white.svg" alt="Remotive" width={42} height={10} className="hidden dark:block select-none object-contain" />
+      </span>
+    );
+  }
+  return <span className="text-[10px] uppercase tracking-wider">{source}</span>;
+}
+
 function JobsPageContent() {
   const { user, logout, token, isAuthenticated } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -45,12 +93,15 @@ function JobsPageContent() {
   const [favoritesOnlyQuery, setFavoritesOnlyQuery] = useQueryState("favoritos", parseAsString.withDefault(""));
   const [appliedOnlyQuery, setAppliedOnlyQuery] = useQueryState("candidatados", parseAsString.withDefault(""));
   const [contractTypeQuery, setContractTypeQuery] = useQueryState("contrato", parseAsString.withDefault("todos"));
+  const [directContactsOnlyQuery, setDirectContactsOnlyQuery] = useQueryState("direta", parseAsBoolean.withDefault(false));
+  const [excludeQuery, setExcludeQuery] = useQueryState("ocultar", parseAsString.withDefault(""));
   const [pageQuery, setPageQuery] = useQueryState("page", parseAsInteger.withDefault(1));
   const [perPageQuery, setPerPageQuery] = useQueryState("limite", parseAsInteger.withDefault(10));
 
   const [busca, setBusca] = useState(buscaQuery);
   const [company, setCompany] = useState(companyQuery);
   const [location, setLocation] = useState(locationQuery);
+  const [exclude, setExclude] = useState(excludeQuery);
 
   const queryClient = useQueryClient();
 
@@ -71,6 +122,8 @@ function JobsPageContent() {
       favoritesOnlyQuery,
       appliedOnlyQuery,
       contractTypeQuery,
+      directContactsOnlyQuery,
+      excludeQuery,
       pageQuery,
       perPageQuery,
       token,
@@ -86,6 +139,8 @@ function JobsPageContent() {
       if (contractTypeQuery && contractTypeQuery !== "todos") {
         params.append("contractType", contractTypeQuery);
       }
+      if (directContactsOnlyQuery) params.append("directContactsOnly", "true");
+      if (excludeQuery) params.append("exclude", excludeQuery);
 
       modalitiesQuery.forEach((m) => params.append("modality", m));
       levelsQuery.forEach((l) => params.append("level", l));
@@ -94,7 +149,7 @@ function JobsPageContent() {
       params.append("page", pageQuery.toString());
       params.append("per_page", perPageQuery.toString());
 
-      const headers: HeadersInit = {};
+      const headers: Record<string, string> = {};
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
@@ -104,7 +159,7 @@ function JobsPageContent() {
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao carregar as vagas");
+        throw new Error("Erro ao carregar vagas.");
       }
 
       return response.json();
@@ -124,6 +179,16 @@ function JobsPageContent() {
     refetchInterval: (query) => {
       return query.state.data?.collecting ? 2000 : 15000;
     },
+  });
+
+  const { data: statsData } = useQuery<{ totalToday: number; bySource: Record<string, number> }>({
+    queryKey: ["jobs-stats"],
+    queryFn: async () => {
+      const response = await fetch("http://localhost:3001/api/jobs/stats");
+      if (!response.ok) throw new Error("Erro ao carregar estatísticas");
+      return response.json();
+    },
+    refetchInterval: 60000,
   });
 
   const isSyncing = !!syncStatus?.collecting;
@@ -182,7 +247,10 @@ function JobsPageContent() {
     setFavoritesOnlyQuery(null);
     setAppliedOnlyQuery(null);
     setContractTypeQuery(null);
-  }, [setPageQuery, setBuscaQuery, setCompanyQuery, setLocationQuery, setPeriodQuery, setModalitiesQuery, setLevelsQuery, setSourcesQuery, setFavoritesOnlyQuery, setAppliedOnlyQuery, setContractTypeQuery]);
+    setDirectContactsOnlyQuery(null);
+    setExcludeQuery(null);
+    setExclude("");
+  }, [setPageQuery, setBuscaQuery, setCompanyQuery, setLocationQuery, setPeriodQuery, setModalitiesQuery, setLevelsQuery, setSourcesQuery, setFavoritesOnlyQuery, setAppliedOnlyQuery, setContractTypeQuery, setDirectContactsOnlyQuery, setExcludeQuery]);
 
   const handleBuscaDebounced = useCallback((val: string) => {
     setPageQuery(1);
@@ -198,6 +266,11 @@ function JobsPageContent() {
     setPageQuery(1);
     setLocationQuery(val || null);
   }, [setPageQuery, setLocationQuery]);
+
+  const handleExcludeDebounced = useCallback((val: string) => {
+    setPageQuery(1);
+    setExcludeQuery(val || null);
+  }, [setPageQuery, setExcludeQuery]);
 
   const handlePeriodChange = useCallback((val: string) => {
     setPageQuery(1);
@@ -335,6 +408,45 @@ function JobsPageContent() {
     },
   });
 
+  const toggleViewedMutation = useMutation({
+    mutationFn: async ({ jobId }: { jobId: number }) => {
+      const response = await fetch(`http://localhost:3001/api/jobs/${jobId}/state`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isViewed: true }),
+      });
+      if (!response.ok) throw new Error("Erro ao atualizar visualização");
+      return response.json();
+    },
+    onMutate: async ({ jobId }) => {
+      await queryClient.cancelQueries({ queryKey: ["jobs"] });
+      const previousJobsData = queryClient.getQueryData(["jobs"]);
+
+      queryClient.setQueriesData<QueryData>({ queryKey: ["jobs"] }, (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items.map((j: Job) =>
+            j.id === jobId ? { ...j, isViewed: true } : j
+          ),
+        };
+      });
+
+      return { previousJobsData };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousJobsData) {
+        queryClient.setQueriesData({ queryKey: ["jobs"] }, context.previousJobsData);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+    },
+  });
+
   const handleToggleFavorite = useCallback(async (jobId: number, currentVal: boolean) => {
     if (!token) return;
     toggleFavoriteMutation.mutate({ jobId, currentVal });
@@ -344,6 +456,11 @@ function JobsPageContent() {
     if (!token) return;
     toggleAppliedMutation.mutate({ jobId, currentVal });
   }, [token, toggleAppliedMutation]);
+
+  const handleMarkAsViewed = useCallback(async (jobId: number) => {
+    if (!token) return;
+    toggleViewedMutation.mutate({ jobId });
+  }, [token, toggleViewedMutation]);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
@@ -382,6 +499,11 @@ function JobsPageContent() {
           onModalitiesChange={handleModalitiesChange}
           levels={levelsQuery}
           onLevelsChange={handleLevelsChange}
+          directContactsOnly={directContactsOnlyQuery}
+          onDirectContactsOnlyChange={setDirectContactsOnlyQuery}
+          exclude={exclude}
+          onExcludeChange={setExclude}
+          onExcludeDebounced={handleExcludeDebounced}
           onClearFilters={handleClearFilters}
         />
 
@@ -439,6 +561,24 @@ function JobsPageContent() {
             </div>
           </div>
 
+          {statsData && statsData.totalToday > 0 && (
+            <div className="text-[11px] font-semibold text-muted-foreground select-none py-1 flex flex-wrap items-center gap-1.5">
+              <span>Novas vagas coletadas hoje:</span>
+              <span className="text-foreground font-bold">{statsData.totalToday} total</span>
+              <span className="text-muted-foreground/40 select-none">•</span>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                {Object.entries(statsData.bySource).map(([source, count], idx, arr) => (
+                  <React.Fragment key={source}>
+                    <span className="flex items-center gap-1">
+                      {renderMiniSourceLogo(source)}: <span className="font-bold text-foreground">{count}</span>
+                    </span>
+                    {idx < arr.length - 1 && <span className="text-muted-foreground/30 font-light select-none">·</span>}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          )}
+
           {error && (
             <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-6 text-destructive text-sm">
               {error}
@@ -470,6 +610,7 @@ function JobsPageContent() {
                   isAuthenticated={isAuthenticated}
                   onToggleFavorite={handleToggleFavorite}
                   onToggleApplied={handleToggleApplied}
+                  onMarkAsViewed={handleMarkAsViewed}
                 />
               ))}
             </div>

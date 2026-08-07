@@ -19,6 +19,8 @@ export class JobController {
     @Query("period") period?: string,
     @Query("source") source?: string | string[],
     @Query("contractType") contractType?: string,
+    @Query("directContactsOnly") directContactsOnly?: string,
+    @Query("exclude") exclude?: string,
     @Query("favoritesOnly") favoritesOnly?: string,
     @Query("appliedOnly") appliedOnly?: string,
     @Query("page") page = 1,
@@ -34,6 +36,8 @@ export class JobController {
       period,
       source,
       contractType,
+      directContactsOnly,
+      exclude,
       favoritesOnly,
       appliedOnly,
     };
@@ -48,10 +52,15 @@ export class JobController {
   async setJobState(
     @Request() req: any,
     @Param("id", ParseIntPipe) id: number,
-    @Body() body: { isFavorite?: boolean; isApplied?: boolean }
+    @Body() body: { isFavorite?: boolean; isApplied?: boolean; isViewed?: boolean }
   ) {
     const userId = req.user.id;
     return this.jobService.setJobState(userId, id, body);
+  }
+
+  @Get("stats")
+  async getStats() {
+    return this.jobService.getStats();
   }
 
   @Get(":id")

@@ -44,6 +44,7 @@ export type UserJobStateMinAggregateOutputType = {
   jobId: number | null
   isFavorite: boolean | null
   isApplied: boolean | null
+  isViewed: boolean | null
   updatedAt: Date | null
 }
 
@@ -53,6 +54,7 @@ export type UserJobStateMaxAggregateOutputType = {
   jobId: number | null
   isFavorite: boolean | null
   isApplied: boolean | null
+  isViewed: boolean | null
   updatedAt: Date | null
 }
 
@@ -62,6 +64,7 @@ export type UserJobStateCountAggregateOutputType = {
   jobId: number
   isFavorite: number
   isApplied: number
+  isViewed: number
   updatedAt: number
   _all: number
 }
@@ -85,6 +88,7 @@ export type UserJobStateMinAggregateInputType = {
   jobId?: true
   isFavorite?: true
   isApplied?: true
+  isViewed?: true
   updatedAt?: true
 }
 
@@ -94,6 +98,7 @@ export type UserJobStateMaxAggregateInputType = {
   jobId?: true
   isFavorite?: true
   isApplied?: true
+  isViewed?: true
   updatedAt?: true
 }
 
@@ -103,6 +108,7 @@ export type UserJobStateCountAggregateInputType = {
   jobId?: true
   isFavorite?: true
   isApplied?: true
+  isViewed?: true
   updatedAt?: true
   _all?: true
 }
@@ -199,6 +205,7 @@ export type UserJobStateGroupByOutputType = {
   jobId: number
   isFavorite: boolean
   isApplied: boolean
+  isViewed: boolean
   updatedAt: Date
   _count: UserJobStateCountAggregateOutputType | null
   _avg: UserJobStateAvgAggregateOutputType | null
@@ -231,6 +238,7 @@ export type UserJobStateWhereInput = {
   jobId?: Prisma.IntFilter<"UserJobState"> | number
   isFavorite?: Prisma.BoolFilter<"UserJobState"> | boolean
   isApplied?: Prisma.BoolFilter<"UserJobState"> | boolean
+  isViewed?: Prisma.BoolFilter<"UserJobState"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"UserJobState"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   job?: Prisma.XOR<Prisma.JobScalarRelationFilter, Prisma.JobWhereInput>
@@ -242,6 +250,7 @@ export type UserJobStateOrderByWithRelationInput = {
   jobId?: Prisma.SortOrder
   isFavorite?: Prisma.SortOrder
   isApplied?: Prisma.SortOrder
+  isViewed?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   job?: Prisma.JobOrderByWithRelationInput
@@ -257,6 +266,7 @@ export type UserJobStateWhereUniqueInput = Prisma.AtLeast<{
   jobId?: Prisma.IntFilter<"UserJobState"> | number
   isFavorite?: Prisma.BoolFilter<"UserJobState"> | boolean
   isApplied?: Prisma.BoolFilter<"UserJobState"> | boolean
+  isViewed?: Prisma.BoolFilter<"UserJobState"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"UserJobState"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   job?: Prisma.XOR<Prisma.JobScalarRelationFilter, Prisma.JobWhereInput>
@@ -268,6 +278,7 @@ export type UserJobStateOrderByWithAggregationInput = {
   jobId?: Prisma.SortOrder
   isFavorite?: Prisma.SortOrder
   isApplied?: Prisma.SortOrder
+  isViewed?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserJobStateCountOrderByAggregateInput
   _avg?: Prisma.UserJobStateAvgOrderByAggregateInput
@@ -285,12 +296,14 @@ export type UserJobStateScalarWhereWithAggregatesInput = {
   jobId?: Prisma.IntWithAggregatesFilter<"UserJobState"> | number
   isFavorite?: Prisma.BoolWithAggregatesFilter<"UserJobState"> | boolean
   isApplied?: Prisma.BoolWithAggregatesFilter<"UserJobState"> | boolean
+  isViewed?: Prisma.BoolWithAggregatesFilter<"UserJobState"> | boolean
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"UserJobState"> | Date | string
 }
 
 export type UserJobStateCreateInput = {
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutJobStatesInput
   job: Prisma.JobCreateNestedOneWithoutJobStatesInput
@@ -302,12 +315,14 @@ export type UserJobStateUncheckedCreateInput = {
   jobId: number
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: Date | string
 }
 
 export type UserJobStateUpdateInput = {
   isFavorite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isApplied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isViewed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutJobStatesNestedInput
   job?: Prisma.JobUpdateOneRequiredWithoutJobStatesNestedInput
@@ -319,6 +334,7 @@ export type UserJobStateUncheckedUpdateInput = {
   jobId?: Prisma.IntFieldUpdateOperationsInput | number
   isFavorite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isApplied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isViewed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -328,12 +344,14 @@ export type UserJobStateCreateManyInput = {
   jobId: number
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: Date | string
 }
 
 export type UserJobStateUpdateManyMutationInput = {
   isFavorite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isApplied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isViewed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -343,6 +361,7 @@ export type UserJobStateUncheckedUpdateManyInput = {
   jobId?: Prisma.IntFieldUpdateOperationsInput | number
   isFavorite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isApplied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isViewed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -367,6 +386,7 @@ export type UserJobStateCountOrderByAggregateInput = {
   jobId?: Prisma.SortOrder
   isFavorite?: Prisma.SortOrder
   isApplied?: Prisma.SortOrder
+  isViewed?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -382,6 +402,7 @@ export type UserJobStateMaxOrderByAggregateInput = {
   jobId?: Prisma.SortOrder
   isFavorite?: Prisma.SortOrder
   isApplied?: Prisma.SortOrder
+  isViewed?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -391,6 +412,7 @@ export type UserJobStateMinOrderByAggregateInput = {
   jobId?: Prisma.SortOrder
   isFavorite?: Prisma.SortOrder
   isApplied?: Prisma.SortOrder
+  isViewed?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -491,6 +513,7 @@ export type BoolFieldUpdateOperationsInput = {
 export type UserJobStateCreateWithoutJobInput = {
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutJobStatesInput
 }
@@ -500,6 +523,7 @@ export type UserJobStateUncheckedCreateWithoutJobInput = {
   userId: number
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: Date | string
 }
 
@@ -537,12 +561,14 @@ export type UserJobStateScalarWhereInput = {
   jobId?: Prisma.IntFilter<"UserJobState"> | number
   isFavorite?: Prisma.BoolFilter<"UserJobState"> | boolean
   isApplied?: Prisma.BoolFilter<"UserJobState"> | boolean
+  isViewed?: Prisma.BoolFilter<"UserJobState"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"UserJobState"> | Date | string
 }
 
 export type UserJobStateCreateWithoutUserInput = {
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: Date | string
   job: Prisma.JobCreateNestedOneWithoutJobStatesInput
 }
@@ -552,6 +578,7 @@ export type UserJobStateUncheckedCreateWithoutUserInput = {
   jobId: number
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: Date | string
 }
 
@@ -585,12 +612,14 @@ export type UserJobStateCreateManyJobInput = {
   userId: number
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: Date | string
 }
 
 export type UserJobStateUpdateWithoutJobInput = {
   isFavorite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isApplied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isViewed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutJobStatesNestedInput
 }
@@ -600,6 +629,7 @@ export type UserJobStateUncheckedUpdateWithoutJobInput = {
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   isFavorite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isApplied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isViewed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -608,6 +638,7 @@ export type UserJobStateUncheckedUpdateManyWithoutJobInput = {
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   isFavorite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isApplied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isViewed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -616,12 +647,14 @@ export type UserJobStateCreateManyUserInput = {
   jobId: number
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: Date | string
 }
 
 export type UserJobStateUpdateWithoutUserInput = {
   isFavorite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isApplied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isViewed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   job?: Prisma.JobUpdateOneRequiredWithoutJobStatesNestedInput
 }
@@ -631,6 +664,7 @@ export type UserJobStateUncheckedUpdateWithoutUserInput = {
   jobId?: Prisma.IntFieldUpdateOperationsInput | number
   isFavorite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isApplied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isViewed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -639,6 +673,7 @@ export type UserJobStateUncheckedUpdateManyWithoutUserInput = {
   jobId?: Prisma.IntFieldUpdateOperationsInput | number
   isFavorite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isApplied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isViewed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -650,6 +685,7 @@ export type UserJobStateSelect<ExtArgs extends runtime.Types.Extensions.Internal
   jobId?: boolean
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   job?: boolean | Prisma.JobDefaultArgs<ExtArgs>
@@ -661,6 +697,7 @@ export type UserJobStateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   jobId?: boolean
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   job?: boolean | Prisma.JobDefaultArgs<ExtArgs>
@@ -672,6 +709,7 @@ export type UserJobStateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   jobId?: boolean
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   job?: boolean | Prisma.JobDefaultArgs<ExtArgs>
@@ -683,10 +721,11 @@ export type UserJobStateSelectScalar = {
   jobId?: boolean
   isFavorite?: boolean
   isApplied?: boolean
+  isViewed?: boolean
   updatedAt?: boolean
 }
 
-export type UserJobStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "jobId" | "isFavorite" | "isApplied" | "updatedAt", ExtArgs["result"]["userJobState"]>
+export type UserJobStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "jobId" | "isFavorite" | "isApplied" | "isViewed" | "updatedAt", ExtArgs["result"]["userJobState"]>
 export type UserJobStateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   job?: boolean | Prisma.JobDefaultArgs<ExtArgs>
@@ -712,6 +751,7 @@ export type $UserJobStatePayload<ExtArgs extends runtime.Types.Extensions.Intern
     jobId: number
     isFavorite: boolean
     isApplied: boolean
+    isViewed: boolean
     updatedAt: Date
   }, ExtArgs["result"]["userJobState"]>
   composites: {}
@@ -1143,6 +1183,7 @@ export interface UserJobStateFieldRefs {
   readonly jobId: Prisma.FieldRef<"UserJobState", 'Int'>
   readonly isFavorite: Prisma.FieldRef<"UserJobState", 'Boolean'>
   readonly isApplied: Prisma.FieldRef<"UserJobState", 'Boolean'>
+  readonly isViewed: Prisma.FieldRef<"UserJobState", 'Boolean'>
   readonly updatedAt: Prisma.FieldRef<"UserJobState", 'DateTime'>
 }
     

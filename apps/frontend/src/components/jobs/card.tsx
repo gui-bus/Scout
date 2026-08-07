@@ -14,6 +14,7 @@ interface JobCardItemProps {
   isAuthenticated: boolean;
   onToggleFavorite: (jobId: number, currentVal: boolean) => Promise<void>;
   onToggleApplied: (jobId: number, currentVal: boolean) => Promise<void>;
+  onMarkAsViewed?: (jobId: number) => void;
 }
 
 function renderSourceLogo(source: string | null) {
@@ -174,6 +175,7 @@ export function JobCardItem({
   isAuthenticated,
   onToggleFavorite,
   onToggleApplied,
+  onMarkAsViewed,
 }: JobCardItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isTechsExpanded, setIsTechsExpanded] = useState(false);
@@ -204,12 +206,37 @@ export function JobCardItem({
         </button>
       )}
 
+      {job.isViewed && (
+        <div
+          className={`absolute top-0 bg-muted border-x border-b border-border px-3 py-2.5 rounded-b-lg flex items-center gap-1 text-[10px] font-bold text-muted-foreground select-none z-10 ${
+            isAuthenticated ? "right-20" : "right-6"
+          }`}
+          title="Vaga já visualizada"
+        >
+          <Icon icon="ph:check-bold" className="size-3.5 text-emerald-500" />
+          <span>Visualizada</span>
+        </div>
+      )}
+
       <CardHeader className="p-6 pb-0 flex flex-col space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex flex-col space-y-1 pr-12">
-            <h4 className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-              {job.company || "Empresa não informada"}
-            </h4>
+            {job.company ? (
+              <Link
+                href={`https://www.google.com/search?q=${encodeURIComponent(job.company)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-muted-foreground text-xs uppercase tracking-wider hover:text-primary hover:underline transition-colors cursor-pointer flex items-center gap-1"
+                title={`Pesquisar sobre ${job.company} no Google`}
+              >
+                <span>{job.company}</span>
+                <Icon icon="ph:magnifying-glass-bold" className="size-3 text-muted-foreground/50 hover:text-primary" />
+              </Link>
+            ) : (
+              <span className="font-semibold text-muted-foreground text-xs uppercase tracking-wider select-none">
+                Empresa não informada
+              </span>
+            )}
             <div className="h-5 flex items-center mt-1">
               {renderSourceLogo(job.source)}
             </div>
@@ -239,6 +266,33 @@ export function JobCardItem({
                 {job.contractType}
               </span>
             )}
+          </div>
+
+          <div className="mt-3.5 flex flex-col gap-2">
+            <div className="text-[10px] text-muted-foreground font-bold tracking-wider uppercase flex items-center gap-1 select-none">
+              <Icon icon="ph:list-bullets-bold" className="size-3.5 text-primary" />
+              <span>Resumo Rápido</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="flex flex-col">
+                <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight">Tipo de Contrato</span>
+                <span className="font-semibold text-foreground">
+                  {job.contractType && job.contractType !== "Não especificado" ? job.contractType : "Não especificado"}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight">Localização</span>
+                <span className="font-semibold text-foreground truncate">
+                  {job.location || "Não informada"}
+                </span>
+              </div>
+              <div className="flex flex-col col-span-2">
+                <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight">Salário / Benefícios</span>
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                  {job.salaryText || "Não especificado"}
+                </span>
+              </div>
+            </div>
           </div>
 
           {techList.length > 0 && (
@@ -286,7 +340,12 @@ export function JobCardItem({
               </p>
               {sanitizedDesc.length > 160 && (
                 <button
-                  onClick={() => setIsExpanded(!isExpanded)}
+                  onClick={() => {
+                    setIsExpanded(!isExpanded);
+                    if (!isExpanded && onMarkAsViewed) {
+                      onMarkAsViewed(job.id);
+                    }
+                  }}
                   className="text-[11px] text-primary hover:underline font-bold mt-1 cursor-pointer focus:outline-none flex items-center gap-0.5"
                 >
                   <span>{isExpanded ? "Ver menos" : "Ver mais"}</span>
@@ -299,12 +358,7 @@ export function JobCardItem({
             </div>
           )}
 
-          {job.salaryText && (
-            <div className="flex items-center text-xs text-emerald-600 dark:text-emerald-400 mt-3.5 font-bold">
-              <Icon icon="ph:currency-dollar" className="size-4 mr-1 shrink-0 text-emerald-500" />
-              <span>{job.salaryText}</span>
-            </div>
-          )}
+
 
           {job.contactsText && (
             <div className="mt-3.5 p-3 bg-primary/5 border border-primary/10 rounded-lg flex flex-col gap-2">
@@ -380,6 +434,7 @@ export function JobCardItem({
                           href={cTrim}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => onMarkAsViewed?.(job.id)}
                           className="text-[10px] flex items-center gap-1 px-2.5 py-1 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded transition-colors cursor-pointer shrink-0 self-end sm:self-auto"
                         >
                           <Icon icon="ph:arrow-square-out-bold" className="size-3" />
@@ -421,7 +476,12 @@ export function JobCardItem({
         <div className="w-full sm:w-auto">
           {isAuthenticated && (
             <button
-              onClick={() => onToggleApplied(job.id, !!job.isApplied)}
+              onClick={() => {
+                onToggleApplied(job.id, !!job.isApplied);
+                if (onMarkAsViewed) {
+                  onMarkAsViewed(job.id);
+                }
+              }}
               className={`flex items-center justify-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold cursor-pointer transition-all w-fit ${
                 job.isApplied
                   ? "bg-emerald-500/10 dark:bg-emerald-500/20 border-emerald-500/30 dark:border-emerald-500/40 text-emerald-600 dark:text-emerald-400 shadow-sm"
@@ -441,6 +501,7 @@ export function JobCardItem({
           href={job.link}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => onMarkAsViewed?.(job.id)}
           className="text-muted-foreground hover:text-foreground transition-colors font-semibold flex items-center space-x-1 cursor-pointer self-end sm:self-auto shrink-0 mt-1 sm:mt-0"
         >
           <span>Ver Vaga</span>

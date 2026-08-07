@@ -62,6 +62,29 @@ export class JobService {
       }
     }
 
+    if (filters.directContactsOnly === "true" || filters.directContactsOnly === true) {
+      where.contactsText = { not: null };
+    }
+
+    if (filters.exclude && filters.exclude.trim() !== "") {
+      const excludeList = filters.exclude
+        .split(",")
+        .map((t: string) => t.trim())
+        .filter((t: string) => t !== "");
+
+      if (excludeList.length > 0) {
+        where.AND = [
+          ...(where.AND || []),
+          ...excludeList.map((term: string) => ({
+            NOT: [
+              { title: { contains: term } },
+              { description: { contains: term } },
+            ],
+          })),
+        ];
+      }
+    }
+
     if (userId) {
       if (filters.favoritesOnly === "true" || filters.favoritesOnly === true) {
         where.jobStates = {
@@ -136,6 +159,7 @@ export class JobService {
         ...item,
         isFavorite: state?.isFavorite ?? false,
         isApplied: state?.isApplied ?? false,
+        isViewed: state?.isViewed ?? false,
       };
     });
 
@@ -160,7 +184,7 @@ export class JobService {
     });
   }
 
-  async setJobState(userId: number, jobId: number, data: { isFavorite?: boolean; isApplied?: boolean }) {
+  async setJobState(userId: number, jobId: number, data: { isFavorite?: boolean; isApplied?: boolean; isViewed?: boolean }) {
     const existing = await this.prisma.userJobState.findUnique({
       where: {
         userId_jobId: {
@@ -180,14 +204,47 @@ export class JobService {
       update: {
         isFavorite: data.isFavorite !== undefined ? data.isFavorite : existing?.isFavorite,
         isApplied: data.isApplied !== undefined ? data.isApplied : existing?.isApplied,
+        isViewed: data.isViewed !== undefined ? data.isViewed : existing?.isViewed,
       },
       create: {
         userId,
         jobId,
         isFavorite: data.isFavorite ?? false,
         isApplied: data.isApplied ?? false,
+        isViewed: data.isViewed ?? false,
       },
     });
+  }
+
+  async getStats() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const jobsCollectedToday = await this.prisma.job.findMany({
+      where: {
+        collectedAt: {
+          gte: today,
+        },
+      },
+      select: {
+        source: true,
+      },
+    });
+
+    const stats: Record<string, number> = {};
+    let totalToday = 0;
+
+    for (const job of jobsCollectedToday) {
+      const source = job.source || "Outros";
+      const key = source.startsWith("GitHub") ? "GitHub" : source;
+      stats[key] = (stats[key] || 0) + 1;
+      totalToday++;
+    }
+
+    return {
+      totalToday,
+      bySource: stats,
+    };
   }
 
   async createJob(data: any) {

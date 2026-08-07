@@ -30,6 +30,11 @@ interface JobsSidebarProps {
   onModalitiesChange: (val: string[]) => void;
   levels: string[];
   onLevelsChange: (val: string[]) => void;
+  directContactsOnly: boolean;
+  onDirectContactsOnlyChange: (val: boolean) => void;
+  exclude: string;
+  onExcludeChange: (val: string) => void;
+  onExcludeDebounced: (val: string) => void;
   onClearFilters: () => void;
 }
 
@@ -83,6 +88,11 @@ export function JobsSidebar({
   onModalitiesChange,
   levels,
   onLevelsChange,
+  directContactsOnly,
+  onDirectContactsOnlyChange,
+  exclude,
+  onExcludeChange,
+  onExcludeDebounced,
   onClearFilters,
 }: JobsSidebarProps) {
   return (
@@ -100,7 +110,7 @@ export function JobsSidebar({
       </div>
 
       <div className="space-y-5">
-        {isAuthenticated && (
+         {isAuthenticated && (
           <CheckboxGroup label="Painel Pessoal">
             <Checkbox
               checked={favoritesOnly}
@@ -116,6 +126,15 @@ export function JobsSidebar({
             />
           </CheckboxGroup>
         )}
+
+        <CheckboxGroup label="Filtros Especiais">
+          <Checkbox
+            checked={directContactsOnly}
+            onCheckedChange={(val) => onDirectContactsOnlyChange(!!val)}
+            label="Apenas Candidatura Direta"
+            color="primary"
+          />
+        </CheckboxGroup>
 
         <Input
           value={busca}
@@ -161,6 +180,22 @@ export function JobsSidebar({
           isClearable
           placeholder="Ex: São Paulo, Remoto"
           label="Localização"
+          variant="default"
+          radius="lg"
+        />
+
+        <Input
+          value={exclude}
+          onChange={(e) => onExcludeChange(e.target.value)}
+          debouncedOnChange={onExcludeDebounced}
+          debounceTimeout={400}
+          onClear={() => {
+            onExcludeChange("");
+            onExcludeDebounced("");
+          }}
+          isClearable
+          placeholder="Ex: wordpress, php, c#"
+          label="Ocultar termos (Blacklist)"
           variant="default"
           radius="lg"
         />

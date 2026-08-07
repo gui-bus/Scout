@@ -57,6 +57,7 @@ model UserJobState {
   jobId      Int
   isFavorite Boolean  @default(false)
   isApplied  Boolean  @default(false)
+  isViewed   Boolean  @default(false)
   updatedAt  DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
