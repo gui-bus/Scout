@@ -19,6 +19,7 @@ import { Job, Pagination } from "@/components/jobs/types";
 import { JobsHeader } from "@/components/jobs/header";
 import { JobsSidebar } from "@/components/jobs/sidebar";
 import { JobCardItem } from "@/components/jobs/card";
+import { toast } from "@/components/ui/toast/toast";
 
 interface QueryData {
   items: Job[];
@@ -261,6 +262,14 @@ function JobsPageContent() {
       if (context?.previousJobsData) {
         queryClient.setQueriesData({ queryKey: ["jobs"] }, context.previousJobsData);
       }
+      toast.error("Erro ao salvar a vaga");
+    },
+    onSuccess: (_data, variables) => {
+      if (variables.currentVal) {
+        toast.success("Vaga removida dos salvos!");
+      } else {
+        toast.success("Vaga salva com sucesso!");
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
@@ -299,6 +308,14 @@ function JobsPageContent() {
     onError: (_err, _variables, context) => {
       if (context?.previousJobsData) {
         queryClient.setQueriesData({ queryKey: ["jobs"] }, context.previousJobsData);
+      }
+      toast.error("Erro ao atualizar candidatura");
+    },
+    onSuccess: (_data, variables) => {
+      if (variables.currentVal) {
+        toast.success("Candidatura removida!");
+      } else {
+        toast.success("Candidatura marcada com sucesso!");
       }
     },
     onSettled: () => {
