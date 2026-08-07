@@ -43,10 +43,10 @@ export function JobsHeader({
   }, []);
 
   return (
-    <header className="bg-background border-b border-border">
-      <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header>
+      <div className="w-full px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="h-8 relative w-[120px] flex items-center">
+          <div className="h-8 relative w-30 flex items-center">
             <Image
               src="/logos/logo_white.svg"
               alt="Scout Logo"
@@ -81,7 +81,7 @@ export function JobsHeader({
               color="primary"
               variant="default"
               radius="lg"
-              size="sm"
+              size="md"
               startContent={
                 <Icon
                   icon={isSyncing ? "hugeicons:loading" : "hugeicons:refresh"}
@@ -129,7 +129,7 @@ export function JobsHeader({
                 color="primary"
                 variant="default"
                 radius="lg"
-                size="sm"
+                size="md"
                 startContent={<Icon icon="hugeicons:user" className="size-4" />}
               >
                 Entrar
@@ -142,9 +142,9 @@ export function JobsHeader({
           <Button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             color="primary"
-            variant="flat"
+            variant="light"
             radius="lg"
-            size="sm"
+            size="md"
             isIconOnly
             ariaLabel="Alterar Tema"
             className="cursor-pointer"

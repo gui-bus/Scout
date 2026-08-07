@@ -254,7 +254,7 @@ function JobsPageContent() {
   }, [token]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
+    <div className="min-h-screen flex flex-col font-sans">
       <JobsHeader
         isSyncing={isSyncing}
         onSync={handleSyncJobs}
