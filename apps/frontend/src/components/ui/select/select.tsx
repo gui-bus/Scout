@@ -23,7 +23,7 @@ export interface SelectOption {
   badge?: string | React.ReactNode;
   icon?: string;
   group?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface SelectProps
@@ -159,7 +159,7 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
       onMultiValueChange?.([]);
     };
 
-    const handleRemoveTag = (e: React.MouseEvent, val: string) => {
+    const handleRemoveTag = (e: React.MouseEvent | React.KeyboardEvent, val: string) => {
       e.stopPropagation();
       const next = currentMulti.filter((v) => v !== val);
       if (multiValue === undefined) setSelectedMulti(next);
@@ -236,7 +236,7 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    handleRemoveTag(e as any, opt.value);
+                    handleRemoveTag(e, opt.value);
                   }
                 }}
                 className="hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded p-0.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"

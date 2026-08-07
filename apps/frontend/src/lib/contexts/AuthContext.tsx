@@ -25,8 +25,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const savedToken = localStorage.getItem("scout_token");
     const savedUser = localStorage.getItem("scout_user");
     if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
+      Promise.resolve().then(() => {
+        setToken(savedToken);
+        setUser(JSON.parse(savedUser));
+      });
     }
   }, []);
 

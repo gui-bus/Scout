@@ -137,7 +137,9 @@ function JobsPageContent() {
   };
 
   useEffect(() => {
-    fetchJobs();
+    Promise.resolve().then(() => {
+      fetchJobs();
+    });
     return () => {
       if (syncIntervalRef.current) {
         clearInterval(syncIntervalRef.current);
@@ -298,7 +300,7 @@ function JobsPageContent() {
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <ButtonGroup variant="flat" size="sm" radius="lg">
+              <ButtonGroup variant="light" size="sm" radius="none">
                 <Button
                   onClick={() => setViewLayout("grid")}
                   color={viewLayout === "grid" ? "primary" : "secondary"}

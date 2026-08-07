@@ -160,7 +160,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     {
       className,
       variant = "default",
-      color = "default",
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      color: _color = "default",
       size = "md",
       radius = "lg",
       label,

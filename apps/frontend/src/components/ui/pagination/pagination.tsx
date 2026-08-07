@@ -288,7 +288,9 @@ export function PaginationToolbar({
   const [jumperVal, setJumperVal] = React.useState(page.toString());
 
   React.useEffect(() => {
-    setJumperVal(page.toString());
+    Promise.resolve().then(() => {
+      setJumperVal(page.toString());
+    });
   }, [page]);
 
   const handleJumperSubmit = (e: React.FormEvent) => {

@@ -70,8 +70,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         description: isRegister ? "Sua conta foi registrada com sucesso." : "Você está logado.",
       });
       onClose();
-    } catch (err: any) {
-      toast.error("Erro na autenticação", { description: err.message });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Ocorreu um erro na autenticação.";
+      toast.error("Erro na autenticação", { description: errorMessage });
     } finally {
       setLoading(false);
     }

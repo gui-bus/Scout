@@ -169,7 +169,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
         (isFocused || currentValue.length > 0));
 
     return (
-      <div className="w-full flex flex-col gap-2">
+      <div className={cn("w-full flex flex-col gap-2", className)}>
         <Input
           ref={ref}
           type="password"
