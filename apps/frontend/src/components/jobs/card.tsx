@@ -103,9 +103,22 @@ function renderSourceLogo(source: string | null) {
   }
   if (srcLower.includes("remotive")) {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/10 text-sky-600 border border-sky-500/20 select-none">
-        Remotive
-      </span>
+      <>
+        <Image
+          src="/utils/icons/remotive_black.svg"
+          alt="Remotive"
+          width={65}
+          height={16}
+          className="dark:hidden select-none object-contain"
+        />
+        <Image
+          src="/utils/icons/remotive_white.svg"
+          alt="Remotive"
+          width={65}
+          height={16}
+          className="hidden dark:block select-none object-contain"
+        />
+      </>
     );
   }
 
