@@ -6,6 +6,15 @@ import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button/button";
 import { Spinner } from "@/components/ui/spinner/spinner";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu/dropdown-menu";
 
 interface JobsHeaderProps {
   isSyncing: boolean;
@@ -84,21 +93,36 @@ export function JobsHeader({
             </Button>
 
             {isAuthenticated ? (
-              <div className="flex items-center space-x-3">
-                <span className="text-xs text-muted-foreground font-medium select-none max-w-[150px] truncate">
-                  {userEmail}
-                </span>
-                <Button
-                  onClick={onLogout}
-                  color="primary"
-                  variant="flat"
-                  radius="lg"
-                  size="sm"
-                  endContent={<Icon icon="hugeicons:logout-01" className="size-4" />}
-                >
-                  Sair
-                </Button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center focus:outline-none cursor-pointer">
+                    <Avatar size="sm" color="primary" isPressable isBordered>
+                      <AvatarFallback>
+                        {userEmail ? userEmail.slice(0, 2).toUpperCase() : "US"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-card border-border">
+                  <DropdownMenuLabel className="font-normal p-2">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-xs font-semibold text-foreground leading-none">Usuário</p>
+                      <p className="text-[11px] text-muted-foreground leading-none truncate mt-0.5">
+                        {userEmail}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    color="danger"
+                    onClick={onLogout}
+                    className="cursor-pointer flex items-center"
+                  >
+                    <Icon icon="hugeicons:logout-01" className="size-4 mr-2" />
+                    <span>Sair</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Button
                 onClick={onOpenAuthModal}
