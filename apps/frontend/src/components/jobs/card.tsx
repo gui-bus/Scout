@@ -7,6 +7,7 @@ import { Icon } from "@iconify/react";
 import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge/badge";
 import type { Job } from "./types";
+import { toast } from "@/components/ui/toast/toast";
 
 interface JobCardItemProps {
   job: Job;
@@ -310,21 +311,73 @@ export function JobCardItem({
                 <Icon icon="ph:paper-plane-tilt-bold" className="size-3.5" />
                 <span>Candidatura direta / Contato:</span>
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-col gap-1.5 w-full">
                 {job.contactsText.split(",").map((contact, idx) => {
                   const cTrim = contact.trim();
                   const isEmail = cTrim.includes("@");
-                  return (
-                    <a
-                      key={idx}
-                      href={isEmail ? `mailto:${cTrim}` : cTrim}
-                      target={isEmail ? undefined : "_blank"}
-                      rel={isEmail ? undefined : "noopener noreferrer"}
-                      className="text-[10px] bg-card border border-border text-foreground hover:border-primary hover:text-primary px-2.5 py-1 rounded transition-all truncate max-w-full font-semibold shadow-sm"
-                    >
-                      {cTrim}
-                    </a>
-                  );
+
+                  if (isEmail) {
+                    return (
+                      <div
+                        key={idx}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-card border border-border rounded-md shadow-sm"
+                      >
+                        <span className="text-[11px] font-mono select-all truncate text-foreground pr-2 font-medium">
+                          {cTrim}
+                        </span>
+                        <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(cTrim);
+                              toast.success("E-mail copiado!", {
+                                description: "O endereço foi copiado para a área de transferência.",
+                              });
+                            }}
+                            className="text-[10px] flex items-center gap-1 px-2.5 py-1 bg-muted hover:bg-muted/80 text-foreground font-semibold rounded transition-colors cursor-pointer border border-border"
+                            title="Copiar e-mail"
+                          >
+                            <Icon icon="ph:copy-bold" className="size-3" />
+                            <span>Copiar</span>
+                          </button>
+                          <a
+                            href={`mailto:${cTrim}`}
+                            className="text-[10px] flex items-center gap-1 px-2.5 py-1 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded transition-colors cursor-pointer"
+                            title="Enviar e-mail"
+                          >
+                            <Icon icon="ph:envelope-simple-bold" className="size-3" />
+                            <span>Enviar</span>
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  } else {
+                    let domain = "Link";
+                    try {
+                      const url = new URL(cTrim);
+                      domain = url.hostname.replace("www.", "");
+                    } catch {
+                      // ignore
+                    }
+                    return (
+                      <div
+                        key={idx}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-card border border-border rounded-md shadow-sm"
+                      >
+                        <span className="text-[11px] font-mono select-all truncate text-foreground pr-2 font-medium">
+                          {cTrim}
+                        </span>
+                        <a
+                          href={cTrim}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] flex items-center gap-1 px-2.5 py-1 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded transition-colors cursor-pointer shrink-0 self-end sm:self-auto"
+                        >
+                          <Icon icon="ph:arrow-square-out-bold" className="size-3" />
+                          <span>Acessar {domain}</span>
+                        </a>
+                      </div>
+                    );
+                  }
                 })}
               </div>
             </div>
