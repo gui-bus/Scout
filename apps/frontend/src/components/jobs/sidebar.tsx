@@ -99,7 +99,7 @@ export function JobsSidebar({
             <Checkbox
               checked={favoritesOnly}
               onCheckedChange={(val) => onFavoritesOnlyChange(!!val)}
-              label="Apenas Favoritas"
+              label="Apenas Salvas"
               color="primary"
             />
             <Checkbox
