@@ -40,6 +40,29 @@ interface Pagination {
   hasPrev: boolean;
 }
 
+const sourceOptions = [
+  { value: "Gupy", label: "Gupy" },
+  { value: "Solides", label: "Sólides" },
+  { value: "Remotar", label: "Remotar" },
+  { value: "Jooble", label: "Jooble" }
+];
+
+const modalityOptions = [
+  { value: "Remoto", label: "Remoto" },
+  { value: "Híbrido", label: "Híbrido" },
+  { value: "Presencial", label: "Presencial" }
+];
+
+const levelOptions = [
+  { value: "Estágio", label: "Estágio" },
+  { value: "Júnior", label: "Júnior" },
+  { value: "Júnior/Pleno", label: "Júnior/Pleno" },
+  { value: "Pleno", label: "Pleno" },
+  { value: "Pleno/Sênior", label: "Pleno/Sênior" },
+  { value: "Sênior", label: "Sênior" },
+  { value: "Não informado", label: "Não informado" }
+];
+
 function JobsPageContent() {
   const { user, logout, token, isAuthenticated } = useAuth();
   const { theme, setTheme } = useTheme();
@@ -201,27 +224,6 @@ function JobsPageContent() {
     setLocationQuery(val || null);
   }, [setPageQuery, setLocationQuery]);
 
-  const toggleModality = (val: string) => {
-    setPageQuery(1);
-    setModalitiesQuery((prev) =>
-      prev.includes(val) ? prev.filter((x) => x !== val) : [...prev, val]
-    );
-  };
-
-  const toggleLevel = (val: string) => {
-    setPageQuery(1);
-    setLevelsQuery((prev) =>
-      prev.includes(val) ? prev.filter((x) => x !== val) : [...prev, val]
-    );
-  };
-
-  const toggleSource = (val: string) => {
-    setPageQuery(1);
-    setSourcesQuery((prev) =>
-      prev.includes(val) ? prev.filter((x) => x !== val) : [...prev, val]
-    );
-  };
-
   const handleToggleFavorite = async (jobId: number, currentVal: boolean) => {
     if (!token) return;
     setJobs((prev) =>
@@ -343,139 +345,156 @@ function JobsPageContent() {
       </header>
 
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
-        <aside className="w-full lg:w-80 shrink-0">
-          <div className="bg-card/45 border border-border rounded-2xl p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold tracking-wider text-muted-foreground uppercase">
-                Filtros
-              </h2>
-              <button
-                onClick={handleClearFilters}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors font-semibold cursor-pointer"
-              >
-                Limpar Todos
-              </button>
-            </div>
+        <aside className="w-full lg:w-80 shrink-0 space-y-6 lg:border-r lg:border-border lg:pr-8">
+          <div className="flex items-center justify-between pb-4 border-b border-border">
+            <h2 className="text-sm font-bold tracking-wider text-muted-foreground uppercase">
+              Filtros
+            </h2>
+            <button
+              onClick={handleClearFilters}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors font-semibold cursor-pointer"
+            >
+              Limpar Todos
+            </button>
+          </div>
 
-            <div className="space-y-5">
-              {isAuthenticated && (
-                <CheckboxGroup label="Painel Pessoal">
-                  <Checkbox
-                    checked={favoritesOnlyQuery === "true"}
-                    onCheckedChange={(val) => {
-                      setPageQuery(1);
-                      setFavoritesOnlyQuery(val ? "true" : null);
-                    }}
-                    label="Apenas Favoritas"
-                    color="default"
-                  />
-                  <Checkbox
-                    checked={appliedOnlyQuery === "true"}
-                    onCheckedChange={(val) => {
-                      setPageQuery(1);
-                      setAppliedOnlyQuery(val ? "true" : null);
-                    }}
-                    label="Candidaturas Feitas"
-                    color="default"
-                  />
-                </CheckboxGroup>
-              )}
-
-              <Input
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                debouncedOnChange={handleBuscaDebounced}
-                debounceTimeout={400}
-                placeholder="Ex: Node.js, React, Python"
-                label="Palavra-chave ou Tecnologia"
-                variant="default"
-                radius="lg"
-              />
-
-              <Input
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                debouncedOnChange={handleCompanyDebounced}
-                debounceTimeout={400}
-                placeholder="Ex: Nubank, Google"
-                label="Empresa"
-                variant="default"
-                radius="lg"
-              />
-
-              <Input
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                debouncedOnChange={handleLocationDebounced}
-                debounceTimeout={400}
-                placeholder="Ex: São Paulo, Remoto"
-                label="Localização"
-                variant="default"
-                radius="lg"
-              />
-
-              <Select
-                label="Período de Publicação"
-                value={periodQuery}
-                onValueChange={(val) => {
-                  setPageQuery(1);
-                  setPeriodQuery(val || null);
-                }}
-                placeholder="Qualquer data"
-                radius="lg"
-                variant="default"
-                options={[
-                  { value: "", label: "Qualquer data" },
-                  { value: "hoje", label: "Hoje" },
-                  { value: "semana", label: "Últimos 7 dias" },
-                  { value: "mes", label: "Últimos 30 dias" },
-                ]}
-              />
-
-              <CheckboxGroup label="Origem">
-                {["Gupy", "Solides", "Remotar", "Jooble"].map((src) => (
-                  <Checkbox
-                    key={src}
-                    checked={sourcesQuery.includes(src)}
-                    onCheckedChange={() => toggleSource(src)}
-                    label={src}
-                    color="default"
-                  />
-                ))}
+          <div className="space-y-5">
+            {isAuthenticated && (
+              <CheckboxGroup label="Painel Pessoal">
+                <Checkbox
+                  checked={favoritesOnlyQuery === "true"}
+                  onCheckedChange={(val) => {
+                    setPageQuery(1);
+                    setFavoritesOnlyQuery(val ? "true" : null);
+                  }}
+                  label="Apenas Favoritas"
+                  color="default"
+                />
+                <Checkbox
+                  checked={appliedOnlyQuery === "true"}
+                  onCheckedChange={(val) => {
+                    setPageQuery(1);
+                    setAppliedOnlyQuery(val ? "true" : null);
+                  }}
+                  label="Candidaturas Feitas"
+                  color="default"
+                />
               </CheckboxGroup>
+            )}
 
-              <CheckboxGroup label="Modalidade">
-                {["Remoto", "Híbrido", "Presencial"].map((m) => (
-                  <Checkbox
-                    key={m}
-                    checked={modalitiesQuery.includes(m)}
-                    onCheckedChange={() => toggleModality(m)}
-                    label={m}
-                    color="default"
-                  />
-                ))}
-              </CheckboxGroup>
+            <Input
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              debouncedOnChange={handleBuscaDebounced}
+              debounceTimeout={400}
+              onClear={() => {
+                setBusca("");
+                setPageQuery(1);
+                setBuscaQuery(null);
+              }}
+              isClearable
+              placeholder="Ex: Node.js, React, Python"
+              label="Palavra-chave ou Tecnologia"
+              variant="default"
+              radius="lg"
+            />
 
-              <CheckboxGroup label="Nível">
-                {[
-                  "Estágio",
-                  "Júnior",
-                  "Júnior/Pleno",
-                  "Pleno",
-                  "Pleno/Sênior",
-                  "Sênior",
-                  "Não informado",
-                ].map((l) => (
-                  <Checkbox
-                    key={l}
-                    checked={levelsQuery.includes(l)}
-                    onCheckedChange={() => toggleLevel(l)}
-                    label={l}
-                    color="default"
-                  />
-                ))}
-              </CheckboxGroup>
-            </div>
+            <Input
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              debouncedOnChange={handleCompanyDebounced}
+              debounceTimeout={400}
+              onClear={() => {
+                setCompany("");
+                setPageQuery(1);
+                setCompanyQuery(null);
+              }}
+              isClearable
+              placeholder="Ex: Nubank, Google"
+              label="Empresa"
+              variant="default"
+              radius="lg"
+            />
+
+            <Input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              debouncedOnChange={handleLocationDebounced}
+              debounceTimeout={400}
+              onClear={() => {
+                setLocation("");
+                setPageQuery(1);
+                setLocationQuery(null);
+              }}
+              isClearable
+              placeholder="Ex: São Paulo, Remoto"
+              label="Localização"
+              variant="default"
+              radius="lg"
+            />
+
+            <Select
+              label="Período de Publicação"
+              value={periodQuery}
+              onValueChange={(val) => {
+                setPageQuery(1);
+                setPeriodQuery(val || null);
+              }}
+              placeholder="Qualquer data"
+              radius="lg"
+              variant="default"
+              options={[
+                { value: "", label: "Qualquer data" },
+                { value: "hoje", label: "Hoje" },
+                { value: "semana", label: "Últimos 7 dias" },
+                { value: "mes", label: "Últimos 30 dias" },
+              ]}
+            />
+
+            <Select
+              label="Origem"
+              placeholder="Todas as origens"
+              isMultiSelect
+              multiValue={sourcesQuery}
+              onMultiValueChange={(val) => {
+                setPageQuery(1);
+                setSourcesQuery(val);
+              }}
+              options={sourceOptions}
+              radius="lg"
+              variant="default"
+              maxTagsVisible={2}
+            />
+
+            <Select
+              label="Modalidade"
+              placeholder="Todas as modalidades"
+              isMultiSelect
+              multiValue={modalitiesQuery}
+              onMultiValueChange={(val) => {
+                setPageQuery(1);
+                setModalitiesQuery(val);
+              }}
+              options={modalityOptions}
+              radius="lg"
+              variant="default"
+              maxTagsVisible={2}
+            />
+
+            <Select
+              label="Nível"
+              placeholder="Todos os níveis"
+              isMultiSelect
+              multiValue={levelsQuery}
+              onMultiValueChange={(val) => {
+                setPageQuery(1);
+                setLevelsQuery(val);
+              }}
+              options={levelOptions}
+              radius="lg"
+              variant="default"
+              maxTagsVisible={1}
+            />
           </div>
         </aside>
 
