@@ -98,11 +98,28 @@ export function JobCardItem({
     <Card
       variant="flat"
       isHoverable
-      className="bg-card border border-border flex flex-col justify-between h-full hover:border-muted-foreground/35 transition-colors relative"
+      className="bg-card border border-border flex flex-col justify-between h-full hover:-translate-y-1 hover:shadow-lg hover:border-primary/45 transition-all duration-300 ease-out will-change-transform relative overflow-visible"
     >
+      {isAuthenticated && (
+        <button
+          onClick={() => onToggleFavorite(job.id, !!job.isFavorite)}
+          className={`absolute top-0 right-6 px-2.5 py-3 rounded-b-lg transition-all duration-200 cursor-pointer z-10 flex items-center justify-center ${
+            job.isFavorite
+              ? "bg-primary text-primary-foreground shadow-md hover:bg-primary/95"
+              : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground border-x border-b border-border"
+          }`}
+          title={job.isFavorite ? "Remover dos Salvos" : "Salvar Vaga"}
+        >
+          <Icon
+            icon={job.isFavorite ? "ph:bookmark-simple-fill" : "ph:bookmark-simple"}
+            className="size-5"
+          />
+        </button>
+      )}
+
       <CardHeader className="p-6 pb-0 flex flex-col space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-1 pr-12">
             <h4 className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
               {job.company || "Empresa não informada"}
             </h4>
@@ -110,19 +127,6 @@ export function JobCardItem({
               {renderSourceLogo(job.source)}
             </div>
           </div>
-
-          {isAuthenticated && (
-            <button
-              onClick={() => onToggleFavorite(job.id, !!job.isFavorite)}
-              className="text-muted-foreground hover:text-yellow-500 transition-colors p-1 cursor-pointer"
-              title={job.isFavorite ? "Remover dos Favoritos" : "Favoritar Vaga"}
-            >
-              <Icon
-                icon="hugeicons:star"
-                className={`size-5 ${job.isFavorite ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`}
-              />
-            </button>
-          )}
         </div>
       </CardHeader>
 
@@ -162,13 +166,16 @@ export function JobCardItem({
           {isAuthenticated && (
             <button
               onClick={() => onToggleApplied(job.id, !!job.isApplied)}
-              className={`flex items-center space-x-1 px-1.5 py-0.5 rounded border text-[9px] font-bold cursor-pointer transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold cursor-pointer transition-all ${
                 job.isApplied
-                  ? "bg-default border-border text-foreground"
-                  : "bg-muted/50 border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground"
+                  ? "bg-emerald-500/10 dark:bg-emerald-500/20 border-emerald-500/30 dark:border-emerald-500/40 text-emerald-600 dark:text-emerald-400 shadow-sm"
+                  : "bg-muted/40 border-border text-muted-foreground hover:bg-emerald-500/10 hover:border-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-400"
               }`}
             >
-              <Icon icon="hugeicons:tick-02" className="size-3" />
+              <Icon
+                icon={job.isApplied ? "ph:check-circle-fill" : "ph:circle"}
+                className="size-3.5"
+              />
               <span>{job.isApplied ? "Candidatado" : "Marcar Candidatura"}</span>
             </button>
           )}
