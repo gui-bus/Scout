@@ -262,13 +262,19 @@ function JobsPageContent() {
       if (context?.previousJobsData) {
         queryClient.setQueriesData({ queryKey: ["jobs"] }, context.previousJobsData);
       }
-      toast.error("Erro ao salvar a vaga");
+      toast.error("Erro ao salvar", {
+        description: "Não foi possível atualizar a vaga. Tente novamente.",
+      });
     },
     onSuccess: (_data, variables) => {
       if (variables.currentVal) {
-        toast.success("Vaga removida dos salvos!");
+        toast.success("Vaga removida", {
+          description: "A vaga não está mais na sua lista de itens salvos.",
+        });
       } else {
-        toast.success("Vaga salva com sucesso!");
+        toast.success("Vaga salva", {
+          description: "Você pode acessá-la a qualquer momento filtrando por 'Salvos'.",
+        });
       }
     },
     onSettled: () => {
@@ -309,13 +315,19 @@ function JobsPageContent() {
       if (context?.previousJobsData) {
         queryClient.setQueriesData({ queryKey: ["jobs"] }, context.previousJobsData);
       }
-      toast.error("Erro ao atualizar candidatura");
+      toast.error("Erro ao atualizar candidatura", {
+        description: "Houve um problema de rede ou autenticação.",
+      });
     },
     onSuccess: (_data, variables) => {
       if (variables.currentVal) {
-        toast.success("Candidatura removida!");
+        toast.success("Candidatura removida", {
+          description: "O status de candidatura desta vaga foi limpo.",
+        });
       } else {
-        toast.success("Candidatura marcada com sucesso!");
+        toast.success("Candidatura registrada", {
+          description: "Boa sorte! Acompanhe seu progresso usando os filtros da barra lateral.",
+        });
       }
     },
     onSettled: () => {
