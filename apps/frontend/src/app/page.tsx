@@ -6,6 +6,7 @@ import { Icon } from "@iconify/react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button/button";
 import { ButtonGroup } from "@/components/ui/button-group";
+import { Select } from "@/components/ui/select/select";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import { Skeleton } from "@/components/ui/skeleton/skeleton";
 import { PaginationToolbar } from "@/components/ui/pagination/pagination";
@@ -31,6 +32,7 @@ function JobsPageContent() {
   const [favoritesOnlyQuery, setFavoritesOnlyQuery] = useQueryState("favoritos", parseAsString.withDefault(""));
   const [appliedOnlyQuery, setAppliedOnlyQuery] = useQueryState("candidatados", parseAsString.withDefault(""));
   const [pageQuery, setPageQuery] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [perPageQuery, setPerPageQuery] = useQueryState("limite", parseAsInteger.withDefault(10));
 
   const [jobs, setJobs] = useState<Job[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
@@ -62,7 +64,7 @@ function JobsPageContent() {
       sourcesQuery.forEach((s) => params.append("source", s));
 
       params.append("page", pageQuery.toString());
-      params.append("per_page", "12");
+      params.append("per_page", perPageQuery.toString());
 
       const headers: HeadersInit = {};
       if (token) {
@@ -86,7 +88,7 @@ function JobsPageContent() {
     } finally {
       setLoading(false);
     }
-  }, [buscaQuery, companyQuery, locationQuery, periodQuery, modalitiesQuery, levelsQuery, sourcesQuery, favoritesOnlyQuery, appliedOnlyQuery, pageQuery, token]);
+  }, [buscaQuery, companyQuery, locationQuery, periodQuery, modalitiesQuery, levelsQuery, sourcesQuery, favoritesOnlyQuery, appliedOnlyQuery, pageQuery, perPageQuery, token]);
 
   const checkSyncStatus = useCallback(async () => {
     try {
@@ -254,7 +256,7 @@ function JobsPageContent() {
   }, [token]);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
       <JobsHeader
         isSyncing={isSyncing}
         onSync={handleSyncJobs}
@@ -299,8 +301,26 @@ function JobsPageContent() {
                 {pagination ? `${pagination.total} oportunidades disponíveis` : "Carregando..."}
               </p>
             </div>
-            <div className="flex items-center space-x-4">
-              <ButtonGroup variant="light" size="sm" radius="none">
+            <div className="flex items-center space-x-3">
+              <Select
+                value={perPageQuery.toString()}
+                onValueChange={(val) => {
+                  setPageQuery(1);
+                  setPerPageQuery(parseInt(val || "10", 10));
+                }}
+                radius="lg"
+                variant="default"
+                size="sm"
+                options={[
+                  { value: "10", label: "10 / pág" },
+                  { value: "20", label: "20 / pág" },
+                  { value: "30", label: "30 / pág" },
+                  { value: "40", label: "40 / pág" },
+                  { value: "50", label: "50 / pág" },
+                ]}
+              />
+
+              <ButtonGroup variant="flat" size="sm" radius="lg">
                 <Button
                   onClick={() => setViewLayout("grid")}
                   color={viewLayout === "grid" ? "primary" : "secondary"}
