@@ -301,7 +301,7 @@ function JobsPageContent() {
                 {pagination ? `${pagination.total} oportunidades disponíveis` : "Carregando..."}
               </p>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-4">
               <Select
                 value={perPageQuery.toString()}
                 onValueChange={(val) => {
@@ -311,6 +311,7 @@ function JobsPageContent() {
                 radius="lg"
                 variant="default"
                 size="sm"
+                className="w-28 shrink-0"
                 options={[
                   { value: "10", label: "10 / pág" },
                   { value: "20", label: "20 / pág" },
@@ -339,7 +340,7 @@ function JobsPageContent() {
                 </Button>
               </ButtonGroup>
               {pagination && (
-                <span className="text-xs text-muted-foreground font-medium select-none">
+                <span className="text-xs text-muted-foreground font-medium select-none whitespace-nowrap shrink-0">
                   Página {pagination.page} de {pagination.pages || 1}
                 </span>
               )}
