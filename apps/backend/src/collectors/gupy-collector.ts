@@ -84,7 +84,7 @@ export class GupyCollector extends BaseCollector {
       technologies: this.buildTechnologies(item),
       source: "Gupy",
       link: item.jobUrl,
-      publishedAt: item.publishedAt ? new Date(item.publishedAt) : null,
+      publishedAt: item.publishedDate ? new Date(item.publishedDate) : null,
     };
   }
 
