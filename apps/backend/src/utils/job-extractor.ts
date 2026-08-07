@@ -274,7 +274,6 @@ export function extractTechnologiesFromText(description: string | null | undefin
   for (const tech of technologiesToExtract) {
     const escapedTech = tech.key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     
-    // Boundary check tailored to avoid false matches on short terms like 'go', 'c', 'git'
     let regex: RegExp;
     if (tech.key === "c" || tech.key === "go" || tech.key === "git" || tech.key === "npm" || tech.key === "yarn") {
       regex = new RegExp(`\\b${escapedTech}\\b`, "i");
@@ -288,8 +287,6 @@ export function extractTechnologiesFromText(description: string | null | undefin
   }
 
   if (foundTechs.length === 0) return null;
-  
-  // Deduplicate using a Set while keeping display names unique
   return Array.from(new Set(foundTechs)).slice(0, 15).join(", ");
 }
 
@@ -319,43 +316,46 @@ export function extractMetadata(description: string | null | undefined): Extract
 
   // 2. Detect Values (Salary, VR, VA, etc.)
   const valueRegex = /(?:r\$\s?|\$\s?|usd\s?)(\d{1,3}(?:\.\d{3})*(?:,\d{2})?|\d{1,2}k)/gi;
-  const lines = description.split(/\n+/);
   
   const salaryMatches: string[] = [];
   const vrMatches: string[] = [];
   const vaMatches: string[] = [];
   const otherMatches: string[] = [];
 
-  for (const line of lines) {
-    const lineLower = line.toLowerCase();
-    let match;
-    valueRegex.lastIndex = 0;
+  let match;
+  valueRegex.lastIndex = 0;
 
-    while ((match = valueRegex.exec(line)) !== null) {
-      const fullValue = match[0].trim();
-      const numericStr = match[1].replace(/\./g, "").replace(",", ".").toLowerCase();
-      const numericValue = numericStr.includes("k") ? parseFloat(numericStr) * 1000 : parseFloat(numericStr);
+  while ((match = valueRegex.exec(description)) !== null) {
+    const fullValue = match[0].trim();
+    const matchIndex = match.index;
 
-      if (isNaN(numericValue)) continue;
+    const numericStr = match[1].replace(/\./g, "").replace(",", ".").toLowerCase();
+    const numericValue = numericStr.includes("k") ? parseFloat(numericStr) * 1000 : parseFloat(numericStr);
 
-      const isVr = /\b(vr|refeicao|refeição)\b/i.test(lineLower);
-      const isVa = /\b(va|alimentacao|alimentação)\b/i.test(lineLower);
-      const isHomeOffice = /\b(home\s*office|homeoffice|auxilio\s+internet|auxílio\s+internet)\b/i.test(lineLower);
+    if (isNaN(numericValue)) continue;
 
-      if (isVr) {
-        vrMatches.push(`VR: ${fullValue}`);
-      } else if (isVa) {
-        vaMatches.push(`VA: ${fullValue}`);
-      } else if (isHomeOffice) {
-        otherMatches.push(`Home Office: ${fullValue}`);
-      } else {
-        const isSalary =
-          /\b(salario|salário|remuneracao|remuneração|ganho|contratacao|contratação|bolsa|contrato|salary|remuneration)\b/i.test(lineLower) ||
-          numericValue >= 1500;
-        if (isSalary) {
-          salaryMatches.push(`Salário: ${fullValue}`);
-        }
-      }
+    // Extrai o contexto ao redor do match
+    const contextBefore = description.substring(Math.max(0, matchIndex - 80), matchIndex).toLowerCase();
+    
+    const isVr = /\b(vr|refeicao|refeição)\b/i.test(contextBefore);
+    const isVa = /\b(va|alimentacao|alimentação)\b/i.test(contextBefore);
+    const isHomeOffice = /\b(home\s*office|homeoffice|auxilio\s+internet|auxílio\s+internet)\b/i.test(contextBefore);
+    const isSalary = /\b(salario|salário|remuneracao|remuneração|faixa salarial|bolsa|contrato|contratacao|contratação|salary|remuneration)\b/i.test(contextBefore);
+
+    // Se houver indicação direta de salário no contexto de 80 caracteres antes do valor, ou se for valor grande e sem outros benefício
+    if (isSalary) {
+      salaryMatches.push(`Salário: ${fullValue}`);
+    } else if (isVr) {
+      vrMatches.push(`VR: ${fullValue}`);
+    } else if (isVa) {
+      vaMatches.push(`VA: ${fullValue}`);
+    } else if (isHomeOffice) {
+      otherMatches.push(`Home Office: ${fullValue}`);
+    } else if (numericValue >= 1500) {
+      salaryMatches.push(`Salário: ${fullValue}`);
+    } else {
+      // Se não for detectado nenhum termo específico e for valor baixo, pode ser benefício genérico
+      otherMatches.push(`Benefício: ${fullValue}`);
     }
   }
 
