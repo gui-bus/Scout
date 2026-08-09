@@ -33,4 +33,16 @@ export class AuthController {
   async saveFilters(@Request() req: any, @Body() body: { filters: any[] }) {
     return this.authService.updateSavedFilters(req.user.id, body.filters);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("resume")
+  async getResume(@Request() req: any) {
+    return this.authService.getResume(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("resume")
+  async updateResume(@Request() req: any, @Body() body: any) {
+    return this.authService.updateResume(req.user.id, body.resume);
+  }
 }

@@ -37,3 +37,8 @@ export type User = Prisma.UserModel
  * 
  */
 export type UserJobState = Prisma.UserJobStateModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel

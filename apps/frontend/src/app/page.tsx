@@ -20,6 +20,8 @@ import { JobsHeader } from "@/components/jobs/header";
 import { JobsSidebar, SavedFilterState } from "@/components/jobs/sidebar";
 import { JobCardItem } from "@/components/jobs/card";
 import { toast } from "@/components/ui/toast/toast";
+import { LumeImportModal } from "@/components/jobs/LumeImportModal";
+import { calculateMatchScore } from "@/lib/match-score";
 
 interface QueryData {
   items: Job[];
@@ -81,7 +83,21 @@ function renderMiniSourceLogo(source: string) {
 function JobsPageContent() {
   const { user, logout, token, isAuthenticated } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [lumeModalOpen, setLumeModalOpen] = useState(false);
   const [viewLayout, setViewLayout] = useState<"grid" | "list">("grid");
+
+  const { data: resumeData } = useQuery<any>({
+    queryKey: ["user-resume", token],
+    queryFn: async () => {
+      if (!token) return null;
+      const res = await fetch("http://localhost:3001/api/auth/resume", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return null;
+      return res.json();
+    },
+    enabled: !!token,
+  });
 
   const [buscaQuery, setBuscaQuery] = useQueryState("busca", parseAsString.withDefault(""));
   const [companyQuery, setCompanyQuery] = useQueryState("company", parseAsString.withDefault(""));
@@ -98,6 +114,7 @@ function JobsPageContent() {
   const [cityQuery, setCityQuery] = useQueryState("cidade", parseAsString.withDefault(""));
   const [pageQuery, setPageQuery] = useQueryState("page", parseAsInteger.withDefault(1));
   const [perPageQuery, setPerPageQuery] = useQueryState("limite", parseAsInteger.withDefault(10));
+  const [matchScoreQuery, setMatchScoreQuery] = useQueryState("match", parseAsInteger.withDefault(0));
 
   const [busca, setBusca] = useState(buscaQuery);
   const [company, setCompany] = useState(companyQuery);
@@ -194,9 +211,36 @@ function JobsPageContent() {
   });
 
   const isSyncing = !!syncStatus?.collecting;
-  const jobs = jobsData?.items || [];
+  const rawJobs = jobsData?.items || [];
+  
+  const filteredJobs = React.useMemo(() => {
+    if (!resumeData || matchScoreQuery <= 0) return rawJobs;
+    return rawJobs.filter((job) => {
+      const score = calculateMatchScore(job, resumeData);
+      return score !== null && score >= matchScoreQuery;
+    });
+  }, [rawJobs, resumeData, matchScoreQuery]);
+
   const pagination = jobsData?.pagination || null;
   const error = queryError ? queryError.message : null;
+
+  const sourcesWithStats = React.useMemo(() => {
+    const stats = statsData?.bySource || {};
+    const defaultSources = ["Gupy", "Solides", "Remotar", "Jooble", "GitHub", "Remotive"];
+    
+    return defaultSources.map(src => {
+      let count = 0;
+      for (const [key, val] of Object.entries(stats)) {
+        const keyLower = key.toLowerCase();
+        const srcLower = src.toLowerCase();
+        if (keyLower.startsWith(srcLower) || srcLower.startsWith(keyLower)) {
+          count = val;
+          break;
+        }
+      }
+      return { source: src, count };
+    });
+  }, [statsData]);
 
   const prevCollectingRef = useRef(false);
   useEffect(() => {
@@ -251,8 +295,9 @@ function JobsPageContent() {
     setDirectContactsOnlyQuery(null);
     setExcludeQuery(null);
     setCityQuery(null);
+    setMatchScoreQuery(0);
     setExclude("");
-  }, [setPageQuery, setBuscaQuery, setCompanyQuery, setLocationQuery, setPeriodQuery, setModalitiesQuery, setLevelsQuery, setSourcesQuery, setFavoritesOnlyQuery, setAppliedOnlyQuery, setContractTypeQuery, setDirectContactsOnlyQuery, setExcludeQuery, setCityQuery]);
+  }, [setPageQuery, setBuscaQuery, setCompanyQuery, setLocationQuery, setPeriodQuery, setModalitiesQuery, setLevelsQuery, setSourcesQuery, setFavoritesOnlyQuery, setAppliedOnlyQuery, setContractTypeQuery, setDirectContactsOnlyQuery, setExcludeQuery, setCityQuery, setMatchScoreQuery]);
 
   const handleBuscaDebounced = useCallback((val: string) => {
     setPageQuery(1);
@@ -555,6 +600,32 @@ function JobsPageContent() {
         isAuthenticated={isAuthenticated}
         onLogout={logout}
         onOpenAuthModal={() => setAuthModalOpen(true)}
+        token={token}
+        onImportResume={() => {
+          setTimeout(() => {
+            setLumeModalOpen(true);
+          }, 150);
+        }}
+        onSelectJob={async (jobId) => {
+          try {
+            const res = await fetch(`http://localhost:3001/api/jobs/${jobId}`);
+            if (res.ok) {
+              const job = await res.json();
+              if (job && job.title) {
+                setBusca(job.title);
+                setBuscaQuery(job.title);
+              }
+            }
+          } catch (e) {
+            console.error("Erro ao carregar vaga da notificação", e);
+          }
+        }}
+      />
+
+      <LumeImportModal
+        open={lumeModalOpen}
+        onOpenChange={setLumeModalOpen}
+        token={token}
       />
 
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
@@ -601,6 +672,9 @@ function JobsPageContent() {
           onDeleteFilter={handleDeleteFilter}
           onApplyFilter={handleApplyFilter}
           onClearFilters={handleClearFilters}
+          matchRange={[matchScoreQuery]}
+          onMatchRangeChange={(val) => setMatchScoreQuery(val[0])}
+          hasResume={!!resumeData}
         />
 
         <section className="flex-1 space-y-6">
@@ -657,13 +731,13 @@ function JobsPageContent() {
             </div>
           </div>
 
-          {statsData && statsData.totalToday > 0 && (
+          {statsData && (
             <div className="text-[11px] font-semibold text-muted-foreground select-none py-1 flex flex-wrap items-center gap-1.5">
               <span>Novas vagas coletadas hoje:</span>
               <span className="text-foreground font-bold">{statsData.totalToday} total</span>
               <span className="text-muted-foreground/40 select-none">•</span>
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                {Object.entries(statsData.bySource).map(([source, count], idx, arr) => (
+                {sourcesWithStats.map(({ source, count }, idx, arr) => (
                   <React.Fragment key={source}>
                     <span className="flex items-center gap-1">
                       {renderMiniSourceLogo(source)}: <span className="font-bold text-foreground">{count}</span>
@@ -697,9 +771,9 @@ function JobsPageContent() {
                 </Card>
               ))}
             </div>
-          ) : jobs.length > 0 ? (
+          ) : filteredJobs.length > 0 ? (
             <div className={viewLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "flex flex-col gap-3"}>
-              {jobs.map((job) => (
+              {filteredJobs.map((job) => (
                 <JobCardItem
                   key={job.id}
                   job={job}
@@ -707,6 +781,7 @@ function JobsPageContent() {
                   onToggleFavorite={handleToggleFavorite}
                   onToggleApplied={handleToggleApplied}
                   onMarkAsViewed={handleMarkAsViewed}
+                  resume={resumeData}
                 />
               ))}
             </div>

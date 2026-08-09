@@ -42,12 +42,14 @@ model CollectionState {
 }
 
 model User {
-  id        Int            @id @default(autoincrement())
-  email     String         @unique
-  password  String
-  createdAt    DateTime       @default(now())
-  jobStates    UserJobState[]
-  savedFilters String?
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  password      String
+  createdAt     DateTime       @default(now())
+  jobStates     UserJobState[]
+  savedFilters  String?
+  notifications Notification[]
+  resumeJson    String?
 
   @@map("users")
 }
@@ -66,4 +68,18 @@ model UserJobState {
 
   @@unique([userId, jobId])
   @@map("user_job_states")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  jobId     Int?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
 }

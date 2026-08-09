@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button/button";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar/avatar";
+import { NotificationDropdown } from "./NotificationDropdown";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -28,6 +29,9 @@ interface JobsHeaderProps {
   isAuthenticated: boolean;
   onLogout: () => void;
   onOpenAuthModal: () => void;
+  token: string | null;
+  onImportResume: () => void;
+  onSelectJob: (jobId: number) => void;
 }
 
 export function JobsHeader({
@@ -37,6 +41,9 @@ export function JobsHeader({
   isAuthenticated,
   onLogout,
   onOpenAuthModal,
+  token,
+  onImportResume,
+  onSelectJob,
 }: JobsHeaderProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -97,6 +104,31 @@ export function JobsHeader({
             >
               {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
             </Button>
+
+            {isAuthenticated && (
+              <Button
+                onClick={onImportResume}
+                color="primary"
+                variant="flat"
+                radius="lg"
+                size="sm"
+                startContent={
+                  <Image
+                    src="/utils/lume/lume_icon.svg"
+                    alt="Lume"
+                    width={16}
+                    height={16}
+                    className="select-none object-contain"
+                  />
+                }
+              >
+                Importar Currículo Lume
+              </Button>
+            )}
+
+            {isAuthenticated && (
+              <NotificationDropdown token={token} onSelectJob={onSelectJob} />
+            )}
 
             {isAuthenticated ? (
               <DropdownMenu>
@@ -218,7 +250,7 @@ export function JobsHeader({
                   {isSyncing ? "Sincronizando..." : "Sincronizar Vagas"}
                 </Button>
 
-                {isAuthenticated ? (
+                 {isAuthenticated ? (
                   <div className="flex flex-col space-y-4 border-t border-border pt-4">
                     <div className="flex items-center space-x-3">
                       <Avatar size="sm" color="primary" isBordered>
@@ -233,6 +265,25 @@ export function JobsHeader({
                         </span>
                       </div>
                     </div>
+                    <Button
+                      onClick={onImportResume}
+                      color="primary"
+                      variant="flat"
+                      radius="lg"
+                      size="sm"
+                      className="w-full justify-start"
+                      startContent={
+                        <Image
+                          src="/utils/lume/lume_icon.svg"
+                          alt="Lume"
+                          width={16}
+                          height={16}
+                          className="select-none object-contain"
+                        />
+                      }
+                    >
+                      Importar Currículo Lume
+                    </Button>
                     <Button
                       onClick={onLogout}
                       color="danger"

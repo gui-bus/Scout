@@ -8,6 +8,7 @@ import { Card, CardHeader, CardBody, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge/badge";
 import type { Job } from "./types";
 import { toast } from "@/components/ui/toast/toast";
+import { calculateMatchScore, LumeResume } from "../../lib/match-score";
 
 interface JobCardItemProps {
   job: Job;
@@ -15,6 +16,7 @@ interface JobCardItemProps {
   onToggleFavorite: (jobId: number, currentVal: boolean) => Promise<void>;
   onToggleApplied: (jobId: number, currentVal: boolean) => Promise<void>;
   onMarkAsViewed?: (jobId: number) => void;
+  resume?: LumeResume | null;
 }
 
 function renderSourceLogo(source: string | null) {
@@ -116,6 +118,7 @@ export function JobCardItem({
   onToggleFavorite,
   onToggleApplied,
   onMarkAsViewed,
+  resume = null,
 }: JobCardItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isTechsExpanded, setIsTechsExpanded] = useState(false);
@@ -124,6 +127,7 @@ export function JobCardItem({
   const techList = job.technologies ? job.technologies.split(",") : [];
   const linkList = job.link ? job.link.split(",") : [];
   const sourceList = job.source ? job.source.split(",").map((s) => s.trim()) : [];
+  const matchScore = calculateMatchScore(job, resume);
 
   return (
     <Card
@@ -191,6 +195,20 @@ export function JobCardItem({
           <h3 className="text-sm font-bold text-foreground hover:text-muted-foreground transition-colors">
             {job.title}
           </h3>
+
+          {matchScore !== null && (
+            <div className="mt-2">
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border select-none ${
+                matchScore >= 80
+                  ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50"
+                  : matchScore >= 50
+                  ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900/50"
+                  : "bg-zinc-50 dark:bg-zinc-950/20 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-900/50"
+              }`}>
+                {matchScore}% Match
+              </span>
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-1.5 mt-3">
             {job.modality && (

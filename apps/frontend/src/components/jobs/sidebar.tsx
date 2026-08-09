@@ -7,6 +7,8 @@ import { Select } from "@/components/ui/select/select";
 import { Icon } from "@iconify/react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible/collapsible";
 import { toast } from "@/components/ui/toast/toast";
+import { Slider } from "@/components/ui/slider/slider";
+import Image from "next/image";
 
 export interface SavedFilterState {
   busca?: string;
@@ -60,6 +62,9 @@ interface JobsSidebarProps {
   onDeleteFilter: (index: number) => void;
   onApplyFilter: (filterData: SavedFilterState) => void;
   onClearFilters: () => void;
+  matchRange?: number[];
+  onMatchRangeChange?: (val: number[]) => void;
+  hasResume?: boolean;
 }
 
 function generateFilterName(f: SavedFilterState) {
@@ -136,6 +141,9 @@ export function JobsSidebar({
   onDeleteFilter,
   onApplyFilter,
   onClearFilters,
+  matchRange = [0],
+  onMatchRangeChange,
+  hasResume = false,
 }: JobsSidebarProps) {
   const [cities, setCities] = React.useState<{ value: string; label: string }[]>([]);
   const [loadingCities, setLoadingCities] = React.useState(false);
@@ -392,6 +400,30 @@ export function JobsSidebar({
             disabled={loadingCities}
           />
         )}
+
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 select-none">
+            Compatibilidade Mínima (Match Score)
+          </label>
+          {hasResume ? (
+            <div className="pt-1">
+              <Slider
+                min={0}
+                max={100}
+                value={matchRange}
+                onValueChange={onMatchRangeChange}
+                showValue
+                showTooltip
+                formatValue={(val) => `Apenas acima de ${val[0]}%`}
+                label=""
+              />
+            </div>
+          ) : (
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+              Importe o JSON do seu currículo Lume no cabeçalho para habilitar este filtro.
+            </p>
+          )}
+        </div>
 
         <Input
           value={exclude}

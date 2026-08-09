@@ -89,4 +89,23 @@ export class AuthService {
     });
     return updated.savedFilters ? JSON.parse(updated.savedFilters) : [];
   }
+
+  async getResume(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { resumeJson: true },
+    });
+    return user?.resumeJson ? JSON.parse(user.resumeJson) : null;
+  }
+
+  async updateResume(userId: number, resume: any) {
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        resumeJson: resume ? JSON.stringify(resume) : null,
+      },
+      select: { resumeJson: true },
+    });
+    return updated.resumeJson ? JSON.parse(updated.resumeJson) : null;
+  }
 }

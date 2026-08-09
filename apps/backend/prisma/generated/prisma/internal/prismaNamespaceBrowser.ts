@@ -54,7 +54,8 @@ export const ModelName = {
   Job: 'Job',
   CollectionState: 'CollectionState',
   User: 'User',
-  UserJobState: 'UserJobState'
+  UserJobState: 'UserJobState',
+  Notification: 'Notification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -108,7 +109,8 @@ export const UserScalarFieldEnum = {
   email: 'email',
   password: 'password',
   createdAt: 'createdAt',
-  savedFilters: 'savedFilters'
+  savedFilters: 'savedFilters',
+  resumeJson: 'resumeJson'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -125,6 +127,19 @@ export const UserJobStateScalarFieldEnum = {
 } as const
 
 export type UserJobStateScalarFieldEnum = (typeof UserJobStateScalarFieldEnum)[keyof typeof UserJobStateScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  message: 'message',
+  read: 'read',
+  jobId: 'jobId',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
 export const SortOrder = {

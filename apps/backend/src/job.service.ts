@@ -4,6 +4,27 @@ import { normalizeLink } from "./utils/link-normalizer";
 import { identifyLevel } from "./utils/job-classifier";
 import { extractMetadata, extractState } from "./utils/job-extractor";
 
+const SYNONYM_MAP: Record<string, string[]> = {
+  "mobile": ["react native", "flutter", "ios", "android", "kotlin", "swift", "aplicativo", "aplicativos"],
+  "frontend": ["react", "next.js", "vue", "angular", "tailwind", "javascript", "typescript", "front end", "front-end"],
+  "backend": ["node.js", "nestjs", "express", "fastify", "go", "python", "java", "c#", "dotnet", "back end", "back-end"],
+  "design": ["figma", "ui/ux", "product designer", "web design", "ux designer", "ui designer"],
+  "devops": ["docker", "kubernetes", "aws", "ci/cd", "github actions", "devops engineer", "terraform"],
+};
+
+function getSearchSynonyms(searchTerm: string): string[] {
+  const searchLower = searchTerm.toLowerCase();
+  const foundTerms: string[] = [];
+  
+  for (const [key, synonyms] of Object.entries(SYNONYM_MAP)) {
+    if (searchLower === key || searchLower.includes(key)) {
+      foundTerms.push(...synonyms);
+    }
+  }
+  
+  return Array.from(new Set(foundTerms));
+}
+
 @Injectable()
 export class JobService {
   constructor(private readonly prisma: PrismaService) {}
@@ -13,11 +34,23 @@ export class JobService {
 
     if (filters.busca) {
       const search = filters.busca.trim();
-      where.OR = [
+      const synonyms = getSearchSynonyms(search);
+      
+      const searchConditions = [
         { title: { contains: search } },
         { description: { contains: search } },
         { technologies: { contains: search } },
       ];
+
+      for (const syn of synonyms) {
+        searchConditions.push(
+          { title: { contains: syn } },
+          { description: { contains: syn } },
+          { technologies: { contains: syn } }
+        );
+      }
+
+      where.OR = searchConditions;
     }
 
     if (filters.company) {
