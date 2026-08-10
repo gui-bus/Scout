@@ -9,6 +9,12 @@ import { Badge } from "@/components/ui/badge/badge";
 import type { Job } from "./types";
 import { toast } from "@/components/ui/toast/toast";
 import { calculateMatchScore, LumeResume } from "../../lib/match-score";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu/dropdown-menu";
 
 interface JobCardItemProps {
   job: Job;
@@ -458,9 +464,36 @@ export function JobCardItem({
         </div>
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 self-end sm:self-auto mt-1 sm:mt-0 shrink-0">
-          {linkList.map((link, idx) => {
-            const sourceName = sourceList[idx] || "Ver Vaga";
-            return (
+          {linkList.length > 1 ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="text-muted-foreground hover:text-foreground transition-colors font-semibold flex items-center space-x-1 cursor-pointer bg-transparent border-none outline-none">
+                  <span>Ver Vaga em ({linkList.length}) sites</span>
+                  <Icon icon="ph:caret-down-bold" className="size-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {linkList.map((link, idx) => {
+                  const sourceName = sourceList[idx] || `Opção ${idx + 1}`;
+                  return (
+                    <DropdownMenuItem key={idx} asChild>
+                      <Link
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => onMarkAsViewed?.(job.id)}
+                        className="flex items-center justify-between w-full font-medium"
+                      >
+                        <span>Ver no {sourceName}</span>
+                        <span>→</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            linkList.map((link, idx) => (
               <Link
                 key={idx}
                 href={link}
@@ -469,11 +502,11 @@ export function JobCardItem({
                 onClick={() => onMarkAsViewed?.(job.id)}
                 className="text-muted-foreground hover:text-foreground transition-colors font-semibold flex items-center space-x-1 cursor-pointer"
               >
-                <span>{linkList.length > 1 ? `Ver no ${sourceName}` : "Ver Vaga"}</span>
+                <span>Ver Vaga</span>
                 <span>→</span>
               </Link>
-            );
-          })}
+            ))
+          )}
         </div>
       </CardFooter>
     </Card>
