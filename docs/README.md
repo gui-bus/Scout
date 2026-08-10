@@ -10,7 +10,7 @@ Bem-vindo à central de documentação técnica do **Scout**. Este diretório re
 Detalhamento da estrutura de pastas, ciclo de vida das requisições, controle de estado global e reativo no Frontend (Next.js com `nuqs` e TanStack Query) e barramento NestJS.
 
 ### 2. 🗄️ [Modelagem de Dados e Banco de Dados](database.md)
-Documentação do arquivo `schema.prisma`, mapeamento físico das tabelas do SQLite, índices e migrações.
+Detalhamento do arquivo `schema.prisma`, mapeamento físico das tabelas do PostgreSQL, índices e integridade referencial.
 
 ### 3. 📥 [Fluxo de Coleta de Vagas (Collectors)](collectors.md)
 Explicação detalhada dos coletores de dados (GitHub API, Remotive REST API, Scrapers de plataformas como Gupy e Sólides) e fluxos incrementais de sincronização.

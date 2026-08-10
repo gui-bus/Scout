@@ -12,7 +12,7 @@ O projeto utiliza um Monorepo gerenciado com **pnpm Workspaces** dividindo respo
 scout-monorepo/
 ├── apps/
 │   ├── backend/          # Servidor NestJS, Scrapers e Prisma ORM
-│   │   ├── prisma/       # Schema, Migrations e Client SQLite
+│   │   ├── prisma/       # Schema, Migrations e Client PostgreSQL
 │   │   └── src/          # Rotas, Controllers, Services e Coletores
 │   └── frontend/         # Web App Next.js + Tailwind CSS + Bloom UI
 │       ├── public/       # Ícones SVG, Logos e Arquivos Estáticos
@@ -41,7 +41,7 @@ graph TD
     end
     
     subgraph DB ["Camada de Armazenamento"]
-        Prisma -->|SQL Queries| SQLite[("SQLite (dev.db)")]
+        Prisma -->|SQL Queries| PostgreSQL[("PostgreSQL")]
     end
 ```
 

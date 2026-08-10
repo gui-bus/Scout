@@ -1,6 +1,6 @@
 # 🗄️ Modelagem de Dados e Banco de Dados
 
-O Scout utiliza um banco de dados local **SQLite** configurado e orquestrado por meio do **Prisma ORM**, facilitando transações relacionais rápidas.
+O Scout utiliza um banco de dados **PostgreSQL** configurado e orquestrado por meio do **Prisma ORM**, facilitando transações relacionais rápidas e integridade estruturada em produção e localmente.
 
 ---
 
@@ -75,4 +75,4 @@ erDiagram
 ## 🛠️ Configuração do Prisma 7
 
 ### Centralização em `prisma.config.ts`
-Diferente das versões anteriores do Prisma, a versão 7 centraliza as definições dinâmicas de banco diretamente no arquivo `prisma.config.ts` localizado na raiz da pasta `apps/backend/`. A URL de conexão física do SQLite é lida das variáveis de ambiente e injetada no pipeline de compilação.
+Diferente das versões anteriores do Prisma, a versão 7 centraliza as definições dinâmicas de banco diretamente no arquivo `prisma.config.ts` localizado na raiz da pasta `apps/backend/`. A URL de conexão física do PostgreSQL é lida das variáveis de ambiente e injetada no pipeline de compilação.

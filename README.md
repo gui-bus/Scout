@@ -51,7 +51,8 @@ O Scout está publicado e pronto para uso no ambiente de produção do Render no
 
   <img alt="NestJS" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/NestJS.svg" title="NestJS">
   <img alt="Prisma" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/PrismaORM.svg" title="Prisma ORM">
-  <img alt="SQLite" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/SQLite.svg" title="SQLite">
+  <img alt="PostgreSQL" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/PostgreSQL.svg" title="PostgreSQL">
+  <img alt="Docker" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/Docker.svg" title="Docker">
   <img alt="JWT" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/JWT.svg" title="JSON Web Tokens (JWT)">
   <img alt="Axios" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/Axios.svg" title="Axios">
 
@@ -98,7 +99,7 @@ graph TB
     end
 
     subgraph Database ["Camada de Dados"]
-        SQLite[(SQLite Local)]
+        PostgreSQL[(PostgreSQL)]
     end
 
     %% Relations
@@ -122,7 +123,7 @@ graph TB
     CollectService --> PrismaORM
 
     JobService --> PrismaORM
-    PrismaORM -->|Query / Transações| SQLite
+    PrismaORM -->|Query / Transações| PostgreSQL
 ```
 
 ---
@@ -175,13 +176,14 @@ graph TB
 ### 1. Pré-requisitos
 - Node.js (v20 ou superior)
 - Gerenciador de pacotes **pnpm** (`npm i -g pnpm`)
+- **Docker & Docker Compose** (para rodar o banco de dados PostgreSQL localmente)
 
 ### 2. Variáveis de Ambiente
 
 Crie um arquivo `.env` em `apps/backend/` contendo:
 
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/scout_dev"
 SECRET_KEY="sua_chave_secreta"
 CRON_SECRET="token_de_seguranca_da_coleta"
 PORT=3001
@@ -192,14 +194,17 @@ PORT=3001
 Execute a partir da raiz do monorepo:
 
 ```bash
+# Iniciar o banco de dados PostgreSQL via Docker
+docker compose up -d
+
 # Instalar dependências
 pnpm install
 
-# Rodar migrações do banco SQLite
+# Rodar migrações do banco
 cd apps/backend
-pnpm prisma migrate dev
+pnpm prisma db push
 
-# Voltar para a raiz e iniciar servidor em paralelo
+# Voltar para a raiz e iniciar servidores em paralelo
 cd ../..
 pnpm dev:backend
 pnpm dev:frontend
