@@ -47,7 +47,7 @@ O Scout está publicado e pronto para uso no ambiente de produção do Render no
   <img alt="Zustand" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/Zustand.svg" title="Zustand">
   <img alt="Phosphor Icons" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/Phosphor%20Icons.svg" title="Phosphor Icons">
   <img alt="nuqs" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/nuqs.svg" title="nuqs (Query States)">
-  <img alt="Bloom UI" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/bloom.svg" title="Bloom UI">
+  <img alt="Bloom UI" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/Bloom.svg" title="Bloom UI">
 
   <img alt="NestJS" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/NestJS.svg" title="NestJS">
   <img alt="Prisma" height="50" width="50" src="https://github.com/gui-bus/TechIcons/blob/main/Dark/PrismaORM.svg" title="Prisma ORM">
