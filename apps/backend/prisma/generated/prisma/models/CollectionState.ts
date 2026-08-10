@@ -1063,6 +1063,7 @@ export type CollectionStateCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many CollectionStates.
    */
   data: Prisma.CollectionStateCreateManyInput | Prisma.CollectionStateCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1081,6 +1082,7 @@ export type CollectionStateCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many CollectionStates.
    */
   data: Prisma.CollectionStateCreateManyInput | Prisma.CollectionStateCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

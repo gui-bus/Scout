@@ -534,6 +534,7 @@ export type UserJobStateCreateOrConnectWithoutJobInput = {
 
 export type UserJobStateCreateManyJobInputEnvelope = {
   data: Prisma.UserJobStateCreateManyJobInput | Prisma.UserJobStateCreateManyJobInput[]
+  skipDuplicates?: boolean
 }
 
 export type UserJobStateUpsertWithWhereUniqueWithoutJobInput = {
@@ -589,6 +590,7 @@ export type UserJobStateCreateOrConnectWithoutUserInput = {
 
 export type UserJobStateCreateManyUserInputEnvelope = {
   data: Prisma.UserJobStateCreateManyUserInput | Prisma.UserJobStateCreateManyUserInput[]
+  skipDuplicates?: boolean
 }
 
 export type UserJobStateUpsertWithWhereUniqueWithoutUserInput = {
@@ -1419,6 +1421,7 @@ export type UserJobStateCreateManyArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many UserJobStates.
    */
   data: Prisma.UserJobStateCreateManyInput | Prisma.UserJobStateCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1437,6 +1440,7 @@ export type UserJobStateCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many UserJobStates.
    */
   data: Prisma.UserJobStateCreateManyInput | Prisma.UserJobStateCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */
