@@ -22,7 +22,7 @@ import { JobCardItem } from "@/components/jobs/card";
 import { toast } from "@/components/ui/toast/toast";
 import { LumeImportModal } from "@/components/jobs/LumeImportModal";
 import { calculateMatchScore } from "@/lib/match-score";
-import { API_URL } from "@/lib/config";
+import { API_URL, CRON_SECRET } from "@/lib/config";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -278,7 +278,7 @@ function JobsPageContent() {
       const response = await fetch(`${API_URL}/api/collect`, {
         method: "POST",
         headers: {
-          Authorization: "Bearer development_cron_secret",
+          Authorization: `Bearer ${CRON_SECRET}`,
         },
       });
       if (!response.ok && response.status !== 409) {
