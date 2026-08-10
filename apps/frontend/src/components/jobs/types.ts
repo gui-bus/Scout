@@ -30,6 +30,16 @@ export interface Pagination {
 
 export interface LumeResume {
   skills?: string[];
+  personalInfo?: {
+    name?: string;
+    location?: string;
+    summary?: string;
+  };
+  experiences?: Array<{
+    company?: string;
+    position?: string;
+    description?: string;
+  }>;
   courses?: { name: string; current?: boolean; endDate?: string; startDate?: string; }[];
   languages?: { name: string; level?: string; }[];
 }
