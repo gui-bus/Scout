@@ -3,7 +3,7 @@ services:
     name: scout-backend
     env: node
     plan: free
-    buildCommand: pnpm install && pnpm --filter backend prisma generate && pnpm build:backend
+    buildCommand: pnpm install && cd apps/backend && pnpm prisma generate && cd ../.. && pnpm build:backend
     startCommand: pnpm --filter backend start:prod
     envVars:
       - key: DATABASE_URL
