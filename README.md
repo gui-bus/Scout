@@ -3,6 +3,8 @@
 
 # Scout — Agregador e Rastreador Inteligente de Vagas de Tecnologia
 
+  <br/>
+  <img src="./apps/frontend/public/utils/seo/home.webp" alt="Scout Screen" width="100%" />
 </div>
 
 ## 📌 Sumário
