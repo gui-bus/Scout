@@ -25,6 +25,31 @@ function getSearchSynonyms(searchTerm: string): string[] {
   return Array.from(new Set(foundTerms));
 }
 
+function getTitleSimilarity(title1: string, title2: string): number {
+  const t1 = title1
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/[^a-z0-9]/g, " ")      // remove non-alphanumeric
+    .split(/\s+/)
+    .filter(w => w.length > 2);     // keep words with length > 2
+
+  const t2 = title2
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/[^a-z0-9]/g, " ")      // remove non-alphanumeric
+    .split(/\s+/)
+    .filter(w => w.length > 2);
+
+  if (t1.length === 0 || t2.length === 0) return 0;
+
+  const intersection = t1.filter(word => t2.includes(word));
+  const union = Array.from(new Set([...t1, ...t2]));
+
+  return intersection.length / union.length;
+}
+
 @Injectable()
 export class JobService {
   constructor(private readonly prisma: PrismaService) {}
@@ -304,7 +329,6 @@ export class JobService {
     }
 
     if (data.title && data.company) {
-      const titleLower = data.title.toLowerCase().trim();
       const companyLower = data.company.toLowerCase().trim();
 
       const candidateJobs = await this.prisma.job.findMany({
@@ -313,11 +337,16 @@ export class JobService {
         },
       });
 
-      const matchedJob = candidateJobs.find(
-        (j) =>
-          j.title.toLowerCase().trim() === titleLower &&
-          j.company?.toLowerCase().trim() === companyLower
-      );
+      const matchedJob = candidateJobs.find((j) => {
+        // Only deduplicate if levels match or one is not specified
+        const level1 = j.level?.toLowerCase() || "not specified";
+        const level2 = data.level?.toLowerCase() || "not specified";
+        const levelsMatch = level1 === level2 || level1.includes("not specified") || level2.includes("not specified");
+        if (!levelsMatch) return false;
+
+        const similarity = getTitleSimilarity(j.title, data.title);
+        return similarity >= 0.60;
+      });
 
       if (matchedJob) {
         const currentSources = matchedJob.source ? matchedJob.source.split(",").map((s) => s.trim()) : [];

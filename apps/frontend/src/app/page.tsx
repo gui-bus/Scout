@@ -22,6 +22,12 @@ import { JobCardItem } from "@/components/jobs/card";
 import { toast } from "@/components/ui/toast/toast";
 import { LumeImportModal } from "@/components/jobs/LumeImportModal";
 import { calculateMatchScore } from "@/lib/match-score";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu/dropdown-menu";
 
 interface QueryData {
   items: Job[];
@@ -119,6 +125,19 @@ function JobsPageContent() {
   const [busca, setBusca] = useState(buscaQuery);
   const [company, setCompany] = useState(companyQuery);
   const [exclude, setExclude] = useState(excludeQuery);
+
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("scout_recent_searches");
+      if (saved) {
+        setRecentSearches(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   const queryClient = useQueryClient();
 
@@ -302,7 +321,115 @@ function JobsPageContent() {
   const handleBuscaDebounced = useCallback((val: string) => {
     setPageQuery(1);
     setBuscaQuery(val || null);
+
+    if (val && val.trim().length > 1) {
+      const term = val.trim();
+      setRecentSearches((prev) => {
+        const filtered = prev.filter((item) => item.toLowerCase() !== term.toLowerCase());
+        const next = [term, ...filtered].slice(0, 5);
+        try {
+          localStorage.setItem("scout_recent_searches", JSON.stringify(next));
+        } catch (e) {
+          console.error(e);
+        }
+        return next;
+      });
+    }
   }, [setPageQuery, setBuscaQuery]);
+
+  const handleRecentSearchClick = useCallback((query: string) => {
+    setBusca(query);
+    setPageQuery(1);
+    setBuscaQuery(query);
+  }, [setPageQuery, setBuscaQuery]);
+
+  const handleClearRecentSearch = useCallback((query: string) => {
+    setRecentSearches((prev) => {
+      const next = prev.filter((item) => item !== query);
+      try {
+        localStorage.setItem("scout_recent_searches", JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+  }, []);
+
+  const exportToCSV = useCallback(() => {
+    if (filteredJobs.length === 0) return;
+    
+    const headers = [
+      "ID",
+      "Titulo",
+      "Empresa",
+      "Localizacao",
+      "Modalidade",
+      "Nivel",
+      "Salario",
+      "Data de Publicacao",
+      "Data de Coleta",
+      "Tecnologias",
+      "Origem",
+      "Link",
+    ];
+
+    const rows = filteredJobs.map((job) => [
+      job.id,
+      job.title,
+      job.company || "",
+      job.location || "",
+      job.modality || "",
+      job.level || "",
+      job.salaryText || "",
+      job.publishedAt ? new Date(job.publishedAt).toLocaleDateString() : "",
+      job.collectedAt ? new Date(job.collectedAt).toLocaleDateString() : "",
+      job.technologies || "",
+      job.source || "",
+      job.link || "",
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row
+          .map((value) => {
+            const stringified = String(value);
+            if (/[",\n\r]/.test(stringified)) {
+              return `"${stringified.replace(/"/g, '""')}"`;
+            }
+            return stringified;
+          })
+          .join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `vagas_scout_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Vagas exportadas para CSV com sucesso!");
+  }, [filteredJobs]);
+
+  const exportToJSON = useCallback(() => {
+    if (filteredJobs.length === 0) return;
+
+    const jsonContent = JSON.stringify(filteredJobs, null, 2);
+    const blob = new Blob([jsonContent], { type: "application/json;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `vagas_scout_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Vagas exportadas para JSON com sucesso!");
+  }, [filteredJobs]);
 
   const handleCompanyDebounced = useCallback((val: string) => {
     setPageQuery(1);
@@ -675,6 +802,9 @@ function JobsPageContent() {
           matchRange={[matchScoreQuery]}
           onMatchRangeChange={(val) => setMatchScoreQuery(val[0])}
           hasResume={!!resumeData}
+          recentSearches={recentSearches}
+          onRecentSearchClick={handleRecentSearchClick}
+          onClearRecentSearch={handleClearRecentSearch}
         />
 
         <section className="flex-1 space-y-6">
@@ -723,6 +853,39 @@ function JobsPageContent() {
                   <Icon icon="hugeicons:menu-02" className="size-4" />
                 </Button>
               </ButtonGroup>
+
+              {filteredJobs.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      color="secondary"
+                      variant="flat"
+                      radius="lg"
+                      size="sm"
+                      startContent={<Icon icon="hugeicons:download-04" className="size-4" />}
+                    >
+                      Exportar
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-40 bg-card border-border">
+                    <DropdownMenuItem
+                      onClick={exportToCSV}
+                      className="cursor-pointer flex items-center"
+                    >
+                      <Icon icon="hugeicons:file-csv" className="size-4 mr-2 text-emerald-500" />
+                      <span>Exportar CSV</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={exportToJSON}
+                      className="cursor-pointer flex items-center"
+                    >
+                      <Icon icon="hugeicons:file-code" className="size-4 mr-2 text-blue-500" />
+                      <span>Exportar JSON</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+
               {pagination && (
                 <span className="text-xs text-muted-foreground font-medium select-none whitespace-nowrap shrink-0">
                   Página {pagination.page} de {pagination.pages || 1}

@@ -65,6 +65,9 @@ interface JobsSidebarProps {
   matchRange?: number[];
   onMatchRangeChange?: (val: number[]) => void;
   hasResume?: boolean;
+  recentSearches?: string[];
+  onRecentSearchClick?: (query: string) => void;
+  onClearRecentSearch?: (query: string) => void;
 }
 
 function generateFilterName(f: SavedFilterState) {
@@ -144,6 +147,9 @@ export function JobsSidebar({
   matchRange = [0],
   onMatchRangeChange,
   hasResume = false,
+  recentSearches = [],
+  onRecentSearchClick,
+  onClearRecentSearch,
 }: JobsSidebarProps) {
   const [cities, setCities] = React.useState<{ value: string; label: string }[]>([]);
   const [loadingCities, setLoadingCities] = React.useState(false);
@@ -329,6 +335,33 @@ export function JobsSidebar({
           variant="default"
           radius="lg"
         />
+
+        {recentSearches && recentSearches.length > 0 && (
+          <div className="flex flex-col gap-1.5 -mt-1 select-none">
+            <span className="text-[10px] font-semibold text-muted-foreground">Buscas recentes:</span>
+            <div className="flex flex-wrap gap-1">
+              {recentSearches.map((searchQuery) => (
+                <div
+                  key={searchQuery}
+                  className="inline-flex items-center gap-1 bg-muted hover:bg-zinc-200 dark:hover:bg-zinc-800 text-muted-foreground hover:text-foreground text-[10px] font-medium px-2 py-0.5 rounded-full cursor-pointer transition-colors"
+                  onClick={() => onRecentSearchClick?.(searchQuery)}
+                >
+                  <span>{searchQuery}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onClearRecentSearch?.(searchQuery);
+                    }}
+                    className="hover:text-destructive p-0.5 rounded-full flex items-center justify-center"
+                    title="Remover"
+                  >
+                    <Icon icon="hugeicons:cancel-01" className="size-2.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <Input
           value={company}
