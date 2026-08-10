@@ -21,7 +21,7 @@ export class JobController {
 
   @UseGuards(OptionalJwtAuthGuard)
   @Get()
-  @ApiOperation({ summary: 'Listar vagas', description: 'Retorna vagas paginadas aplicando múltiplos filtros estruturados' })
+  @ApiOperation({ summary: 'List jobs', description: 'Returns paginated jobs applying multiple structured filters' })
   @ApiQuery({ name: 'busca', required: false, type: String })
   @ApiQuery({ name: 'company', required: false, type: String })
   @ApiQuery({ name: 'technology', required: false, type: String })
@@ -87,7 +87,7 @@ export class JobController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Post(':id/state')
-  @ApiOperation({ summary: 'Atualizar estado da vaga', description: 'Marca uma vaga como favorita, candidatada ou visualizada para o usuário autenticado' })
+  @ApiOperation({ summary: 'Update job state', description: 'Marks a job as favorite, applied, or viewed for the authenticated user' })
   async setJobState(
     @Request() req: any,
     @Param('id', ParseIntPipe) id: number,
@@ -99,13 +99,13 @@ export class JobController {
   }
 
   @Get('stats')
-  @ApiOperation({ summary: 'Estatísticas das vagas', description: 'Retorna o total de vagas importadas hoje e agrupadas por fonte de coleta' })
+  @ApiOperation({ summary: 'Get job statistics', description: 'Returns total jobs collected today grouped by source' })
   async getStats() {
     return this.jobService.getStats();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obter vaga por ID', description: 'Retorna os detalhes de uma vaga específica pelo seu identificador' })
+  @ApiOperation({ summary: 'Get job by ID', description: 'Returns details of a specific job by its identifier' })
   async getJobById(@Param('id', ParseIntPipe) id: number) {
     const job = await this.jobService.getJobById(id);
     if (!job) {
@@ -115,7 +115,7 @@ export class JobController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Criar vaga manualmente', description: 'Cadastra uma nova vaga no banco de dados' })
+  @ApiOperation({ summary: 'Create job manually', description: 'Registers a new job in the database' })
   async createJob(@Body() body: any) {
     return this.jobService.createJob(body);
   }
