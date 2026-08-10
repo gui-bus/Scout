@@ -203,3 +203,16 @@ O Frontend estará rodando em [http://localhost:3000](http://localhost:3000) e a
 - `POST /api/jobs`: Cadastro manual de vaga.
 - `POST /api/collect`: Executa a rotina incremental de coleta.
 - `POST /api/jobs/:id/state`: Altera estados de favoritos ou candidatura do usuário.
+
+---
+
+## 🚀 Deploy em Produção (Render)
+
+O Scout está publicado e pronto para uso no ambiente de produção do Render nos seguintes links:
+- **Frontend Portal**: [https://scout.guibus.dev](https://scout.guibus.dev)
+- **Backend API**: [https://scoutapi.guibus.dev](https://scoutapi.guibus.dev)
+- **Documentação Interativa (Scalar)**: [https://scoutapi.guibus.dev/reference](https://scoutapi.guibus.dev/reference)
+
+> [!IMPORTANT]
+> **Nota sobre Instâncias Gratuitas (Cold Start):** Como a aplicação está hospedada no plano gratuito (Free tier) do Render, as instâncias sofrem congelamento automático (spin-down) após 15 minutos de inatividade. Ao acessar a aplicação depois de um período inativa, pode haver um atraso de carregamento de cerca de 50 segundos para a máquina iniciar (Cold Start). Isso é um comportamento padrão do plano gratuito do Render.
+

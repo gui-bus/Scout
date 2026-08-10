@@ -66,3 +66,7 @@ A API do backend é modular e estruturada em torno de controladores e serviços:
 - **`CollectController` / `CollectService`**: Responsáveis por gerenciar o ciclo de sincronização, raspagem incremental (Scrapers) e o cruzamento dos novos registros com os filtros salvos de usuários para disparar notificações.
 - **`AuthController` / `AuthService`**: Gerencia autenticação via JWT, persistência dos filtros salvos e armazenamento/recuperação do currículo Lume (`resumeJson`).
 - **`NotificationController` / `NotificationService`**: Expõe rotas para gerenciar alertas in-app gerados em tempo real na coleta de vagas.
+
+### 3. Documentação Automática da API (Scalar)
+- A API do backend possui documentação interativa baseada na especificação OpenAPI (Swagger).
+- A interface de exploração Scalar está disponível na rota `/reference` do backend e todos os endpoints estão descritos com títulos e resumos em inglês para manter o padrão técnico internacional de documentação.
