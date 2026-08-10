@@ -125,11 +125,27 @@ graph TB
 ### 2. Triagem e Motor de Tecnologia (Foco 200+ Stacks)
 - **Extração Baseada em Dicionário**: Filtra as vagas e popula o banco de dados baseando-se em uma base rigorosa contendo mais de 200 tecnologias mapeadas (Front-end, Back-end, DevOps, Bancos de Dados, Testes e IA).
 - **Classificador de Nível**: Identifica se a vaga se destina a desenvolvedores **Júnior**, **Pleno**, **Sênior** ou se não possui senioridade indicada.
+- **Busca Semântica Local**: Motor de busca expansível por sinônimos estruturados para associar consultas amplas (ex: "mobile") a stacks específicas (ex: "react native", "flutter", "ios").
 
-### 3. Painel Administrativo de Controle
-- **Grid Responsivo Moderno**: Exibição dos cards com paginação integrada e atalhos rápidos baseados em estados salvos/candidatados no banco de dados.
-- **Visualização Premium**: Badges interativos de expansão local de tecnologias (+X mais) e logotipos SVG adaptados aos temas claro e escuro para origens como GitHub e Remotive.
-- **Micro-interações no Card**: Copiar contatos com feedback instantâneo de sucesso (troca de ícones e cores do botão de copiar para "Copiado!" temporariamente) e disparo de clientes locais via `mailto:`.
+### 3. Integração Oficial com o Lume & Match Score
+- **Upload do Currículo Lume**: O usuário pode importar o arquivo `.json` gerado pelo criador de currículos Lume diretamente pelo cabeçalho do portal.
+- **Cálculo de Compatibilidade**: Algoritmo local e gratuito rodando em tempo real comparando as tecnologias exigidas na vaga com as habilidades do currículo do usuário, localização de residência (cidade/estado) e cargos anteriores para exibir uma porcentagem de compatibilidade (Match Score).
+- **Persistência em Banco**: O currículo importado é armazenado em formato estruturado (`resumeJson`) no banco de dados para evitar re-uploads.
+- **Filtro Avançado com Slider**: Filtre a lista de oportunidades por uma nota de corte de compatibilidade mínima usando o componente de Slider interativo do Bloom UI.
+
+### 4. Deduplicação Inteligente (Fuzzy Matching)
+- **Algoritmo de Jaccard por Palavras**: Quando novas vagas são coletadas, o backend analisa a proximidade dos termos do título das vagas pertencentes à mesma empresa.
+- **Isolamento de Senioridade**: Garante que oportunidades de níveis técnicos diferentes (ex: *Júnior* vs *Sênior*) não sejam mescladas, mesmo que pertençam à mesma empresa.
+- **Fusão de Links e Fontes**: Se a vaga for classificada como duplicada, o Scout consolida os dados unindo as diferentes fontes de coleta e links de candidatura no mesmo card.
+
+### 5. Notificações Internas In-App
+- **Alertas de Filtros Salvos**: O Scout monitora as 3 combinações de filtros que o usuário salvou em sua conta.
+- **Disparo de Alertas**: Sempre que novos coletores rodam e importam vagas que se enquadram em algum filtro ativo do usuário, o sistema gera uma notificação interna.
+- **Visualização em Tempo Real**: Menu dropdown com contagem de notificações não lidas no cabeçalho, com atalhos de navegação direta para a vaga notificada.
+
+### 6. Exportação de Dados e Usabilidade
+- **Histórico de Buscas Recentes**: Salva localmente via `localStorage` os últimos 5 termos pesquisados pelo usuário, exibindo badges práticos na barra lateral para pesquisas de um clique.
+- **Exportação Client-Side**: Botão dropdown rápido para exportar instantaneamente as vagas atualmente listadas nos formatos **CSV** (otimizado para leitura com suporte UTF-8 no Microsoft Excel) ou **JSON**.
 
 ---
 

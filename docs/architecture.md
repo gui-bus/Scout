@@ -62,5 +62,7 @@ graph TD
 ## ⚡ Backend: Estrutura NestJS
 
 A API do backend é modular e estruturada em torno de controladores e serviços:
-- **`JobController` / `JobService`**: Controlam as operações principais sobre vagas de trabalho, cuidando da lógica de filtros booleanos estruturados e paginação SQL.
-- **`CollectController` / `CollectService`**: Responsáveis por gerenciar o ciclo de sincronização e raspagem incremental (Scrapers).
+- **`JobController` / `JobService`**: Controlam as operações principais sobre vagas de trabalho, cuidando da lógica de filtros booleanos estruturados, paginação SQL e o algoritmo de Jaccard por palavras para deduplicação fuzzy.
+- **`CollectController` / `CollectService`**: Responsáveis por gerenciar o ciclo de sincronização, raspagem incremental (Scrapers) e o cruzamento dos novos registros com os filtros salvos de usuários para disparar notificações.
+- **`AuthController` / `AuthService`**: Gerencia autenticação via JWT, persistência dos filtros salvos e armazenamento/recuperação do currículo Lume (`resumeJson`).
+- **`NotificationController` / `NotificationService`**: Expõe rotas para gerenciar alertas in-app gerados em tempo real na coleta de vagas.

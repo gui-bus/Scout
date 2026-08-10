@@ -11,12 +11,15 @@ O banco de dados armazena vagas de trabalho (`Job`) estruturadas e mantém uma t
 ```mermaid
 erDiagram
     USER ||--o{ JOB_STATE : "interage"
+    USER ||--o{ NOTIFICATION : "recebe"
     JOB ||--o{ JOB_STATE : "possui"
 
     USER {
         int id PK "Autoincrement"
         string email UK "E-mail do usuário"
         string password "Senha hasheada"
+        string savedFilters "JSON serializado contendo slots de filtros salvos"
+        string resumeJson "JSON estruturado do currículo Lume importado"
     }
 
     JOB {
@@ -43,6 +46,16 @@ erDiagram
         int jobId FK "ID da Vaga"
         boolean isFavorite "Vaga salva nos favoritos"
         boolean isApplied "Candidatura enviada"
+    }
+
+    NOTIFICATION {
+        int id PK "Autoincrement"
+        int userId FK "ID do Usuário"
+        string title "Título da notificação"
+        string message "Mensagem detalhada"
+        boolean read "Status de lido"
+        datetime createdAt "Data de criação"
+        int jobId FK "Vaga relacionada opcional"
     }
 ```
 
