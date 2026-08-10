@@ -862,7 +862,16 @@ function JobsPageContent() {
                       variant="flat"
                       radius="lg"
                       size="sm"
-                      startContent={<Icon icon="hugeicons:download-04" className="size-4" />}
+                      className="shrink-0 min-w-[100px]"
+                      startContent={
+                        <Image
+                          src="/utils/icons/excel.svg"
+                          alt="Excel"
+                          width={16}
+                          height={16}
+                          className="select-none object-contain"
+                        />
+                      }
                     >
                       Exportar
                     </Button>
