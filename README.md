@@ -7,6 +7,7 @@
 
 ## 📌 Sumário
 
+- [🚀 Deploy em Produção (Render)](#deploy)
 - [🛠️ Stack Tecnológica](#stack)
 - [🏛️ Arquitetura do Sistema e Monorepo](#arquitetura)
 - [🚀 Módulos e Detalhes Técnicos](#modulos)
@@ -19,6 +20,18 @@
 O **Scout** é um agregador e rastreador de vagas de desenvolvimento de software em tempo real. Projetado sobre uma arquitetura de monorepo moderna, o sistema conecta coletores de múltiplas fontes públicas e de APIs corporativas (GitHub, Remotive, Gupy, Sólides, Remotar, Jooble), aplicando classificadores inteligentes de nível técnico e motores automáticos de extração de metadados relevantes diretamente das descrições das vagas.
 
 O portal centraliza, limpa e apresenta todas as oportunidades em uma interface web dinâmica de alto desempenho, otimizando sua rotina de candidatura e pesquisa.
+
+---
+
+## <a id="deploy"></a>🚀 Deploy em Produção (Render)
+
+O Scout está publicado e pronto para uso no ambiente de produção do Render nos seguintes links:
+- **Frontend Portal**: [https://scout.guibus.dev](https://scout.guibus.dev)
+- **Backend API**: [https://scoutapi.guibus.dev](https://scoutapi.guibus.dev)
+- **Documentação Interativa (Scalar)**: [https://scoutapi.guibus.dev/docs](https://scoutapi.guibus.dev/docs)
+
+> [!IMPORTANT]
+> **Nota sobre Instâncias Gratuitas (Cold Start):** Como a aplicação está hospedada no plano gratuito (Free tier) do Render, as instâncias sofrem congelamento automático (spin-down) após 15 minutos de inatividade. Ao acessar a aplicação depois de um período inativa, pode haver um atraso de carregamento de cerca de 50 segundos para a máquina iniciar (Cold Start). Isso é um comportamento padrão do plano gratuito do Render.
 
 ---
 
@@ -203,16 +216,4 @@ O Frontend estará rodando em [http://localhost:3000](http://localhost:3000) e a
 - `POST /api/jobs`: Cadastro manual de vaga.
 - `POST /api/collect`: Executa a rotina incremental de coleta.
 - `POST /api/jobs/:id/state`: Altera estados de favoritos ou candidatura do usuário.
-
----
-
-## 🚀 Deploy em Produção (Render)
-
-O Scout está publicado e pronto para uso no ambiente de produção do Render nos seguintes links:
-- **Frontend Portal**: [https://scout.guibus.dev](https://scout.guibus.dev)
-- **Backend API**: [https://scoutapi.guibus.dev](https://scoutapi.guibus.dev)
-- **Documentação Interativa (Scalar)**: [https://scoutapi.guibus.dev/reference](https://scoutapi.guibus.dev/reference)
-
-> [!IMPORTANT]
-> **Nota sobre Instâncias Gratuitas (Cold Start):** Como a aplicação está hospedada no plano gratuito (Free tier) do Render, as instâncias sofrem congelamento automático (spin-down) após 15 minutos de inatividade. Ao acessar a aplicação depois de um período inativa, pode haver um atraso de carregamento de cerca de 50 segundos para a máquina iniciar (Cold Start). Isso é um comportamento padrão do plano gratuito do Render.
 
