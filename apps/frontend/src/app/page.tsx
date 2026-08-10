@@ -862,16 +862,7 @@ function JobsPageContent() {
                       variant="flat"
                       radius="lg"
                       size="sm"
-                      className="shrink-0 min-w-[100px]"
-                      startContent={
-                        <Image
-                          src="/utils/icons/excel.svg"
-                          alt="Excel"
-                          width={16}
-                          height={16}
-                          className="select-none object-contain"
-                        />
-                      }
+                      className="shrink-0 min-w-[80px]"
                     >
                       Exportar
                     </Button>
@@ -881,14 +872,26 @@ function JobsPageContent() {
                       onClick={exportToCSV}
                       className="cursor-pointer flex items-center"
                     >
-                      <Icon icon="hugeicons:file-csv" className="size-4 mr-2 text-emerald-500" />
+                      <Image
+                        src="/utils/icons/excel.svg"
+                        alt="CSV"
+                        width={16}
+                        height={16}
+                        className="select-none object-contain mr-2"
+                      />
                       <span>Exportar CSV</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={exportToJSON}
                       className="cursor-pointer flex items-center"
                     >
-                      <Icon icon="hugeicons:file-code" className="size-4 mr-2 text-blue-500" />
+                      <Image
+                        src="/utils/icons/json.svg"
+                        alt="JSON"
+                        width={16}
+                        height={16}
+                        className="select-none object-contain mr-2"
+                      />
                       <span>Exportar JSON</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
