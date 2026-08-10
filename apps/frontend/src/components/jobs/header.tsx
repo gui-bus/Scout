@@ -65,6 +65,7 @@ export function JobsHeader({
               width={120}
               height={32}
               priority
+              style={{ height: "auto" }}
               className="hidden dark:block select-none object-contain"
             />
             <Image
@@ -73,6 +74,7 @@ export function JobsHeader({
               width={120}
               height={32}
               priority
+              style={{ height: "auto" }}
               className="block dark:hidden select-none object-contain"
             />
           </div>

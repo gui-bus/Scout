@@ -99,6 +99,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               src="/logos/logo_white.svg"
               width={105}
               height={28}
+              style={{ height: "auto" }}
               className="hidden dark:block select-none object-contain"
               alt="Scout Logo"
             />
@@ -106,6 +107,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               src="/logos/logo_black.svg"
               width={105}
               height={28}
+              style={{ height: "auto" }}
               className="block dark:hidden select-none object-contain"
               alt="Scout Logo"
             />

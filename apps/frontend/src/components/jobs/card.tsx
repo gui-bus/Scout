@@ -31,33 +31,33 @@ function renderSourceLogo(source: string | null) {
         if (srcLower.includes("gupy")) {
           logo = (
             <>
-              <Image src="/utils/icons/gupy_black.svg" alt="Gupy" width={45} height={16} className="dark:hidden select-none object-contain" />
-              <Image src="/utils/icons/gupy_white.svg" alt="Gupy" width={45} height={16} className="hidden dark:block select-none object-contain" />
+              <Image src="/utils/icons/gupy_black.svg" alt="Gupy" width={45} height={16} style={{ height: "auto" }} className="dark:hidden select-none object-contain" />
+              <Image src="/utils/icons/gupy_white.svg" alt="Gupy" width={45} height={16} style={{ height: "auto" }} className="hidden dark:block select-none object-contain" />
             </>
           );
         } else if (srcLower.includes("solides") || srcLower.includes("sólides")) {
-          logo = <Image src="/utils/icons/solides.svg" alt="Sólides" width={55} height={16} className="select-none object-contain" />;
+          logo = <Image src="/utils/icons/solides.svg" alt="Sólides" width={55} height={16} style={{ height: "auto" }} className="select-none object-contain" />;
         } else if (srcLower.includes("remotar")) {
           logo = (
             <>
-              <Image src="/utils/icons/remotar_black.svg" alt="Remotar" width={55} height={16} className="dark:hidden select-none object-contain" />
-              <Image src="/utils/icons/remotar_white.svg" alt="Remotar" width={55} height={16} className="hidden dark:block select-none object-contain" />
+              <Image src="/utils/icons/remotar_black.svg" alt="Remotar" width={55} height={16} style={{ height: "auto" }} className="dark:hidden select-none object-contain" />
+              <Image src="/utils/icons/remotar_white.svg" alt="Remotar" width={55} height={16} style={{ height: "auto" }} className="hidden dark:block select-none object-contain" />
             </>
           );
         } else if (srcLower.includes("jooble")) {
-          logo = <Image src="/utils/icons/jooble.svg" alt="Jooble" width={45} height={16} className="select-none object-contain" />;
+          logo = <Image src="/utils/icons/jooble.svg" alt="Jooble" width={45} height={16} style={{ height: "auto" }} className="select-none object-contain" />;
         } else if (srcLower.includes("github")) {
           logo = (
             <>
-              <Image src="/utils/icons/github_logo_black.svg" alt="GitHub" width={55} height={16} className="dark:hidden select-none object-contain" />
-              <Image src="/utils/icons/github_logo_white.svg" alt="GitHub" width={55} height={16} className="hidden dark:block select-none object-contain" />
+              <Image src="/utils/icons/github_logo_black.svg" alt="GitHub" width={55} height={16} style={{ height: "auto" }} className="dark:hidden select-none object-contain" />
+              <Image src="/utils/icons/github_logo_white.svg" alt="GitHub" width={55} height={16} style={{ height: "auto" }} className="hidden dark:block select-none object-contain" />
             </>
           );
         } else if (srcLower.includes("remotive")) {
           logo = (
             <>
-              <Image src="/utils/icons/remotive_black.svg" alt="Remotive" width={65} height={16} className="dark:hidden select-none object-contain" />
-              <Image src="/utils/icons/remotive_white.svg" alt="Remotive" width={65} height={16} className="hidden dark:block select-none object-contain" />
+              <Image src="/utils/icons/remotive_black.svg" alt="Remotive" width={65} height={16} style={{ height: "auto" }} className="dark:hidden select-none object-contain" />
+              <Image src="/utils/icons/remotive_white.svg" alt="Remotive" width={65} height={16} style={{ height: "auto" }} className="hidden dark:block select-none object-contain" />
             </>
           );
         } else {

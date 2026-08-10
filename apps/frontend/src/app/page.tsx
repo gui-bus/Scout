@@ -44,42 +44,42 @@ function renderMiniSourceLogo(source: string) {
   if (srcLower.includes("gupy")) {
     return (
       <span className="inline-flex items-center shrink-0">
-        <Image src="/utils/icons/gupy_black.svg" alt="Gupy" width={32} height={10} className="dark:hidden select-none object-contain" />
-        <Image src="/utils/icons/gupy_white.svg" alt="Gupy" width={32} height={10} className="hidden dark:block select-none object-contain" />
+        <Image src="/utils/icons/gupy_black.svg" alt="Gupy" width={32} height={10} style={{ height: "auto" }} className="dark:hidden select-none object-contain" />
+        <Image src="/utils/icons/gupy_white.svg" alt="Gupy" width={32} height={10} style={{ height: "auto" }} className="hidden dark:block select-none object-contain" />
       </span>
     );
   }
   if (srcLower.includes("solides") || srcLower.includes("sólides")) {
     return (
-      <Image src="/utils/icons/solides.svg" alt="Sólides" width={36} height={10} className="select-none object-contain shrink-0" />
+      <Image src="/utils/icons/solides.svg" alt="Sólides" width={36} height={10} style={{ height: "auto" }} className="select-none object-contain shrink-0" />
     );
   }
   if (srcLower.includes("remotar")) {
     return (
       <span className="inline-flex items-center shrink-0">
-        <Image src="/utils/icons/remotar_black.svg" alt="Remotar" width={36} height={10} className="dark:hidden select-none object-contain" />
-        <Image src="/utils/icons/remotar_white.svg" alt="Remotar" width={36} height={10} className="hidden dark:block select-none object-contain" />
+        <Image src="/utils/icons/remotar_black.svg" alt="Remotar" width={36} height={10} style={{ height: "auto" }} className="dark:hidden select-none object-contain" />
+        <Image src="/utils/icons/remotar_white.svg" alt="Remotar" width={36} height={10} style={{ height: "auto" }} className="hidden dark:block select-none object-contain" />
       </span>
     );
   }
   if (srcLower.includes("jooble")) {
     return (
-      <Image src="/utils/icons/jooble.svg" alt="Jooble" width={32} height={10} className="select-none object-contain shrink-0" />
+      <Image src="/utils/icons/jooble.svg" alt="Jooble" width={32} height={10} style={{ height: "auto" }} className="select-none object-contain shrink-0" />
     );
   }
   if (srcLower.includes("github")) {
     return (
       <span className="inline-flex items-center shrink-0">
-        <Image src="/utils/icons/github_logo_black.svg" alt="GitHub" width={36} height={10} className="dark:hidden select-none object-contain" />
-        <Image src="/utils/icons/github_logo_white.svg" alt="GitHub" width={36} height={10} className="hidden dark:block select-none object-contain" />
+        <Image src="/utils/icons/github_logo_black.svg" alt="GitHub" width={36} height={10} style={{ height: "auto" }} className="dark:hidden select-none object-contain" />
+        <Image src="/utils/icons/github_logo_white.svg" alt="GitHub" width={36} height={10} style={{ height: "auto" }} className="hidden dark:block select-none object-contain" />
       </span>
     );
   }
   if (srcLower.includes("remotive")) {
     return (
       <span className="inline-flex items-center shrink-0">
-        <Image src="/utils/icons/remotive_black.svg" alt="Remotive" width={42} height={10} className="dark:hidden select-none object-contain" />
-        <Image src="/utils/icons/remotive_white.svg" alt="Remotive" width={42} height={10} className="hidden dark:block select-none object-contain" />
+        <Image src="/utils/icons/remotive_black.svg" alt="Remotive" width={42} height={10} style={{ height: "auto" }} className="dark:hidden select-none object-contain" />
+        <Image src="/utils/icons/remotive_white.svg" alt="Remotive" width={42} height={10} style={{ height: "auto" }} className="hidden dark:block select-none object-contain" />
       </span>
     );
   }
@@ -859,7 +859,7 @@ function JobsPageContent() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       color="secondary"
-                      variant="flat"
+                      variant="default"
                       radius="lg"
                       size="sm"
                       className="shrink-0 min-w-[80px]"
@@ -877,6 +877,7 @@ function JobsPageContent() {
                         alt="CSV"
                         width={16}
                         height={16}
+                        style={{ height: "auto" }}
                         className="select-none object-contain mr-2"
                       />
                       <span>Exportar CSV</span>
@@ -890,6 +891,7 @@ function JobsPageContent() {
                         alt="JSON"
                         width={16}
                         height={16}
+                        style={{ height: "auto" }}
                         className="select-none object-contain mr-2"
                       />
                       <span>Exportar JSON</span>
@@ -1001,6 +1003,7 @@ function JobsPageContent() {
               alt="Scout Logo"
               width={90}
               height={24}
+              style={{ height: "auto" }}
               className="hidden dark:block select-none object-contain"
             />
             <Image
@@ -1008,6 +1011,7 @@ function JobsPageContent() {
               alt="Scout Logo"
               width={90}
               height={24}
+              style={{ height: "auto" }}
               className="block dark:hidden select-none object-contain"
             />
           </div>
