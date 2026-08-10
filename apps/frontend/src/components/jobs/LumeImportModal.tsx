@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button/button";
 import { toast } from "@/components/ui/toast/toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { LumeResume } from "./types";
+import { API_URL } from "@/lib/config";
 
 interface LumeImportModalProps {
   open: boolean;
@@ -22,7 +23,7 @@ export function LumeImportModal({ open, onOpenChange, token }: LumeImportModalPr
 
   const uploadResumeMutation = useMutation({
     mutationFn: async (resumeData: LumeResume) => {
-      const response = await fetch("http://localhost:3001/api/auth/resume", {
+      const response = await fetch(`${API_URL}/api/auth/resume`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

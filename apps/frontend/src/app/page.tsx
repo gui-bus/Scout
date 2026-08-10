@@ -22,6 +22,7 @@ import { JobCardItem } from "@/components/jobs/card";
 import { toast } from "@/components/ui/toast/toast";
 import { LumeImportModal } from "@/components/jobs/LumeImportModal";
 import { calculateMatchScore } from "@/lib/match-score";
+import { API_URL } from "@/lib/config";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -96,7 +97,7 @@ function JobsPageContent() {
     queryKey: ["user-resume", token],
     queryFn: async () => {
       if (!token) return null;
-      const res = await fetch("http://localhost:3001/api/auth/resume", {
+      const res = await fetch(`${API_URL}/api/auth/resume`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) return null;
@@ -191,7 +192,7 @@ function JobsPageContent() {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`http://localhost:3001/api/jobs?${params.toString()}`, {
+      const response = await fetch(`${API_URL}/api/jobs?${params.toString()}`, {
         headers,
       });
 
@@ -207,7 +208,7 @@ function JobsPageContent() {
   const { data: syncStatus } = useQuery<SyncStatusData, Error>({
     queryKey: ["syncStatus"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:3001/api/collect/status");
+      const response = await fetch(`${API_URL}/api/collect/status`);
       if (!response.ok) {
         throw new Error("Erro ao checar status de sincronização");
       }
@@ -221,7 +222,7 @@ function JobsPageContent() {
   const { data: statsData } = useQuery<{ totalToday: number; bySource: Record<string, number> }>({
     queryKey: ["jobs-stats"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:3001/api/jobs/stats");
+      const response = await fetch(`${API_URL}/api/jobs/stats`);
       if (!response.ok) throw new Error("Erro ao carregar estatísticas");
       return response.json();
     },
@@ -274,7 +275,7 @@ function JobsPageContent() {
 
   const syncJobsMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch("http://localhost:3001/api/collect", {
+      const response = await fetch(`${API_URL}/api/collect`, {
         method: "POST",
         headers: {
           Authorization: "Bearer development_cron_secret",
@@ -471,7 +472,7 @@ function JobsPageContent() {
 
   const toggleFavoriteMutation = useMutation({
     mutationFn: async ({ jobId, currentVal }: { jobId: number; currentVal: boolean }) => {
-      const response = await fetch(`http://localhost:3001/api/jobs/${jobId}/state`, {
+      const response = await fetch(`${API_URL}/api/jobs/${jobId}/state`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -524,7 +525,7 @@ function JobsPageContent() {
 
   const toggleAppliedMutation = useMutation({
     mutationFn: async ({ jobId, currentVal }: { jobId: number; currentVal: boolean }) => {
-      const response = await fetch(`http://localhost:3001/api/jobs/${jobId}/state`, {
+      const response = await fetch(`${API_URL}/api/jobs/${jobId}/state`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -577,7 +578,7 @@ function JobsPageContent() {
 
   const toggleViewedMutation = useMutation({
     mutationFn: async ({ jobId }: { jobId: number }) => {
-      const response = await fetch(`http://localhost:3001/api/jobs/${jobId}/state`, {
+      const response = await fetch(`${API_URL}/api/jobs/${jobId}/state`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -633,7 +634,7 @@ function JobsPageContent() {
     queryKey: ["saved-filters", token],
     queryFn: async () => {
       if (!token) return [];
-      const res = await fetch("http://localhost:3001/api/auth/filters", {
+      const res = await fetch(`${API_URL}/api/auth/filters`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Erro ao carregar filtros salvos");
@@ -644,7 +645,7 @@ function JobsPageContent() {
 
   const saveFiltersMutation = useMutation({
     mutationFn: async (newFilters: (SavedFilterState | null)[]) => {
-      const res = await fetch("http://localhost:3001/api/auth/filters", {
+      const res = await fetch(`${API_URL}/api/auth/filters`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -733,7 +734,7 @@ function JobsPageContent() {
         }}
         onSelectJob={async (jobId) => {
           try {
-            const res = await fetch(`http://localhost:3001/api/jobs/${jobId}`);
+            const res = await fetch(`${API_URL}/api/jobs/${jobId}`);
             if (res.ok) {
               const job = await res.json();
               if (job && job.title) {

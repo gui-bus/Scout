@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu/dropdown-menu";
 import { toast } from "@/components/ui/toast/toast";
+import { API_URL } from "@/lib/config";
 
 interface Notification {
   id: number;
@@ -35,7 +36,7 @@ export function NotificationDropdown({ token, onSelectJob }: NotificationDropdow
     queryKey: ["notifications", token],
     queryFn: async () => {
       if (!token) return [];
-      const response = await fetch("http://localhost:3001/api/notifications", {
+      const response = await fetch(`${API_URL}/api/notifications`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -49,7 +50,7 @@ export function NotificationDropdown({ token, onSelectJob }: NotificationDropdow
 
   const markAllAsReadMutation = useMutation({
     mutationFn: async () => {
-      await fetch("http://localhost:3001/api/notifications/read-all", {
+      await fetch(`${API_URL}/api/notifications/read-all`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -64,7 +65,7 @@ export function NotificationDropdown({ token, onSelectJob }: NotificationDropdow
 
   const markAsReadMutation = useMutation({
     mutationFn: async (id: number) => {
-      await fetch(`http://localhost:3001/api/notifications/${id}/read`, {
+      await fetch(`${API_URL}/api/notifications/${id}/read`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -78,7 +79,7 @@ export function NotificationDropdown({ token, onSelectJob }: NotificationDropdow
 
   const deleteNotificationMutation = useMutation({
     mutationFn: async (id: number) => {
-      await fetch(`http://localhost:3001/api/notifications/${id}`, {
+      await fetch(`${API_URL}/api/notifications/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

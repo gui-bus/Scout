@@ -13,6 +13,7 @@ import {
 } from "./dialog/dialog";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { toast } from "./toast/toast";
+import { API_URL } from "@/lib/config";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -51,7 +52,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
     try {
       const endpoint = isRegister ? "register" : "login";
-      const response = await fetch(`http://localhost:3001/api/auth/${endpoint}`, {
+      const response = await fetch(`${API_URL}/api/auth/${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

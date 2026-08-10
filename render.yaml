@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: scout-backend
+    env: node
+    plan: free
+    buildCommand: pnpm install && pnpm --filter backend prisma generate && pnpm build:backend
+    startCommand: pnpm --filter backend start:prod
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: PORT
+        value: 3001
+      - key: JOOBLE_API_KEY
+        sync: false
+
+  - type: web
+    name: scout-frontend
+    env: node
+    plan: free
+    buildCommand: pnpm install && pnpm build:frontend
+    startCommand: pnpm --filter frontend start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://scout-backend.onrender.com
