@@ -1,14 +1,14 @@
-import { Injectable } from "@nestjs/common";
-import { JobService } from "./job.service";
-import { PrismaService } from "./prisma.service";
-import { GupyCollector } from "./collectors/gupy-collector";
-import { SolidesCollector } from "./collectors/solides-collector";
-import { RemotarCollector } from "./collectors/remotar-collector";
-import { JoobleCollector } from "./collectors/jooble-collector";
-import { GithubCollector } from "./collectors/github-collector";
-import { RemotiveCollector } from "./collectors/remotive-collector";
-import { BaseCollector } from "./collectors/base-collector";
-import { isSoftwareJob, identifyLevel } from "./utils/job-classifier";
+import { Injectable } from '@nestjs/common';
+import { JobService } from './job.service';
+import { PrismaService } from './prisma.service';
+import { GupyCollector } from './collectors/gupy-collector';
+import { SolidesCollector } from './collectors/solides-collector';
+import { RemotarCollector } from './collectors/remotar-collector';
+import { JoobleCollector } from './collectors/jooble-collector';
+import { GithubCollector } from './collectors/github-collector';
+import { RemotiveCollector } from './collectors/remotive-collector';
+import { BaseCollector } from './collectors/base-collector';
+import { isSoftwareJob, identifyLevel } from './utils/job-classifier';
 
 @Injectable()
 export class CollectService {
@@ -16,7 +16,7 @@ export class CollectService {
 
   constructor(
     private readonly jobService: JobService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
   ) {}
 
   getCollectingStatus(): boolean {
@@ -25,7 +25,7 @@ export class CollectService {
 
   async runCollection() {
     if (this.isCollecting) {
-      throw new Error("Collection is already in progress.");
+      throw new Error('Collection is already in progress.');
     }
 
     this.isCollecting = true;
@@ -33,48 +33,69 @@ export class CollectService {
     try {
       const startTime = performance.now();
 
-      const joobleApiKey = process.env.JOOBLE_API_KEY || "";
+      const joobleApiKey = process.env.JOOBLE_API_KEY || '';
 
       const collectors: BaseCollector[] = [
-        new GupyCollector("desenvolvedor", 50, 200, 90),
-        new GupyCollector("software engineer", 50, 200, 90),
-        new GupyCollector("programador", 50, 200, 90),
-        new GupyCollector("backend", 50, 200, 90),
-        new GupyCollector("frontend", 50, 200, 90),
-        new GupyCollector("fullstack", 50, 200, 90),
-        new GupyCollector("dev", 50, 200, 90),
-        new GupyCollector("ti", 50, 200, 90),
-        new GupyCollector("tecnologia", 50, 200, 90),
-        new GupyCollector("tech", 50, 200, 90),
+        new GupyCollector('desenvolvedor', 50, 200, 90),
+        new GupyCollector('software engineer', 50, 200, 90),
+        new GupyCollector('programador', 50, 200, 90),
+        new GupyCollector('backend', 50, 200, 90),
+        new GupyCollector('frontend', 50, 200, 90),
+        new GupyCollector('fullstack', 50, 200, 90),
+        new GupyCollector('dev', 50, 200, 90),
+        new GupyCollector('ti', 50, 200, 90),
+        new GupyCollector('tecnologia', 50, 200, 90),
+        new GupyCollector('tech', 50, 200, 90),
 
-        new SolidesCollector("desenvolvedor", 14, 200, 90),
-        new SolidesCollector("software engineer", 14, 200, 90),
-        new SolidesCollector("programador", 14, 200, 90),
-        new SolidesCollector("backend", 14, 200, 90),
-        new SolidesCollector("frontend", 14, 200, 90),
-        new SolidesCollector("fullstack", 14, 200, 90),
-        new SolidesCollector("ti", 14, 200, 90),
-        new SolidesCollector("tecnologia", 14, 200, 90),
-        new SolidesCollector("tech", 14, 200, 90),
+        new SolidesCollector('desenvolvedor', 14, 200, 90),
+        new SolidesCollector('software engineer', 14, 200, 90),
+        new SolidesCollector('programador', 14, 200, 90),
+        new SolidesCollector('backend', 14, 200, 90),
+        new SolidesCollector('frontend', 14, 200, 90),
+        new SolidesCollector('fullstack', 14, 200, 90),
+        new SolidesCollector('ti', 14, 200, 90),
+        new SolidesCollector('tecnologia', 14, 200, 90),
+        new SolidesCollector('tech', 14, 200, 90),
 
         new RemotarCollector(10, [4, 7, 13, 14], 100, 90),
         new RemotarCollector(17, [4, 7, 13, 14], 100, 90),
         new RemotarCollector(21, [4, 7, 13, 14], 100, 90),
         new RemotarCollector(23, [4, 7, 13, 14], 100, 90),
 
-        new GithubCollector("backend-br/vagas", 90),
-        new GithubCollector("frontendbr/vagas", 90),
-        new GithubCollector("react-brasil/vagas", 90),
+        new GithubCollector('backend-br/vagas', 90),
+        new GithubCollector('frontendbr/vagas', 90),
+        new GithubCollector('react-brasil/vagas', 90),
 
         new RemotiveCollector(90),
       ];
 
       if (joobleApiKey) {
         collectors.push(
-          new JoobleCollector("desenvolvedor", joobleApiKey, "Brasil", 100, 5, 90),
-          new JoobleCollector("software engineer", joobleApiKey, "Brasil", 100, 5, 90),
-          new JoobleCollector("programador", joobleApiKey, "Brasil", 100, 5, 90),
-          new JoobleCollector("dev", joobleApiKey, "Brasil", 100, 5, 90)
+          new JoobleCollector(
+            'desenvolvedor',
+            joobleApiKey,
+            'Brasil',
+            100,
+            5,
+            90,
+          ),
+          new JoobleCollector(
+            'software engineer',
+            joobleApiKey,
+            'Brasil',
+            100,
+            5,
+            90,
+          ),
+          new JoobleCollector(
+            'programador',
+            joobleApiKey,
+            'Brasil',
+            100,
+            5,
+            90,
+          ),
+          new JoobleCollector('dev', joobleApiKey, 'Brasil', 100, 5, 90),
         );
       }
 
@@ -115,7 +136,12 @@ export class CollectService {
       const runCollector = async (collector: BaseCollector) => {
         const sourceName = collector.source;
         if (!sources[sourceName]) {
-          sources[sourceName] = { found: 0, filteredOut: 0, duplicates: 0, inserted: 0 };
+          sources[sourceName] = {
+            found: 0,
+            filteredOut: 0,
+            duplicates: 0,
+            inserted: 0,
+          };
         }
 
         try {
@@ -203,7 +229,7 @@ export class CollectService {
         for (const user of users) {
           let userFilters: any[] = [];
           try {
-            userFilters = JSON.parse(user.savedFilters || "[]");
+            userFilters = JSON.parse(user.savedFilters || '[]');
           } catch (e) {
             continue;
           }
@@ -211,13 +237,15 @@ export class CollectService {
           for (const filter of userFilters) {
             if (!filter) continue;
 
-            const matchingJobs = newlyInsertedJobs.filter((job) => matchJobWithFilter(job, filter));
+            const matchingJobs = newlyInsertedJobs.filter((job) =>
+              matchJobWithFilter(job, filter),
+            );
             for (const job of matchingJobs) {
               await this.prisma.notification.create({
                 data: {
                   userId: user.id,
                   title: `Nova vaga encontrada: ${job.title}`,
-                  message: `${job.company || "Empresa não informada"} em ${job.location || "Qualquer lugar"} (${job.modality || "Qualquer modalidade"})`,
+                  message: `${job.company || 'Empresa não informada'} em ${job.location || 'Qualquer lugar'} (${job.modality || 'Qualquer modalidade'})`,
                   jobId: job.id,
                 },
               });
@@ -226,7 +254,9 @@ export class CollectService {
         }
       }
 
-      const durationSeconds = Number(((performance.now() - startTime) / 1000).toFixed(2));
+      const durationSeconds = Number(
+        ((performance.now() - startTime) / 1000).toFixed(2),
+      );
 
       return {
         totals,
@@ -244,7 +274,7 @@ function matchJobWithFilter(job: any, filter: any): boolean {
   if (!filter) return false;
 
   // 1. busca
-  if (filter.busca && filter.busca.trim() !== "") {
+  if (filter.busca && filter.busca.trim() !== '') {
     const search = filter.busca.toLowerCase().trim();
     const titleMatch = job.title?.toLowerCase().includes(search);
     const descMatch = job.description?.toLowerCase().includes(search);
@@ -255,7 +285,7 @@ function matchJobWithFilter(job: any, filter: any): boolean {
   }
 
   // 2. company
-  if (filter.company && filter.company.trim() !== "") {
+  if (filter.company && filter.company.trim() !== '') {
     const company = filter.company.toLowerCase().trim();
     if (!job.company?.toLowerCase().includes(company)) {
       return false;
@@ -263,12 +293,12 @@ function matchJobWithFilter(job: any, filter: any): boolean {
   }
 
   // 3. location / city
-  if (filter.city && filter.city.trim() !== "") {
+  if (filter.city && filter.city.trim() !== '') {
     const city = filter.city.toLowerCase().trim();
     if (!job.location?.toLowerCase().includes(city)) {
       return false;
     }
-  } else if (filter.location && filter.location.trim() !== "") {
+  } else if (filter.location && filter.location.trim() !== '') {
     const location = filter.location.toLowerCase().trim();
     if (!job.location?.toLowerCase().includes(location)) {
       return false;
@@ -276,13 +306,13 @@ function matchJobWithFilter(job: any, filter: any): boolean {
   }
 
   // 4. contractType
-  if (filter.contractType && filter.contractType !== "todos") {
+  if (filter.contractType && filter.contractType !== 'todos') {
     const type = filter.contractType.toUpperCase();
-    const jobType = job.contractType?.toUpperCase() || "";
-    if (type === "CLT" && !jobType.includes("CLT")) {
+    const jobType = job.contractType?.toUpperCase() || '';
+    if (type === 'CLT' && !jobType.includes('CLT')) {
       return false;
     }
-    if (type === "PJ" && !jobType.includes("PJ")) {
+    if (type === 'PJ' && !jobType.includes('PJ')) {
       return false;
     }
   }
@@ -293,10 +323,16 @@ function matchJobWithFilter(job: any, filter: any): boolean {
   }
 
   // 6. exclude
-  if (filter.exclude && filter.exclude.trim() !== "") {
-    const excludeTerms = filter.exclude.split(",").map((t: string) => t.trim().toLowerCase()).filter((t: string) => t !== "");
+  if (filter.exclude && filter.exclude.trim() !== '') {
+    const excludeTerms = filter.exclude
+      .split(',')
+      .map((t: string) => t.trim().toLowerCase())
+      .filter((t: string) => t !== '');
     for (const term of excludeTerms) {
-      if (job.title?.toLowerCase().includes(term) || job.description?.toLowerCase().includes(term)) {
+      if (
+        job.title?.toLowerCase().includes(term) ||
+        job.description?.toLowerCase().includes(term)
+      ) {
         return false;
       }
     }
@@ -304,10 +340,10 @@ function matchJobWithFilter(job: any, filter: any): boolean {
 
   // 7. sources
   if (filter.sources && filter.sources.length > 0) {
-    const jobSource = job.source || "";
+    const jobSource = job.source || '';
     const matchesSource = filter.sources.some((src: string) => {
-      if (src.toLowerCase() === "github") {
-        return jobSource.toLowerCase().startsWith("github");
+      if (src.toLowerCase() === 'github') {
+        return jobSource.toLowerCase().startsWith('github');
       }
       return jobSource.toLowerCase().includes(src.toLowerCase());
     });
@@ -316,18 +352,21 @@ function matchJobWithFilter(job: any, filter: any): boolean {
 
   // 8. modalities
   if (filter.modalities && filter.modalities.length > 0) {
-    const jobModality = job.modality || "";
-    const matchesModality = filter.modalities.some((mod: string) => jobModality.toLowerCase().includes(mod.toLowerCase()));
+    const jobModality = job.modality || '';
+    const matchesModality = filter.modalities.some((mod: string) =>
+      jobModality.toLowerCase().includes(mod.toLowerCase()),
+    );
     if (!matchesModality) return false;
   }
 
   // 9. levels
   if (filter.levels && filter.levels.length > 0) {
-    const jobLevel = job.level || "";
-    const matchesLevel = filter.levels.some((lvl: string) => jobLevel.toLowerCase().includes(lvl.toLowerCase()));
+    const jobLevel = job.level || '';
+    const matchesLevel = filter.levels.some((lvl: string) =>
+      jobLevel.toLowerCase().includes(lvl.toLowerCase()),
+    );
     if (!matchesLevel) return false;
   }
 
   return true;
 }
-

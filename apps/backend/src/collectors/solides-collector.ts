@@ -1,12 +1,13 @@
-import { BaseCollector } from "./base-collector";
+import { BaseCollector } from './base-collector';
 
 export class SolidesCollector extends BaseCollector {
-  private readonly baseUrl = "https://apigw.solides.com.br/jobs/v3/portal-vacancies-new";
+  private readonly baseUrl =
+    'https://apigw.solides.com.br/jobs/v3/portal-vacancies-new';
   private readonly query: string;
   private readonly take: number;
   private readonly maxPages: number;
   private readonly headers = {
-    "User-Agent": "Mozilla/5.0 (compatible; JobTracker/1.0)",
+    'User-Agent': 'Mozilla/5.0 (compatible; JobTracker/1.0)',
   };
 
   constructor(query: string, take = 14, maxPages = 2, maxAgeDays = 90) {
@@ -17,7 +18,7 @@ export class SolidesCollector extends BaseCollector {
   }
 
   get source(): string {
-    return "Solides";
+    return 'Solides';
   }
 
   get queryKey(): string {
@@ -80,35 +81,47 @@ export class SolidesCollector extends BaseCollector {
       modality: this.normalizeModality(item),
       level: this.identifyLevel(item),
       technologies: this.buildTechnologies(item),
-      source: "Solides",
+      source: 'Solides',
       link: item.redirectLink,
       publishedAt: item.createdAt ? new Date(item.createdAt) : null,
     };
   }
 
   private identifyLevel(item: any): string | null {
-    const seniorities = (item.seniority || []).map((s: any) => s.name?.trim().toLowerCase()).filter(Boolean);
-    const contracts = (item.recruitmentContractType || []).map((c: any) => c.name?.trim().toLowerCase()).filter(Boolean);
+    const seniorities = (item.seniority || [])
+      .map((s: any) => s.name?.trim().toLowerCase())
+      .filter(Boolean);
+    const contracts = (item.recruitmentContractType || [])
+      .map((c: any) => c.name?.trim().toLowerCase())
+      .filter(Boolean);
     const terms = [...seniorities, ...contracts];
 
-    const internshipTerms = ["estágio", "estagio", "estagiário", "estagiario", "estagiária", "estagiaria", "intern"];
+    const internshipTerms = [
+      'estágio',
+      'estagio',
+      'estagiário',
+      'estagiario',
+      'estagiária',
+      'estagiaria',
+      'intern',
+    ];
     if (terms.some((term) => internshipTerms.includes(term))) {
-      return "Estágio";
+      return 'Estágio';
     }
 
-    const seniorTerms = ["sênior", "senior", "sr"];
+    const seniorTerms = ['sênior', 'senior', 'sr'];
     if (terms.some((term) => seniorTerms.includes(term))) {
-      return "Sênior";
+      return 'Sênior';
     }
 
-    const midTerms = ["pleno", "pl"];
+    const midTerms = ['pleno', 'pl'];
     if (terms.some((term) => midTerms.includes(term))) {
-      return "Pleno";
+      return 'Pleno';
     }
 
-    const juniorTerms = ["júnior", "junior", "jr"];
+    const juniorTerms = ['júnior', 'junior', 'jr'];
     if (terms.some((term) => juniorTerms.includes(term))) {
-      return "Júnior";
+      return 'Júnior';
     }
 
     return null;
@@ -118,26 +131,31 @@ export class SolidesCollector extends BaseCollector {
     const city = item.city?.name;
     const state = item.state?.name;
     const parts = [city, state].map((p) => p?.trim()).filter(Boolean);
-    return parts.length > 0 ? parts.join(", ") : null;
+    return parts.length > 0 ? parts.join(', ') : null;
   }
 
   private normalizeModality(item: any): string | null {
     const modalities: Record<string, string> = {
-      remoto: "Remoto",
-      hibrido: "Híbrido",
-      presencial: "Presencial",
+      remoto: 'Remoto',
+      hibrido: 'Híbrido',
+      presencial: 'Presencial',
     };
     return modalities[item.jobType] || null;
   }
 
   private buildTechnologies(item: any): string | null {
-    const names = (item.hardSkills || []).map((skill: any) => skill.name).filter(Boolean);
-    return names.length > 0 ? names.join(", ") : null;
+    const names = (item.hardSkills || [])
+      .map((skill: any) => skill.name)
+      .filter(Boolean);
+    return names.length > 0 ? names.join(', ') : null;
   }
 
   private cleanHtml(html: string | null): string | null {
     if (!html) return null;
-    return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    return html
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   private cleanText(text: string | null): string | null {

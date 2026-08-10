@@ -11,7 +11,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu/dropdown-menu";
-import { Button } from "@/components/ui/button/button";
 import { toast } from "@/components/ui/toast/toast";
 
 interface Notification {

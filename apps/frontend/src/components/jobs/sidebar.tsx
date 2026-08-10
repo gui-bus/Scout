@@ -8,7 +8,6 @@ import { Icon } from "@iconify/react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible/collapsible";
 import { toast } from "@/components/ui/toast/toast";
 import { Slider } from "@/components/ui/slider/slider";
-import Image from "next/image";
 
 export interface SavedFilterState {
   busca?: string;

@@ -27,3 +27,9 @@ export interface Pagination {
   hasNext: boolean;
   hasPrev: boolean;
 }
+
+export interface LumeResume {
+  skills?: string[];
+  courses?: { name: string; current?: boolean; endDate?: string; startDate?: string; }[];
+  languages?: { name: string; level?: string; }[];
+}

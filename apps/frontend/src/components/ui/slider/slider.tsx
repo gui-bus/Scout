@@ -196,10 +196,6 @@ const Slider = React.forwardRef<
               </SliderPrimitive.Track>
 
               {currentVal.map((val, i) => {
-                const _percent = Math.min(
-                  100,
-                  Math.max(0, ((val - min) / (max - min)) * 100),
-                );
                 const isHovered = hoveredThumbIndex === i;
 
                 return (

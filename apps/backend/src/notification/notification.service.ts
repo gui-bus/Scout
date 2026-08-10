@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../prisma.service";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class NotificationService {
@@ -8,7 +8,7 @@ export class NotificationService {
   async listNotifications(userId: number) {
     return this.prisma.notification.findMany({
       where: { userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -18,7 +18,7 @@ export class NotificationService {
     });
 
     if (!notification) {
-      throw new NotFoundException("Notificação não encontrada.");
+      throw new NotFoundException('Notificação não encontrada.');
     }
 
     return this.prisma.notification.update({
@@ -40,7 +40,7 @@ export class NotificationService {
     });
 
     if (!notification) {
-      throw new NotFoundException("Notificação não encontrada.");
+      throw new NotFoundException('Notificação não encontrada.');
     }
 
     return this.prisma.notification.delete({

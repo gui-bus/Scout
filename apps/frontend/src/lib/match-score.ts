@@ -12,12 +12,13 @@ export interface LumeResume {
   }>;
 }
 
-export function calculateMatchScore(job: any, resume: LumeResume | null): number | null {
+import { Job } from "../components/jobs/types";
+
+export function calculateMatchScore(job: Job, resume: LumeResume | null): number | null {
   if (!resume) return null;
 
   let totalScore = 0;
 
-  // --- 1. Skills Matching (Weight: 60%) ---
   const jobTechs = job.technologies
     ? job.technologies.split(",").map((t: string) => t.trim().toLowerCase())
     : [];
@@ -31,10 +32,9 @@ export function calculateMatchScore(job: any, resume: LumeResume | null): number
     const skillRatio = matchedTechs.length / jobTechs.length;
     totalScore += skillRatio * 60;
   } else {
-    totalScore += 40; // Default moderate skill matching score
+    totalScore += 40;
   }
 
-  // --- 2. Location / Modality Matching (Weight: 20%) ---
   const jobModality = job.modality ? job.modality.toLowerCase() : "";
   const jobLocation = job.location ? job.location.toLowerCase() : "";
   const userLocation = resume.personalInfo?.location ? resume.personalInfo.location.toLowerCase() : "";
@@ -59,7 +59,6 @@ export function calculateMatchScore(job: any, resume: LumeResume | null): number
     totalScore += 10;
   }
 
-  // --- 3. Title / Role Matching (Weight: 20%) ---
   const jobTitle = job.title ? job.title.toLowerCase() : "";
   const resumeSummary = resume.personalInfo?.summary ? resume.personalInfo.summary.toLowerCase() : "";
   const positions = resume.experiences ? resume.experiences.map((exp) => exp.position?.toLowerCase() || "") : [];

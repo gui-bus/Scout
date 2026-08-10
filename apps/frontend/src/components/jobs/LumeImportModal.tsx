@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button/button";
 import { toast } from "@/components/ui/toast/toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { LumeResume } from "./types";
 
 interface LumeImportModalProps {
   open: boolean;
@@ -20,7 +21,7 @@ export function LumeImportModal({ open, onOpenChange, token }: LumeImportModalPr
   const queryClient = useQueryClient();
 
   const uploadResumeMutation = useMutation({
-    mutationFn: async (resumeData: any) => {
+    mutationFn: async (resumeData: LumeResume) => {
       const response = await fetch("http://localhost:3001/api/auth/resume", {
         method: "POST",
         headers: {
@@ -43,7 +44,7 @@ export function LumeImportModal({ open, onOpenChange, token }: LumeImportModalPr
       onOpenChange(false);
       setFile(null);
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || "Falha ao processar arquivo.");
     },
   });
@@ -68,14 +69,12 @@ export function LumeImportModal({ open, onOpenChange, token }: LumeImportModalPr
     reader.onload = (e) => {
       try {
         const json = JSON.parse(e.target?.result as string);
-        
-        // Validation check for Lume schema
         if (!json.skills || !Array.isArray(json.skills) || !json.personalInfo) {
           throw new Error("Estrutura inválida. Certifique-se de exportar do Lume.");
         }
 
         setFile(file);
-      } catch (err) {
+      } catch {
         toast.error("Formato inválido! Certifique-se de que o arquivo foi gerado pelo Lume.");
       }
     };
@@ -107,7 +106,7 @@ export function LumeImportModal({ open, onOpenChange, token }: LumeImportModalPr
       try {
         const json = JSON.parse(e.target?.result as string);
         uploadResumeMutation.mutate(json);
-      } catch (err) {
+      } catch {
         toast.error("Falha ao analisar o JSON do arquivo.");
       }
     };
@@ -126,8 +125,6 @@ export function LumeImportModal({ open, onOpenChange, token }: LumeImportModalPr
             Importe o arquivo JSON gerado pelo criador de currículos Lume para calcular o grau de compatibilidade (Match Score) de todas as vagas automaticamente.
           </DialogDescription>
         </DialogHeader>
-
-        {/* Lume Banner / Logo Warning */}
         <div className="flex flex-col items-center gap-3 p-4 border border-sky-100 dark:border-sky-950 bg-sky-50/50 dark:bg-sky-950/20 rounded-2xl">
           <div className="flex items-center justify-center gap-2">
             <span className="text-xs text-zinc-500 font-medium">Integração Oficial com</span>
@@ -159,8 +156,6 @@ export function LumeImportModal({ open, onOpenChange, token }: LumeImportModalPr
             <Icon icon="hugeicons:arrow-up-right-01" className="size-3" />
           </a>
         </div>
-
-        {/* Drag and Drop Zone */}
         <div
           onDragEnter={handleDrag}
           onDragOver={handleDrag}

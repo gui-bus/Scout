@@ -1,48 +1,55 @@
-import { Controller, Post, Get, Body, UseGuards, Request } from "@nestjs/common";
-import { AuthService } from "./auth.service";
-import { JwtAuthGuard } from "./jwt-auth.guard";
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
-@Controller("api/auth")
+@Controller('api/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post("register")
-  async register(@Body() body: any) {
+  @Post('register')
+  async register(@Body() body: Record<string, string>) {
     return this.authService.register(body);
   }
 
-  @Post("login")
-  async login(@Body() body: any) {
+  @Post('login')
+  async login(@Body() body: Record<string, string>) {
     return this.authService.login(body);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get("me")
-  async getProfile(@Request() req: any) {
+  @Get('me')
+  async getProfile(@Request() req: { user: { id: number; email: string } }) {
     return req.user;
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get("filters")
-  async getFilters(@Request() req: any) {
+  @Get('filters')
+  async getFilters(@Request() req: { user: { id: number } }) {
     return this.authService.getSavedFilters(req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post("filters")
-  async saveFilters(@Request() req: any, @Body() body: { filters: any[] }) {
+  @Post('filters')
+  async saveFilters(@Request() req: { user: { id: number } }, @Body() body: { filters: Record<string, unknown>[] }) {
     return this.authService.updateSavedFilters(req.user.id, body.filters);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get("resume")
-  async getResume(@Request() req: any) {
+  @Get('resume')
+  async getResume(@Request() req: { user: { id: number } }) {
     return this.authService.getResume(req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post("resume")
-  async updateResume(@Request() req: any, @Body() body: any) {
+  @Post('resume')
+  async updateResume(@Request() req: { user: { id: number } }, @Body() body: { resume: Record<string, unknown> }) {
     return this.authService.updateResume(req.user.id, body.resume);
   }
 }

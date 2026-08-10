@@ -1,9 +1,9 @@
-import { BaseCollector } from "./base-collector";
+import { BaseCollector } from './base-collector';
 
 export class RemotiveCollector extends BaseCollector {
   private readonly headers = {
-    "User-Agent": "Scout-Job-Board-Collector",
-    Accept: "application/json",
+    'User-Agent': 'Scout-Job-Board-Collector',
+    Accept: 'application/json',
   };
 
   constructor(maxAgeDays = 90) {
@@ -11,15 +11,16 @@ export class RemotiveCollector extends BaseCollector {
   }
 
   get source(): string {
-    return "Remotive";
+    return 'Remotive';
   }
 
   get queryKey(): string {
-    return "category=software-development";
+    return 'category=software-development';
   }
 
   async collect(): Promise<any[]> {
-    const url = "https://remotive.com/api/remote-jobs?category=software-development";
+    const url =
+      'https://remotive.com/api/remote-jobs?category=software-development';
     const response = await fetch(url, { headers: this.headers });
 
     if (!response.ok) {
@@ -32,18 +33,22 @@ export class RemotiveCollector extends BaseCollector {
     const jobs: any[] = [];
 
     for (const remoteJob of data.jobs) {
-      const publishedAt = remoteJob.publication_date ? new Date(remoteJob.publication_date) : null;
+      const publishedAt = remoteJob.publication_date
+        ? new Date(remoteJob.publication_date)
+        : null;
       if (!this.isDateWithinPeriod(publishedAt)) continue;
 
-      const location = (remoteJob.candidate_required_location || "").toLowerCase();
+      const location = (
+        remoteJob.candidate_required_location || ''
+      ).toLowerCase();
       const isAllowed =
-        location === "" ||
-        location.includes("brazil") ||
-        location.includes("worldwide") ||
-        location.includes("latam") ||
-        location.includes("latin america") ||
-        location.includes("south america") ||
-        location.includes("americas");
+        location === '' ||
+        location.includes('brazil') ||
+        location.includes('worldwide') ||
+        location.includes('latam') ||
+        location.includes('latin america') ||
+        location.includes('south america') ||
+        location.includes('americas');
 
       if (!isAllowed) continue;
 
@@ -55,20 +60,23 @@ export class RemotiveCollector extends BaseCollector {
 
   private normalizeJob(job: any): any {
     const cleanDesc = job.description
-      ? job.description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+      ? job.description
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
       : null;
 
-    const technologies = Array.isArray(job.tags) ? job.tags.join(", ") : null;
+    const technologies = Array.isArray(job.tags) ? job.tags.join(', ') : null;
 
     return {
       title: job.title,
       description: cleanDesc,
-      company: job.company_name || "Empresa no Remotive",
-      location: job.candidate_required_location || "Worldwide",
-      modality: "Remoto",
-      level: "Não especificado",
+      company: job.company_name || 'Empresa no Remotive',
+      location: job.candidate_required_location || 'Worldwide',
+      modality: 'Remoto',
+      level: 'Não especificado',
       technologies: technologies,
-      source: "Remotive",
+      source: 'Remotive',
       link: job.url,
       publishedAt: job.publication_date ? new Date(job.publication_date) : null,
       salaryText: job.salary || null,

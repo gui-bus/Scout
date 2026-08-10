@@ -1,15 +1,20 @@
-import { BaseCollector } from "./base-collector";
+import { BaseCollector } from './base-collector';
 
 export class GupyCollector extends BaseCollector {
-  private readonly baseUrl = "https://employability-portal.gupy.io/api/v1/jobs";
+  private readonly baseUrl = 'https://employability-portal.gupy.io/api/v1/jobs';
   private readonly query: string;
   private readonly limit: number;
   private readonly maxPages: number;
   private readonly headers = {
-    "User-Agent": "Mozilla/5.0 (compatible; JobTracker/1.0)",
+    'User-Agent': 'Mozilla/5.0 (compatible; JobTracker/1.0)',
   };
 
-  constructor(query = "desenvolvedor", limit = 10, maxPages = 3, maxAgeDays = 90) {
+  constructor(
+    query = 'desenvolvedor',
+    limit = 10,
+    maxPages = 3,
+    maxAgeDays = 90,
+  ) {
     super(maxAgeDays);
     this.query = query;
     this.limit = limit;
@@ -17,7 +22,7 @@ export class GupyCollector extends BaseCollector {
   }
 
   get source(): string {
-    return "Gupy";
+    return 'Gupy';
   }
 
   get queryKey(): string {
@@ -82,7 +87,7 @@ export class GupyCollector extends BaseCollector {
       location: this.buildLocation(item),
       modality: this.normalizeModality(item),
       technologies: this.buildTechnologies(item),
-      source: "Gupy",
+      source: 'Gupy',
       link: item.jobUrl,
       publishedAt: item.publishedDate ? new Date(item.publishedDate) : null,
     };
@@ -90,24 +95,24 @@ export class GupyCollector extends BaseCollector {
 
   private buildLocation(item: any): string | null {
     const parts = [item.city, item.state, item.country].filter(Boolean);
-    return parts.length > 0 ? parts.join(", ") : null;
+    return parts.length > 0 ? parts.join(', ') : null;
   }
 
   private normalizeModality(item: any): string | null {
     const workplaceType = item.workplaceType;
-    if (workplaceType === "remote") return "Remoto";
-    if (workplaceType === "hybrid") return "Híbrido";
-    if (workplaceType === "on-site") return "Presencial";
-    if (item.isRemoteWork) return "Remoto";
+    if (workplaceType === 'remote') return 'Remoto';
+    if (workplaceType === 'hybrid') return 'Híbrido';
+    if (workplaceType === 'on-site') return 'Presencial';
+    if (item.isRemoteWork) return 'Remoto';
     return null;
   }
 
   private buildTechnologies(item: any): string | null {
     const skills = item.skills || [];
     const names = skills
-      .map((skill: any) => (typeof skill === "string" ? skill : skill?.name))
+      .map((skill: any) => (typeof skill === 'string' ? skill : skill?.name))
       .filter(Boolean);
 
-    return names.length > 0 ? names.join(", ") : null;
+    return names.length > 0 ? names.join(', ') : null;
   }
 }

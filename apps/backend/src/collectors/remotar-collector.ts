@@ -1,22 +1,27 @@
-import { BaseCollector } from "./base-collector";
+import { BaseCollector } from './base-collector';
 
 export class RemotarCollector extends BaseCollector {
-  private readonly baseUrl = "https://api.remotar.com.br/jobs";
+  private readonly baseUrl = 'https://api.remotar.com.br/jobs';
   private readonly tagId: number;
   private readonly categoryIds: number[];
   private readonly maxPages: number;
   private readonly headers = {
-    "User-Agent": "Mozilla/5.0 (compatible; JobTracker/1.0)",
+    'User-Agent': 'Mozilla/5.0 (compatible; JobTracker/1.0)',
   };
 
   private readonly levelsByTag: Record<number, string> = {
-    10: "Estágio",
-    17: "Júnior",
-    21: "Pleno",
-    23: "Sênior",
+    10: 'Estágio',
+    17: 'Júnior',
+    21: 'Pleno',
+    23: 'Sênior',
   };
 
-  constructor(tagId: number, categoryIds = [4, 7, 13, 14], maxPages = 2, maxAgeDays = 90) {
+  constructor(
+    tagId: number,
+    categoryIds = [4, 7, 13, 14],
+    maxPages = 2,
+    maxAgeDays = 90,
+  ) {
     super(maxAgeDays);
     this.tagId = tagId;
     this.categoryIds = categoryIds;
@@ -24,11 +29,11 @@ export class RemotarCollector extends BaseCollector {
   }
 
   get source(): string {
-    return "Remotar";
+    return 'Remotar';
   }
 
   get queryKey(): string {
-    const categories = this.categoryIds.sort((a, b) => a - b).join(",");
+    const categories = this.categoryIds.sort((a, b) => a - b).join(',');
     return `tag=${this.tagId};categories=${categories}`;
   }
 
@@ -63,9 +68,9 @@ export class RemotarCollector extends BaseCollector {
 
   private async fetchPage(page: number): Promise<any> {
     const params = new URLSearchParams({
-      search: "",
+      search: '',
       tagId: this.tagId.toString(),
-      categoryId: this.categoryIds.join(","),
+      categoryId: this.categoryIds.join(','),
       page: page.toString(),
     });
 
@@ -89,7 +94,7 @@ export class RemotarCollector extends BaseCollector {
       modality: this.normalizeModality(item),
       level: this.identifyLevel(item),
       technologies: this.buildCategories(item),
-      source: "Remotar",
+      source: 'Remotar',
       link: this.getLink(item),
       publishedAt: item.createdAt ? new Date(item.createdAt) : null,
     };
@@ -117,16 +122,16 @@ export class RemotarCollector extends BaseCollector {
 
   private buildLocation(item: any): string | null {
     const parts = [item.city, item.state].map((p) => p?.trim()).filter(Boolean);
-    if (parts.length > 0) return parts.join(", ");
-    if (item.type === "remote") return "Remoto";
+    if (parts.length > 0) return parts.join(', ');
+    if (item.type === 'remote') return 'Remoto';
     return null;
   }
 
   private normalizeModality(item: any): string | null {
     const modalities: Record<string, string> = {
-      remote: "Remoto",
-      hybrid: "Híbrido",
-      "on-site": "Presencial",
+      remote: 'Remoto',
+      hybrid: 'Híbrido',
+      'on-site': 'Presencial',
     };
     return modalities[item.type] || null;
   }
@@ -138,11 +143,14 @@ export class RemotarCollector extends BaseCollector {
       if (name) names.push(name);
     }
     const uniqueNames = Array.from(new Set(names));
-    return uniqueNames.length > 0 ? uniqueNames.join(", ") : null;
+    return uniqueNames.length > 0 ? uniqueNames.join(', ') : null;
   }
 
   private cleanHtml(html: string | null): string | null {
     if (!html) return null;
-    return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    return html
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 }

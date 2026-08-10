@@ -1,24 +1,24 @@
-import { BaseCollector } from "./base-collector";
+import { BaseCollector } from './base-collector';
 
 export class JoobleCollector extends BaseCollector {
-  private readonly baseUrl = "https://br.jooble.org/api";
+  private readonly baseUrl = 'https://br.jooble.org/api';
   private readonly query: string;
   private readonly apiKey: string;
   private readonly location: string;
   private readonly resultsPerPage: number;
   private readonly maxPages: number;
   private readonly headers = {
-    "Content-Type": "application/json",
-    "User-Agent": "Mozilla/5.0 (compatible; JobTracker/1.0)",
+    'Content-Type': 'application/json',
+    'User-Agent': 'Mozilla/5.0 (compatible; JobTracker/1.0)',
   };
 
   constructor(
     query: string,
     apiKey: string,
-    location = "Brasil",
+    location = 'Brasil',
     resultsPerPage = 100,
     maxPages = 5,
-    maxAgeDays = 90
+    maxAgeDays = 90,
   ) {
     super(maxAgeDays);
     this.query = query;
@@ -29,7 +29,7 @@ export class JoobleCollector extends BaseCollector {
   }
 
   get source(): string {
-    return "Jooble";
+    return 'Jooble';
   }
 
   get queryKey(): string {
@@ -67,18 +67,18 @@ export class JoobleCollector extends BaseCollector {
 
   private async fetchPage(page: number): Promise<any> {
     if (!this.apiKey) {
-      throw new Error("JOOBLE_API_KEY is not configured.");
+      throw new Error('JOOBLE_API_KEY is not configured.');
     }
 
     const response = await fetch(`${this.baseUrl}/${this.apiKey}`, {
-      method: "POST",
+      method: 'POST',
       headers: this.headers,
       body: JSON.stringify({
         keywords: this.query,
         location: this.location,
         page: page.toString(),
         ResultOnPage: this.resultsPerPage.toString(),
-        companysearch: "false",
+        companysearch: 'false',
       }),
     });
 
@@ -98,7 +98,7 @@ export class JoobleCollector extends BaseCollector {
       modality: this.identifyModality(item),
       level: null,
       technologies: null,
-      source: "Jooble",
+      source: 'Jooble',
       link: item.link,
       publishedAt: this.parseDate(item.updated),
     };
@@ -107,15 +107,17 @@ export class JoobleCollector extends BaseCollector {
   private identifyModality(item: any): string | null {
     const text = [item.title, item.location, item.snippet, item.type]
       .filter(Boolean)
-      .join(" ")
+      .join(' ')
       .toLowerCase();
 
-    if (["remoto", "remote", "home office"].some((term) => text.includes(term))) {
-      return "Remoto";
+    if (
+      ['remoto', 'remote', 'home office'].some((term) => text.includes(term))
+    ) {
+      return 'Remoto';
     }
 
-    if (["híbrido", "hibrido", "hybrid"].some((term) => text.includes(term))) {
-      return "Híbrido";
+    if (['híbrido', 'hibrido', 'hybrid'].some((term) => text.includes(term))) {
+      return 'Híbrido';
     }
 
     return null;
@@ -123,7 +125,7 @@ export class JoobleCollector extends BaseCollector {
 
   private parseDate(value: string | null): Date | null {
     if (!value) return null;
-    const adjusted = value.replace(/(\.\d{6})\d+/, "$1");
+    const adjusted = value.replace(/(\.\d{6})\d+/, '$1');
     const timestamp = Date.parse(adjusted);
     return isNaN(timestamp) ? null : new Date(timestamp);
   }

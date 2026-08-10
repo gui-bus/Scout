@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton/skeleton";
 import { PaginationToolbar } from "@/components/ui/pagination/pagination";
 import { AuthModal } from "@/components/ui/auth-modal";
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { Job, Pagination } from "@/components/jobs/types";
+import { Job, Pagination, LumeResume } from "@/components/jobs/types";
 import { JobsHeader } from "@/components/jobs/header";
 import { JobsSidebar, SavedFilterState } from "@/components/jobs/sidebar";
 import { JobCardItem } from "@/components/jobs/card";
@@ -92,7 +92,7 @@ function JobsPageContent() {
   const [lumeModalOpen, setLumeModalOpen] = useState(false);
   const [viewLayout, setViewLayout] = useState<"grid" | "list">("grid");
 
-  const { data: resumeData } = useQuery<any>({
+  const { data: resumeData } = useQuery<LumeResume | null>({
     queryKey: ["user-resume", token],
     queryFn: async () => {
       if (!token) return null;
@@ -126,18 +126,17 @@ function JobsPageContent() {
   const [company, setCompany] = useState(companyQuery);
   const [exclude, setExclude] = useState(excludeQuery);
 
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("scout_recent_searches");
-      if (saved) {
-        setRecentSearches(JSON.parse(saved));
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("scout_recent_searches");
+        return saved ? JSON.parse(saved) : [];
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
     }
-  }, []);
+    return [];
+  });
 
   const queryClient = useQueryClient();
 
@@ -230,15 +229,14 @@ function JobsPageContent() {
   });
 
   const isSyncing = !!syncStatus?.collecting;
-  const rawJobs = jobsData?.items || [];
-  
   const filteredJobs = React.useMemo(() => {
+    const rawJobs = jobsData?.items || [];
     if (!resumeData || matchScoreQuery <= 0) return rawJobs;
     return rawJobs.filter((job) => {
       const score = calculateMatchScore(job, resumeData);
       return score !== null && score >= matchScoreQuery;
     });
-  }, [rawJobs, resumeData, matchScoreQuery]);
+  }, [jobsData, resumeData, matchScoreQuery]);
 
   const pagination = jobsData?.pagination || null;
   const error = queryError ? queryError.message : null;

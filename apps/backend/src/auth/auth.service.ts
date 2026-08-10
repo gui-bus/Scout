@@ -1,19 +1,23 @@
-import { Injectable, BadRequestException, UnauthorizedException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { PrismaService } from "../prisma.service";
-import * as bcrypt from "bcrypt";
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '../prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
   ) {}
 
-  async register(body: any) {
+  async register(body: Record<string, string>) {
     const { email, password } = body;
     if (!email || !password) {
-      throw new BadRequestException("Email and password are required.");
+      throw new BadRequestException('Email and password are required.');
     }
 
     const existing = await this.prisma.user.findUnique({
@@ -21,7 +25,7 @@ export class AuthService {
     });
 
     if (existing) {
-      throw new BadRequestException("User already exists.");
+      throw new BadRequestException('User already exists.');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -35,10 +39,10 @@ export class AuthService {
     return this.generateToken(user);
   }
 
-  async login(body: any) {
+  async login(body: Record<string, string>) {
     const { email, password } = body;
     if (!email || !password) {
-      throw new BadRequestException("Email and password are required.");
+      throw new BadRequestException('Email and password are required.');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -46,18 +50,18 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException("Invalid email or password.");
+      throw new UnauthorizedException('Invalid email or password.');
     }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      throw new UnauthorizedException("Invalid email or password.");
+      throw new UnauthorizedException('Invalid email or password.');
     }
 
     return this.generateToken(user);
   }
 
-  private generateToken(user: any) {
+  private generateToken(user: { id: number; email: string }) {
     const payload = { sub: user.id, email: user.email };
     return {
       access_token: this.jwtService.sign(payload),
@@ -73,12 +77,14 @@ export class AuthService {
       where: { id: userId },
       select: { savedFilters: true },
     });
-    return user?.savedFilters ? JSON.parse(user.savedFilters) : [];
+    return user?.savedFilters ? JSON.parse(user.savedFilters) as unknown[] : [];
   }
 
-  async updateSavedFilters(userId: number, filters: any[]) {
+  async updateSavedFilters(userId: number, filters: unknown[]) {
     if (filters.length > 3) {
-      throw new BadRequestException("You can only save up to 3 filter combinations.");
+      throw new BadRequestException(
+        'You can only save up to 3 filter combinations.',
+      );
     }
     const updated = await this.prisma.user.update({
       where: { id: userId },
@@ -87,7 +93,7 @@ export class AuthService {
       },
       select: { savedFilters: true },
     });
-    return updated.savedFilters ? JSON.parse(updated.savedFilters) : [];
+    return updated.savedFilters ? JSON.parse(updated.savedFilters) as unknown[] : [];
   }
 
   async getResume(userId: number) {
@@ -95,10 +101,10 @@ export class AuthService {
       where: { id: userId },
       select: { resumeJson: true },
     });
-    return user?.resumeJson ? JSON.parse(user.resumeJson) : null;
+    return user?.resumeJson ? JSON.parse(user.resumeJson) as Record<string, unknown> : null;
   }
 
-  async updateResume(userId: number, resume: any) {
+  async updateResume(userId: number, resume: Record<string, unknown> | null) {
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data: {
@@ -106,6 +112,6 @@ export class AuthService {
       },
       select: { resumeJson: true },
     });
-    return updated.resumeJson ? JSON.parse(updated.resumeJson) : null;
+    return updated.resumeJson ? JSON.parse(updated.resumeJson) as Record<string, unknown> : null;
   }
 }
