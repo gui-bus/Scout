@@ -205,6 +205,64 @@ function JobsPageContent() {
     refetchInterval: 300000,
   });
 
+  const isMatchScoreActive = matchScoreQuery > 0 && !!resumeData;
+
+  const { data: allJobsData, isLoading: allJobsLoading } = useQuery<QueryData, Error>({
+    queryKey: [
+      "jobs-all",
+      buscaQuery,
+      companyQuery,
+      locationQuery,
+      periodQuery,
+      modalitiesQuery,
+      levelsQuery,
+      sourcesQuery,
+      favoritesOnlyQuery,
+      appliedOnlyQuery,
+      contractTypeQuery,
+      directContactsOnlyQuery,
+      excludeQuery,
+      cityQuery,
+      token,
+    ],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (buscaQuery) params.append("busca", buscaQuery);
+      if (companyQuery) params.append("company", companyQuery);
+      if (locationQuery) params.append("location", locationQuery);
+      if (periodQuery) params.append("period", periodQuery);
+      if (favoritesOnlyQuery) params.append("favoritesOnly", "true");
+      if (appliedOnlyQuery) params.append("appliedOnly", "true");
+      if (contractTypeQuery && contractTypeQuery !== "todos") {
+        params.append("contractType", contractTypeQuery);
+      }
+      if (directContactsOnlyQuery) params.append("directContactsOnly", "true");
+      if (excludeQuery) params.append("exclude", excludeQuery);
+      if (cityQuery) params.append("city", cityQuery);
+      modalitiesQuery.forEach((m) => params.append("modality", m));
+      levelsQuery.forEach((l) => params.append("level", l));
+      sourcesQuery.forEach((s) => params.append("source", s));
+      params.append("per_page", "9999");
+
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_URL}/api/jobs?${params.toString()}`, {
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao carregar vagas.");
+      }
+
+      return response.json();
+    },
+    enabled: isMatchScoreActive,
+    refetchInterval: 300000,
+  });
+
   const { data: syncStatus } = useQuery<SyncStatusData, Error>({
     queryKey: ["syncStatus"],
     queryFn: async () => {
@@ -231,15 +289,26 @@ function JobsPageContent() {
 
   const isSyncing = !!syncStatus?.collecting;
   const filteredJobs = React.useMemo(() => {
-    const rawJobs = jobsData?.items || [];
-    if (!resumeData || matchScoreQuery <= 0) return rawJobs;
+    if (!isMatchScoreActive) return jobsData?.items || [];
+    const rawJobs = allJobsData?.items || [];
     return rawJobs.filter((job) => {
-      const score = calculateMatchScore(job, resumeData);
+      const score = calculateMatchScore(job, resumeData!);
       return score !== null && score >= matchScoreQuery;
     });
-  }, [jobsData, resumeData, matchScoreQuery]);
+  }, [jobsData, allJobsData, resumeData, matchScoreQuery, isMatchScoreActive]);
 
-  const pagination = jobsData?.pagination || null;
+  const displayedJobs = React.useMemo(() => {
+    if (!isMatchScoreActive) return filteredJobs;
+    const start = (pageQuery - 1) * perPageQuery;
+    return filteredJobs.slice(start, start + perPageQuery);
+  }, [filteredJobs, pageQuery, perPageQuery, isMatchScoreActive]);
+
+  const pagination = React.useMemo(() => {
+    if (!isMatchScoreActive) return jobsData?.pagination || null;
+    const total = filteredJobs.length;
+    const pages = Math.ceil(total / perPageQuery) || 1;
+    return { page: pageQuery, perPage: perPageQuery, total, pages };
+  }, [isMatchScoreActive, filteredJobs, pageQuery, perPageQuery, jobsData]);
   const error = queryError ? queryError.message : null;
 
   const sourcesWithStats = React.useMemo(() => {
@@ -931,7 +1000,7 @@ function JobsPageContent() {
             </div>
           )}
 
-          {loading ? (
+          {(loading || (isMatchScoreActive && allJobsLoading)) ? (
             <div className={viewLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "flex flex-col gap-3"}>
               {[...Array(6)].map((_, i) => (
                 <Card
@@ -949,7 +1018,7 @@ function JobsPageContent() {
             </div>
           ) : filteredJobs.length > 0 ? (
             <div className={viewLayout === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "flex flex-col gap-3"}>
-              {filteredJobs.map((job) => (
+              {displayedJobs.map((job) => (
                 <JobCardItem
                   key={job.id}
                   job={job}
